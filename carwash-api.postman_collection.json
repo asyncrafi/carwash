@@ -1,0 +1,1375 @@
+{
+  "info": {
+    "name": "CarWash API",
+    "description": "Complete API collection for the CarWash booking platform. All endpoints prefixed with `http://localhost:8000/api/`.\n\n**Auth Flow:**\n1. Register or Login → get `access` + `refresh` tokens\n2. Set `Authorization: Bearer <access_token>` header for protected endpoints\n3. Use `api/auth/token/refresh/` when access expires\n\n**Base URL:** `http://localhost:8000`\n**Content-Type:** `application/json` (unless file uploads)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "carwash"
+  },
+  "item": [
+    {
+      "name": "🏥 System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health", ""]
+            },
+            "description": "Uptime check. No auth required."
+          }
+        },
+        {
+          "name": "Schema (OpenAPI JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/schema/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schema", ""]
+            },
+            "description": "Download OpenAPI 3.0 schema JSON."
+          }
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/docs/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "docs", ""]
+            },
+            "description": "Interactive API documentation (Swagger UI)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone\": \"+971501234567\",\n  \"country_code\": \"+971\",\n  \"email\": \"john@example.com\",\n  \"role\": \"customer\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register", ""]
+            },
+            "description": "Create a new account. `role` can be `customer` or `provider`. Returns user data + JWT tokens."
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+971501234567\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login", ""]
+            },
+            "description": "Login with phone + password. Returns `access` and `refresh` tokens."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout", ""]
+            },
+            "description": "Blacklist the refresh token. Requires auth."
+          }
+        },
+        {
+          "name": "Token Refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/token/refresh/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "token", "refresh", ""]
+            },
+            "description": "Get a new access token using the refresh token."
+          }
+        },
+        {
+          "name": "Request OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+971501234567\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/otp/request/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "otp", "request", ""]
+            },
+            "description": "Request an OTP code for phone verification or password reset."
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+971501234567\",\n  \"code\": \"123456\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/otp/verify/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "otp", "verify", ""]
+            },
+            "description": "Verify an OTP code. Returns success if code matches."
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"password123\",\n  \"new_password\": \"newpass456\",\n  \"confirm_password\": \"newpass456\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/change-password/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "change-password", ""]
+            },
+            "description": "Change password while logged in (requires old_password)."
+          }
+        },
+        {
+          "name": "Reset Password (via OTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+971501234567\",\n  \"code\": \"123456\",\n  \"new_password\": \"newpass456\",\n  \"confirm_password\": \"newpass456\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/reset-password/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "reset-password", ""]
+            },
+            "description": "Reset password using OTP code (no auth required). First request OTP, then use code here."
+          }
+        },
+        {
+          "name": "My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me", ""]
+            },
+            "description": "Get the currently logged-in user's profile. GET to read, PATCH to update."
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"john.smith@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me", ""]
+            },
+            "description": "Update profile fields (first_name, last_name, email, avatar, language)."
+          }
+        },
+        {
+          "name": "Update Language",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"ar\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/me/language/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me", "language", ""]
+            },
+            "description": "Update user language preference (e.g. 'en', 'ar')."
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Customer",
+      "item": [
+        {
+          "name": "Get Customer Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "profile", ""]
+            },
+            "description": "Get full customer profile with saved addresses, payment cards, and user info."
+          }
+        },
+        {
+          "name": "Addresses - List / Create",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/addresses/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "addresses", ""]
+            },
+            "description": "GET to list all saved addresses. POST to create a new one."
+          }
+        },
+        {
+          "name": "Address - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Home\",\n  \"address\": \"123 Main St\",\n  \"city\": \"Dubai\",\n  \"country\": \"UAE\",\n  \"latitude\": 25.2048,\n  \"longitude\": 55.2708,\n  \"is_default\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/addresses/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "addresses", ""]
+            },
+            "description": "Create a new saved address."
+          }
+        },
+        {
+          "name": "Address - Detail (GET/PATCH/DELETE)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/addresses/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "addresses", "1", ""]
+            },
+            "description": "GET to read, PATCH to update, DELETE to remove a saved address."
+          }
+        },
+        {
+          "name": "Payment Cards - List / Create",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/cards/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "cards", ""]
+            },
+            "description": "GET to list payment cards. POST to add a new card."
+          }
+        },
+        {
+          "name": "Payment Card - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"card_type\": \"visa\",\n  \"last_four\": \"4242\",\n  \"cardholder_name\": \"John Doe\",\n  \"expiry_month\": 12,\n  \"expiry_year\": 2028,\n  \"is_default\": true,\n  \"payment_token\": \"tok_visa_4242\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/cards/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "cards", ""]
+            },
+            "description": "Add a new payment card."
+          }
+        },
+        {
+          "name": "Payment Card - Detail (GET/PATCH/DELETE)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/cards/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "cards", "1", ""]
+            },
+            "description": "GET to read, PATCH to update, DELETE to remove a payment card."
+          }
+        },
+        {
+          "name": "Vehicles - List / Create",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/vehicles/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "vehicles", ""]
+            },
+            "description": "GET to list vehicles. POST to add a new vehicle."
+          }
+        },
+        {
+          "name": "Vehicle - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"engine_type\": 1,\n  \"vehicle_type\": 1,\n  \"make\": \"Toyota\",\n  \"model\": \"Camry\",\n  \"plate_number\": \"ABC 1234\",\n  \"is_default\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/vehicles/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "vehicles", ""]
+            },
+            "description": "Add a new vehicle. `engine_type` and `vehicle_type` are FK IDs from services."
+          }
+        },
+        {
+          "name": "Vehicle - Detail (GET/PATCH/DELETE)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/vehicles/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "vehicles", "1", ""]
+            },
+            "description": "GET to read, PATCH to update, DELETE to remove a vehicle."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧼 Provider",
+      "item": [
+        {
+          "name": "Get Provider Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/provider/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "profile", ""]
+            },
+            "description": "GET to read full provider profile (with documents, bank, availability). PATCH to update bio."
+          }
+        },
+        {
+          "name": "Update Provider Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Professional car wash service with 5 years experience.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/provider/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "profile", ""]
+            },
+            "description": "Update provider bio and other profile fields."
+          }
+        },
+        {
+          "name": "Update Online Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_online\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/provider/online-status/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "online-status", ""]
+            },
+            "description": "Toggle provider online/offline status."
+          }
+        },
+        {
+          "name": "Update Location",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 25.2048,\n  \"longitude\": 55.2708\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/provider/location/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "location", ""]
+            },
+            "description": "Update provider's current GPS location."
+          }
+        },
+        {
+          "name": "Documents - List / Upload",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/provider/documents/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "documents", ""]
+            },
+            "description": "GET to list uploaded documents. POST to upload a new document (use form-data)."
+          }
+        },
+        {
+          "name": "Document - Upload (Form Data)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "doc_type", "value": "license", "type": "text" },
+                { "key": "file", "type": "file", "src": "" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/provider/documents/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "documents", ""]
+            },
+            "description": "Upload a provider document. `doc_type` values: `license`, `id_proof`, `insurance`, `other`. Use multipart/form-data."
+          }
+        },
+        {
+          "name": "Bank - Get / Create",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/provider/bank/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "bank", ""]
+            },
+            "description": "GET to view bank details. POST to save bank account info."
+          }
+        },
+        {
+          "name": "Bank - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account_number\": \"1234567890\",\n  \"routing_number\": \"021000021\",\n  \"bank_name\": \"Emirates NBD\",\n  \"bankholder_name\": \"John Doe\",\n  \"bank_address\": \"Dubai, UAE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/provider/bank/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "bank", ""]
+            },
+            "description": "Save provider's bank account for payouts."
+          }
+        },
+        {
+          "name": "Availability - Get / Set",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/provider/availability/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "availability", ""]
+            },
+            "description": "GET to list availability slots. POST to set availability (single or array)."
+          }
+        },
+        {
+          "name": "Availability - Set (Single)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day_of_week\": 1,\n  \"start_time\": \"09:00:00\",\n  \"end_time\": \"17:00:00\",\n  \"is_active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/provider/availability/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "provider", "availability", ""]
+            },
+            "description": "Set a single availability slot. `day_of_week`: 0=Sun, 1=Mon ... 6=Sat. Can also send an array of slots."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Services",
+      "item": [
+        {
+          "name": "List Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", ""]
+            },
+            "description": "List all available car wash services. Public endpoint."
+          }
+        },
+        {
+          "name": "List Vehicle Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/vehicle-types/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "vehicle-types", ""]
+            },
+            "description": "List vehicle types (sedan, SUV, etc.). Public."
+          }
+        },
+        {
+          "name": "List Engine Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/engine-types/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "engine-types", ""]
+            },
+            "description": "List engine types (petrol, diesel, electric, hybrid). Public."
+          }
+        },
+        {
+          "name": "List Dirt Levels",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/dirt-levels/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "dirt-levels", ""]
+            },
+            "description": "List dirt levels with extra prices. Public."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Bookings",
+      "item": [
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service\": 1,\n  \"vehicle\": 1,\n  \"dirt_level\": 1,\n  \"service_address\": \"123 Main St, Dubai\",\n  \"service_city\": \"Dubai\",\n  \"service_latitude\": 25.2048,\n  \"service_longitude\": 55.2708,\n  \"schedule_type\": \"now\",\n  \"scheduled_at\": null,\n  \"payment_card\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", ""]
+            },
+            "description": "Create a new booking. `schedule_type`: `now` or `scheduled`. If scheduled, provide `scheduled_at` (ISO datetime). Photos can be included as array of image files using multipart/form-data."
+          }
+        },
+        {
+          "name": "My Bookings (Customer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/list/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "list", ""]
+            },
+            "description": "List customer's bookings. Supports `?status=pending` query filter."
+          }
+        },
+        {
+          "name": "Booking Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "1", ""]
+            },
+            "description": "Get booking details with nested service, vehicle, dirt_level, provider info, photos, and payment card."
+          }
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancel_reason\": \"Changed my mind\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "1", ""]
+            },
+            "description": "Cancel a booking (customer only). Provide optional cancel_reason."
+          }
+        },
+        {
+          "name": "Add Tip to Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"10.00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/1/tip/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "1", "tip", ""]
+            },
+            "description": "Add a tip for the provider on a completed booking."
+          }
+        },
+        {
+          "name": "Rate Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stars\": 5,\n  \"comment\": \"Excellent service!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/1/rate/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "1", "rate", ""]
+            },
+            "description": "Rate a completed booking (1-5 stars + optional comment)."
+          }
+        },
+        {
+          "name": "Jobs - Available (Provider)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/jobs/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "jobs", ""]
+            },
+            "description": "List available/assigned jobs for the logged-in provider. Supports `?status=pending`."
+          }
+        },
+        {
+          "name": "Job Detail (Provider)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/jobs/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "jobs", "1", ""]
+            },
+            "description": "Get job details for a specific booking (provider view)."
+          }
+        },
+        {
+          "name": "Accept Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/jobs/1/accept/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "jobs", "1", "accept", ""]
+            },
+            "description": "Provider accepts a pending booking job. No body needed."
+          }
+        },
+        {
+          "name": "Reject Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/jobs/1/reject/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "jobs", "1", "reject", ""]
+            },
+            "description": "Provider rejects a pending booking job."
+          }
+        },
+        {
+          "name": "Update Job Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"en_route\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/jobs/1/status/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "jobs", "1", "status", ""]
+            },
+            "description": "Update job status. Flow: `accepted` → `en_route` → `in_progress` → `completed`. Provider only."
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Payments",
+      "item": [
+        {
+          "name": "My Earnings (Provider)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments/earnings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "earnings", ""]
+            },
+            "description": "Get provider's earnings summary + transaction list."
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ Ratings",
+      "item": [
+        {
+          "name": "My Ratings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ratings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ratings", ""]
+            },
+            "description": "Get ratings received by the logged-in user (provider gets their reviews, customer gets their submitted reviews)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", ""]
+            },
+            "description": "List all notifications for the logged-in user."
+          }
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/1/read/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "1", "read", ""]
+            },
+            "description": "Mark a single notification as read."
+          }
+        },
+        {
+          "name": "Mark All Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/read-all/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "read-all", ""]
+            },
+            "description": "Mark all notifications as read for the logged-in user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Admin",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dashboard/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "dashboard", ""]
+            },
+            "description": "Admin dashboard with aggregated stats (total users, bookings, revenue, etc.)"
+          }
+        },
+        {
+          "name": "Users - List",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", ""]
+            },
+            "description": "List all users. Supports `?role=customer`, `?status=active`, `?search=john`."
+          }
+        },
+        {
+          "name": "User Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "1", ""]
+            },
+            "description": "GET to view, PATCH to update user details."
+          }
+        },
+        {
+          "name": "Block User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/1/block/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "1", "block", ""]
+            },
+            "description": "Block/ban a user account."
+          }
+        },
+        {
+          "name": "Unblock User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/1/unblock/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "1", "unblock", ""]
+            },
+            "description": "Unblock a previously banned user."
+          }
+        },
+        {
+          "name": "Provider Documents List",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/providers/1/documents/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "providers", "1", "documents", ""]
+            },
+            "description": "List all documents for a specific provider."
+          }
+        },
+        {
+          "name": "Review Document",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"admin_note\": \"Document verified successfully.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/documents/1/review/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "documents", "1", "review", ""]
+            },
+            "description": "Approve or reject a provider document. `status`: `approved` or `rejected`."
+          }
+        },
+        {
+          "name": "Approve Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/providers/1/approve/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "providers", "1", "approve", ""]
+            },
+            "description": "Approve a provider (set status to approved)."
+          }
+        },
+        {
+          "name": "Reject Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/providers/1/reject/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "providers", "1", "reject", ""]
+            },
+            "description": "Reject a provider application."
+          }
+        },
+        {
+          "name": "Bookings - List",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/bookings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "bookings", ""]
+            },
+            "description": "List all bookings. Supports `?status=pending` and `?search=`."
+          }
+        },
+        {
+          "name": "Booking Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/bookings/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "bookings", "1", ""]
+            },
+            "description": "Get booking details (admin view)."
+          }
+        },
+        {
+          "name": "Cancel Booking (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancel_reason\": \"Admin override\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/bookings/1/cancel/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "bookings", "1", "cancel", ""]
+            },
+            "description": "Admin can cancel any booking."
+          }
+        },
+        {
+          "name": "Earnings Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/earnings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "earnings", ""]
+            },
+            "description": "Admin earnings dashboard aggregated data."
+          }
+        },
+        {
+          "name": "Payouts - List",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/payouts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "payouts", ""]
+            },
+            "description": "List all provider payouts. Supports `?status=paid`."
+          }
+        },
+        {
+          "name": "Retry Payout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/payouts/1/retry/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "payouts", "1", "retry", ""]
+            },
+            "description": "Retry a failed payout."
+          }
+        },
+        {
+          "name": "Services - List / Create",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/services/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "services", ""]
+            },
+            "description": "GET to list all services. POST to create a new service."
+          }
+        },
+        {
+          "name": "Service - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Wash\",\n  \"description\": \"Full exterior + interior detailing\",\n  \"base_price\": \"150.00\",\n  \"is_active\": true,\n  \"order\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/services/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "services", ""]
+            },
+            "description": "Create a new car wash service."
+          }
+        },
+        {
+          "name": "Service Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/services/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "services", "1", ""]
+            },
+            "description": "GET to view, PATCH to update, DELETE to remove a service."
+          }
+        },
+        {
+          "name": "Platform Config",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "config", ""]
+            },
+            "description": "GET to read platform config (fees, commission rates). PATCH to update."
+          }
+        },
+        {
+          "name": "Update Platform Config",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"platform_fee_fixed\": \"5.00\",\n  \"commission_percent\": 15.00,\n  \"distance_price_per_km\": \"2.50\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/config/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "config", ""]
+            },
+            "description": "Update platform fee and commission settings."
+          }
+        },
+        {
+          "name": "Send Bulk Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target\": \"all\",\n  \"title\": \"Maintenance Notice\",\n  \"body\": \"Platform will be down for maintenance from 2-4 AM.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/notifications/send/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "notifications", "send", ""]
+            },
+            "description": "Send bulk notification. `target`: `all`, `customers`, or `providers`. Task runs async via Celery."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Variables",
+      "item": [
+        {
+          "name": "Postman Environment Variables",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health", ""]
+            },
+            "description": "**Set these Postman environment variables:**\n\n- `base_url`: `http://localhost:8000`\n- `access_token`: (set automatically after login via Tests script)\n- `refresh_token`: (set automatically after login via Tests script)\n\n**Auto-set tokens with this Login Tests script:**\n\n```javascript\nconst json = pm.response.json();\nif (json.data && json.data.access) {\n    pm.environment.set(\"access_token\", json.data.access);\n    pm.environment.set(\"refresh_token\", json.data.refresh);\n}\n```\n\n**Register Tests script:**\n```javascript\nconst json = pm.response.json();\nif (json.data && json.data.tokens) {\n    pm.environment.set(\"access_token\", json.data.tokens.access);\n    pm.environment.set(\"refresh_token\", json.data.tokens.refresh);\n}\n```"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

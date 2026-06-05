@@ -1,0 +1,14 @@
+django==5.1.4
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.4.0
+django-cors-headers==4.6.0
+django-filter==24.3
+drf-spectacular==0.28.0
+Pillow==11.1.0
+python-decouple==3.8
+psycopg2-binary==2.9.10
+gunicorn==23.0.0
+django-extensions==3.2.3
+celery==5.4.0
+redis==5.2.1
+django-anymail==12.0
