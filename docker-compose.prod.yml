@@ -19,8 +19,6 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -30,7 +28,9 @@ services:
       retries: 5
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       db:
@@ -50,7 +50,9 @@ services:
       - "8000:8000"
 
   celery_worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     command: celery -A config worker --loglevel=info --concurrency=4
     depends_on:
@@ -68,7 +70,9 @@ services:
       - media_volume:/app/media
 
   celery_beat:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     command: celery -A config beat --loglevel=info
     depends_on:

@@ -6,23 +6,41 @@ On-demand car wash booking platform built with Django REST Framework + Celery.
 
 ## Run the Project
 
-### Docker (Recommended)
+### Docker
+
+Two compose files for different environments:
+
+#### Development (hot reload)
 
 ```bash
-# 1. Clone & cd
-git clone <repo> && cd carwash
-
-# 2. Copy env file
+# 1. Copy env file
 cp .env.example .env
 
-# 3. Build & start all services
-docker compose up --build
+# 2. Build & start (runserver + auto-reload on code changes)
+docker compose -f docker-compose.dev.yml up --build
 
-# 4. Open in browser
+# 3. Open in browser
 # API:      http://localhost:8000/api/
 # Swagger:  http://localhost:8000/api/docs/
 # Admin:    http://localhost:8000/admin/
 ```
+
+**Dev features:** code volume mounts for instant reload, `config.local` settings, browsable DRF API, debug mode, postgres port exposed on host.
+
+#### Production
+
+```bash
+# 1. Copy env file (edit for production settings)
+cp .env.example .env
+
+# 2. Build & start detached
+docker compose -f docker-compose.prod.yml up --build -d
+
+# 3. Check logs
+docker compose -f docker-compose.prod.yml logs -f
+```
+
+**Prod features:** gunicorn (4 workers), celery (4 concurrency), `config.production` settings, JSON-only API, throttling, no code mounts.
 
 ### Local Dev (without Docker)
 
