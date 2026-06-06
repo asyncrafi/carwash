@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -29,13 +30,28 @@ class User(AbstractUser):
 
 
 class OTPVerification(models.Model):
+    PURPOSE_VERIFICATION = 'verification'
+    PURPOSE_PASSWORD_RESET = 'password_reset'
+    PURPOSE_EMAIL_CHANGE = 'email_change'
+    PURPOSE_CHOICES = [
+        (PURPOSE_VERIFICATION, 'Verification'),
+        (PURPOSE_PASSWORD_RESET, 'Password Reset'),
+        (PURPOSE_EMAIL_CHANGE, 'Email Change'),
+    ]
+
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='otps'
     )
     code = models.CharField(max_length=6)
+    purpose = models.CharField(
+        max_length=20, choices=PURPOSE_CHOICES, default=PURPOSE_VERIFICATION
+    )
     is_used = models.BooleanField(default=False)
     expires_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def is_valid(self):
+        return not self.is_used and self.expires_at >= timezone.now()
+
     def __str__(self):
-        return f"OTP for {self.user.phone}"
+        return f"OTP for {self.user.phone} ({self.purpose})"

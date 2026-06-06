@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.core.mixins import BaseResponseMixin
-from apps.accounts.tasks import send_welcome_email_task, send_otp_email_task, send_password_reset_email_task
+from apps.accounts.tasks import send_password_reset_email_task
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
@@ -38,21 +38,51 @@ class RegisterView(BaseResponseMixin, APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        phone = request.data.get('phone')
+
+        if phone:
+            try:
+                user = User.objects.get(phone=phone)
+                if user.is_verified:
+                    return self.success_response(
+                        data={
+                            'phone': phone,
+                            'is_sent': False,
+                        },
+                        message='User with this phone already exists and is verified.',
+                        status_code=status.HTTP_200_OK,
+                    )
+                else:
+                    serializer = RegisterSerializer()
+                    code = serializer.send_verification_otp(user)
+                    return self.success_response(
+                        data={
+                            'phone': phone,
+                            'is_sent': True,
+                            'otp_code': code,
+                        },
+                        message='User not verified. New OTP sent.',
+                        status_code=status.HTTP_200_OK,
+                    )
+            except User.DoesNotExist:
+                pass
+
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        if user.email:
-            send_welcome_email_task.delay(
-                user_id=user.id,
-                email=user.email,
-                first_name=user.first_name or user.phone,
-            )
-        tokens = get_tokens_for_user(user)
-        data = {
-            'user': UserSerializer(user).data,
-            'tokens': tokens,
-        }
-        return self.created_response(data=data, message="User registered successfully.")
+        last_otp = user.otps.filter(
+            purpose=OTPVerification.PURPOSE_VERIFICATION, is_used=False,
+        ).order_by('-created_at').first()
+        code = last_otp.code if last_otp else None
+
+        return self.created_response(
+            data={
+                'user': UserSerializer(user).data,
+                'otp_code': code,
+                'is_sent': True,
+            },
+            message='Registration successful. Please verify your phone with the OTP code.',
+        )
 
 
 class LoginView(BaseResponseMixin, APIView):
@@ -98,20 +128,16 @@ class OTPRequestView(BaseResponseMixin, APIView):
         serializer = OTPRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data['phone']
+        purpose = serializer.validated_data.get('purpose', OTPVerification.PURPOSE_VERIFICATION)
         user = get_object_or_404(User, phone=phone)
         code = str(random.randint(100000, 999999))
         OTPVerification.objects.create(
             user=user,
             code=code,
+            purpose=purpose,
             expires_at=timezone.now() + datetime.timedelta(minutes=10),
         )
-        if user.email:
-            send_otp_email_task.delay(
-                email=user.email,
-                code=code,
-                first_name=user.first_name or user.phone,
-            )
-        return self.success_response(message="OTP sent successfully.")
+        return self.success_response(data={'otp_code': code}, message="OTP sent successfully.")
 
 
 class OTPVerifyView(BaseResponseMixin, APIView):
@@ -124,8 +150,8 @@ class OTPVerifyView(BaseResponseMixin, APIView):
         code = serializer.validated_data['code']
         user = get_object_or_404(User, phone=phone)
         otp = OTPVerification.objects.filter(
-            user=user, code=code, is_used=False,
-            expires_at__gte=timezone.now()
+            user=user, code=code, purpose=OTPVerification.PURPOSE_VERIFICATION,
+            is_used=False, expires_at__gte=timezone.now()
         ).order_by('-created_at').first()
         if not otp:
             return self.error_response(message="Invalid or expired OTP.")
@@ -162,8 +188,8 @@ class CreateNewPasswordView(BaseResponseMixin, APIView):
         code = serializer.validated_data['code']
         user = get_object_or_404(User, phone=phone)
         otp = OTPVerification.objects.filter(
-            user=user, code=code, is_used=False,
-            expires_at__gte=timezone.now()
+            user=user, code=code, purpose=OTPVerification.PURPOSE_PASSWORD_RESET,
+            is_used=False, expires_at__gte=timezone.now()
         ).order_by('-created_at').first()
         if not otp:
             return self.error_response(message="Invalid or expired OTP.")
