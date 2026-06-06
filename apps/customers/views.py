@@ -18,7 +18,7 @@ class CustomerProfileView(BaseResponseMixin, APIView):
 
     def get(self, request):
         profile = get_object_or_404(CustomerProfile, user=request.user)
-        data = CustomerProfileSerializer(profile).data
+        data = CustomerProfileSerializer(profile, context={'request': request}).data
         return self.success_response(data=data)
 
 
@@ -56,6 +56,8 @@ class SavedAddressDetailView(BaseResponseMixin, APIView):
         obj = self.get_object(pk, request)
         serializer = SavedAddressSerializer(obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+        if serializer.validated_data.get('is_default'):
+            SavedAddress.objects.filter(customer=obj.customer).exclude(pk=obj.pk).update(is_default=False)
         serializer.save()
         return self.updated_response(data=serializer.data)
 

@@ -15,7 +15,7 @@ class BookingAdmin(admin.ModelAdmin):
     ]
     list_filter = ['status', 'is_paid', 'schedule_type']
     search_fields = [
-        'customer__user__phone', 'customer__user__first_name',
+        'customer__user__phone', 'customer__user__full_name',
         'provider__user__phone',
     ]
     inlines = [BookingPhotoInline]

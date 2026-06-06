@@ -26,7 +26,7 @@ class Rating(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Rating {self.stars}★ for {self.reviewee.get_full_name()}"
+        return f"Rating {self.stars}★ for {self.reviewee.full_name}"
 
 
 class Tip(models.Model):

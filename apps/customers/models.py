@@ -13,7 +13,7 @@ class CustomerProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Customer: {self.user.get_full_name()}"
+        return f"Customer: {self.user.full_name}"
 
 
 class SavedAddress(models.Model):

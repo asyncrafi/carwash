@@ -53,14 +53,14 @@ def on_booking_status_change(sender, instance, created, **kwargs):
         handle_booking_accepted.delay(
             booking_id=instance.id,
             customer_user_id=instance.customer.user.id,
-            provider_name=instance.provider.user.get_full_name(),
+            provider_name=instance.provider.user.full_name,
         )
 
     elif new_status == Booking.STATUS_EN_ROUTE:
         handle_booking_en_route.delay(
             booking_id=instance.id,
             customer_user_id=instance.customer.user.id,
-            provider_name=instance.provider.user.get_full_name(),
+            provider_name=instance.provider.user.full_name,
         )
 
     elif new_status == Booking.STATUS_IN_PROGRESS:
@@ -76,8 +76,8 @@ def on_booking_status_change(sender, instance, created, **kwargs):
             customer_user_id=instance.customer.user.id,
             provider_user_id=provider_user_id,
             customer_email=instance.customer.user.email,
-            customer_name=instance.customer.user.first_name,
-            provider_name=instance.provider.user.get_full_name() if instance.provider else '',
+            customer_name=instance.customer.user.full_name,
+            provider_name=instance.provider.user.full_name if instance.provider else '',
             total_amount=str(instance.total_amount),
         )
 

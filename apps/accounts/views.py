@@ -38,18 +38,18 @@ class RegisterView(BaseResponseMixin, APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        phone = request.data.get('phone')
+        email = request.data.get('email')
 
-        if phone:
+        if email:
             try:
-                user = User.objects.get(phone=phone)
+                user = User.objects.get(email=email)
                 if user.is_verified:
                     return self.success_response(
                         data={
-                            'phone': phone,
+                            'email': email,
                             'is_sent': False,
                         },
-                        message='User with this phone already exists and is verified.',
+                        message='User with this email already exists and is verified.',
                         status_code=status.HTTP_200_OK,
                     )
                 else:
@@ -57,7 +57,7 @@ class RegisterView(BaseResponseMixin, APIView):
                     code = serializer.send_verification_otp(user)
                     return self.success_response(
                         data={
-                            'phone': phone,
+                            'email': email,
                             'is_sent': True,
                             'otp_code': code,
                         },
@@ -77,11 +77,11 @@ class RegisterView(BaseResponseMixin, APIView):
 
         return self.created_response(
             data={
-                'user': UserSerializer(user).data,
+                'user': UserSerializer(user, context={'request': request}).data,
                 'otp_code': code,
                 'is_sent': True,
             },
-            message='Registration successful. Please verify your phone with the OTP code.',
+            message='Registration successful. Please verify your email with the OTP code.',
         )
 
 
@@ -93,7 +93,7 @@ class LoginView(BaseResponseMixin, APIView):
         serializer.is_valid(raise_exception=True)
         user = authenticate(
             request,
-            username=serializer.validated_data['phone'],
+            username=serializer.validated_data['email'],
             password=serializer.validated_data['password'],
         )
         if not user:
@@ -103,7 +103,7 @@ class LoginView(BaseResponseMixin, APIView):
             )
         tokens = get_tokens_for_user(user)
         data = {
-            'user': UserSerializer(user).data,
+            'user': UserSerializer(user, context={'request': request}).data,
             'tokens': tokens,
         }
         return self.success_response(data=data, message="Login successful.")
@@ -127,9 +127,9 @@ class OTPRequestView(BaseResponseMixin, APIView):
     def post(self, request):
         serializer = OTPRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        phone = serializer.validated_data['phone']
+        email = serializer.validated_data['email']
         purpose = serializer.validated_data.get('purpose', OTPVerification.PURPOSE_VERIFICATION)
-        user = get_object_or_404(User, phone=phone)
+        user = get_object_or_404(User, email=email)
         code = str(random.randint(100000, 999999))
         OTPVerification.objects.create(
             user=user,
@@ -146,9 +146,9 @@ class OTPVerifyView(BaseResponseMixin, APIView):
     def post(self, request):
         serializer = OTPVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        phone = serializer.validated_data['phone']
+        email = serializer.validated_data['email']
         code = serializer.validated_data['code']
-        user = get_object_or_404(User, phone=phone)
+        user = get_object_or_404(User, email=email)
         otp = OTPVerification.objects.filter(
             user=user, code=code, purpose=OTPVerification.PURPOSE_VERIFICATION,
             is_used=False, expires_at__gte=timezone.now()
@@ -161,7 +161,7 @@ class OTPVerifyView(BaseResponseMixin, APIView):
         user.save()
         tokens = get_tokens_for_user(user)
         data = {'tokens': tokens}
-        return self.success_response(data=data, message="Phone verified successfully.")
+        return self.success_response(data=data, message="Email verified successfully.")
 
 
 class ChangePasswordView(BaseResponseMixin, APIView):
@@ -184,9 +184,9 @@ class CreateNewPasswordView(BaseResponseMixin, APIView):
     def post(self, request):
         serializer = CreateNewPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        phone = serializer.validated_data['phone']
+        email = serializer.validated_data['email']
         code = serializer.validated_data['code']
-        user = get_object_or_404(User, phone=phone)
+        user = get_object_or_404(User, email=email)
         otp = OTPVerification.objects.filter(
             user=user, code=code, purpose=OTPVerification.PURPOSE_PASSWORD_RESET,
             is_used=False, expires_at__gte=timezone.now()
@@ -201,7 +201,7 @@ class CreateNewPasswordView(BaseResponseMixin, APIView):
             send_password_reset_email_task.delay(
                 email=user.email,
                 code=code,
-                first_name=user.first_name or user.phone,
+                full_name=user.full_name or user.email,
             )
         return self.success_response(message="Password reset successful.")
 
@@ -210,11 +210,11 @@ class UserProfileView(BaseResponseMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        data = UserSerializer(request.user).data
+        data = UserSerializer(request.user, context={'request': request}).data
         return self.success_response(data=data)
 
     def patch(self, request):
-        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return self.updated_response(data=serializer.data)

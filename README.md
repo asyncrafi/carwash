@@ -263,7 +263,7 @@ Monitor via `celery -A config flower` or view logs: `docker compose logs -f cele
 # 1. Register a customer
 curl -X POST http://localhost:8000/api/auth/register/ \
   -H "Content-Type: application/json" \
-  -d '{"phone":"+971501234567","password":"test1234","role":"customer","first_name":"John","last_name":"Doe"}'
+  -d '{"phone":"+971501234567","password":"test1234","role":"customer","full_name":"John Doe"}'
 
 # 2. Login
 curl -X POST http://localhost:8000/api/auth/login/ \

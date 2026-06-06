@@ -4,7 +4,7 @@ from .models import Rating, Tip
 
 class RatingSerializer(serializers.ModelSerializer):
     reviewer_name = serializers.CharField(
-        source='reviewer.get_full_name', read_only=True
+        source='reviewer.full_name', read_only=True
     )
 
     class Meta:

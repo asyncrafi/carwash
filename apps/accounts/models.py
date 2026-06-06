@@ -12,21 +12,23 @@ class User(AbstractUser):
         (ROLE_PROVIDER, 'Provider'),
         (ROLE_ADMIN, 'Admin'),
     ]
-
+    full_name = models.CharField(max_length=255, blank=True, null=True)
+    first_name = None
+    last_name = None
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    phone = models.CharField(max_length=20, unique=True)
-    country_code = models.CharField(max_length=5, default='+33')
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     language = models.CharField(max_length=10, default='en')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = ['username', 'email']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        return f"{self.get_full_name()} ({self.role})"
+        return f"{self.full_name or self.email} ({self.role})"
 
 
 class OTPVerification(models.Model):
@@ -54,4 +56,4 @@ class OTPVerification(models.Model):
         return not self.is_used and self.expires_at >= timezone.now()
 
     def __str__(self):
-        return f"OTP for {self.user.phone} ({self.purpose})"
+        return f"OTP for {self.user.email} ({self.purpose})"

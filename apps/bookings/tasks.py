@@ -101,9 +101,9 @@ def handle_booking_cancelled(booking_id, customer_user_id, provider_user_id=None
 
 
 @shared_task
-def handle_user_registered(user_id, email, first_name):
+def handle_user_registered(user_id, email, full_name):
     send_welcome_email_task.delay(
         user_id=user_id,
         email=email,
-        first_name=first_name,
+        full_name=full_name,
     )

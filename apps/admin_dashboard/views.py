@@ -70,7 +70,7 @@ class AdminDashboardView(BaseResponseMixin, APIView):
         for p in top_providers:
             top_provider_data.append({
                 'id': p.id,
-                'name': p.user.get_full_name(),
+                'name': p.user.full_name,
                 'avatar': (
                     request.build_absolute_uri(p.user.avatar.url)
                     if p.user.avatar else None
@@ -91,9 +91,9 @@ class AdminDashboardView(BaseResponseMixin, APIView):
         for b in recent:
             recent_data.append({
                 'id': b.id,
-                'customer': b.customer.user.get_full_name(),
+                'customer': b.customer.user.full_name,
                 'provider': (
-                    b.provider.user.get_full_name() if b.provider else None
+                    b.provider.user.full_name if b.provider else None
                 ),
                 'service': b.service.name if b.service else None,
                 'status': b.status,
@@ -130,8 +130,7 @@ class AdminUserListView(BaseResponseMixin, APIView):
             qs = qs.filter(role=role)
         if search:
             qs = qs.filter(
-                Q(first_name__icontains=search) |
-                Q(last_name__icontains=search) |
+                Q(full_name__icontains=search) |
                 Q(email__icontains=search) |
                 Q(phone__icontains=search)
             )
@@ -149,7 +148,7 @@ class AdminUserListView(BaseResponseMixin, APIView):
         for u in qs.order_by('-date_joined'):
             entry = {
                 'id': u.id,
-                'full_name': u.get_full_name(),
+                'full_name': u.full_name,
                 'email': u.email,
                 'phone': u.phone,
                 'role': u.role,
@@ -183,7 +182,7 @@ class AdminUserDetailView(BaseResponseMixin, APIView):
     def get(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         from apps.accounts.serializers import UserSerializer
-        data = UserSerializer(user).data
+        data = UserSerializer(user, context={'request': request}).data
         if user.role == 'provider' and hasattr(user, 'provider_profile'):
             p = user.provider_profile
             from apps.providers.serializers import ProviderProfileSerializer
@@ -209,7 +208,7 @@ class AdminUserDetailView(BaseResponseMixin, APIView):
     def patch(self, request, pk):
         from apps.accounts.serializers import UserSerializer
         user = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = UserSerializer(user, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return self.updated_response(data=serializer.data)
@@ -223,7 +222,7 @@ class AdminUserBlockView(BaseResponseMixin, APIView):
         user.is_active = False
         user.save()
         return self.success_response(
-            message=f"User {user.get_full_name()} blocked successfully."
+            message=f"User {user.full_name} blocked successfully."
         )
 
 
@@ -235,7 +234,7 @@ class AdminUserUnblockView(BaseResponseMixin, APIView):
         user.is_active = True
         user.save()
         return self.success_response(
-            message=f"User {user.get_full_name()} unblocked successfully."
+            message=f"User {user.full_name} unblocked successfully."
         )
 
 
@@ -278,7 +277,7 @@ class AdminProviderApproveView(BaseResponseMixin, APIView):
         provider.status = 'approved'
         provider.save()
         return self.success_response(
-            message=f"Provider {provider.user.get_full_name()} approved."
+            message=f"Provider {provider.user.full_name} approved."
         )
 
 
@@ -290,7 +289,7 @@ class AdminProviderRejectView(BaseResponseMixin, APIView):
         provider.status = 'rejected'
         provider.save()
         return self.success_response(
-            message=f"Provider {provider.user.get_full_name()} rejected."
+            message=f"Provider {provider.user.full_name} rejected."
         )
 
 
@@ -307,9 +306,8 @@ class AdminBookingListView(BaseResponseMixin, APIView):
             qs = qs.filter(status=st)
         if search:
             qs = qs.filter(
-                Q(customer__user__first_name__icontains=search) |
-                Q(customer__user__last_name__icontains=search) |
-                Q(provider__user__first_name__icontains=search) |
+                Q(customer__user__full_name__icontains=search) |
+                Q(provider__user__full_name__icontains=search) |
                 Q(service__name__icontains=search)
             )
         data = BookingListSerializer(
@@ -382,8 +380,8 @@ class AdminEarningsDashboardView(BaseResponseMixin, APIView):
         for e in earnings[:50]:
             table_data.append({
                 'id': e.id,
-                'provider': e.provider.user.get_full_name(),
-                'customer': e.booking.customer.user.get_full_name(),
+                'provider': e.provider.user.full_name,
+                'customer': e.booking.customer.user.full_name,
                 'service': (
                     e.booking.service.name if e.booking.service else ''
                 ),

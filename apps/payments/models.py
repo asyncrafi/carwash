@@ -49,6 +49,6 @@ class ProviderEarning(models.Model):
 
     def __str__(self):
         return (
-            f"Earning {self.provider.user.get_full_name()} - "
+            f"Earning {self.provider.user.full_name} - "
             f"€{self.net_amount}"
         )

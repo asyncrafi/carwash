@@ -50,7 +50,7 @@ class BookingListSerializer(serializers.ModelSerializer):
         ]
 
     def get_provider_name(self, obj):
-        return obj.provider.user.get_full_name() if obj.provider else None
+        return obj.provider.user.full_name if obj.provider else None
 
     def get_provider_avatar(self, obj):
         if obj.provider and obj.provider.user.avatar:
@@ -100,7 +100,7 @@ class JobListSerializer(serializers.ModelSerializer):
         source='vehicle.engine_type.engine_type', read_only=True
     )
     customer_name = serializers.CharField(
-        source='customer.user.get_full_name', read_only=True
+        source='customer.user.full_name', read_only=True
     )
     photos = BookingPhotoSerializer(many=True, read_only=True)
 

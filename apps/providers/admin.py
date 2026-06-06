@@ -16,7 +16,7 @@ class ProviderAvailabilityInline(admin.TabularInline):
 class ProviderProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'status', 'is_online', 'total_washes', 'average_rating']
     list_filter = ['status', 'is_online']
-    search_fields = ['user__phone', 'user__email', 'user__first_name', 'user__last_name']
+    search_fields = ['user__phone', 'user__email', 'user__full_name']
     inlines = [ProviderDocumentInline, ProviderAvailabilityInline]
 
 

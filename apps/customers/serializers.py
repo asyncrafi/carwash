@@ -39,7 +39,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
 
     def get_user(self, obj):
         from apps.accounts.serializers import UserSerializer
-        return UserSerializer(obj.user).data
+        return UserSerializer(obj.user, context=self.context).data
 
 
 class VehicleSerializer(serializers.ModelSerializer):

@@ -5,7 +5,7 @@ from .models import CustomerProfile, SavedAddress, PaymentCard, Vehicle
 @admin.register(CustomerProfile)
 class CustomerProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'created_at']
-    search_fields = ['user__phone', 'user__email', 'user__first_name', 'user__last_name']
+    search_fields = ['user__phone', 'user__email', 'user__full_name']
 
 
 @admin.register(SavedAddress)

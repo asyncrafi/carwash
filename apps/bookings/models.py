@@ -79,7 +79,7 @@ class Booking(models.Model):
     def __str__(self):
         return (
             f"Booking #{self.id} - "
-            f"{self.customer.user.get_full_name()} [{self.status}]"
+            f"{self.customer.user.full_name} [{self.status}]"
         )
 
 

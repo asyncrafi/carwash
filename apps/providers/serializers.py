@@ -69,7 +69,7 @@ class ProviderOnlineStatusSerializer(serializers.Serializer):
 
 
 class ProviderBasicInfoSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    full_name = serializers.CharField(source='user.full_name', read_only=True)
     avatar = serializers.ImageField(source='user.avatar', read_only=True)
     phone = serializers.CharField(source='user.phone', read_only=True)
 

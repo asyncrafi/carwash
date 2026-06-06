@@ -35,7 +35,7 @@ class ProviderProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Provider: {self.user.get_full_name()} [{self.status}]"
+        return f"Provider: {self.user.full_name} [{self.status}]"
 
 
 class ProviderDocument(models.Model):
@@ -79,7 +79,7 @@ class ProviderDocument(models.Model):
         unique_together = ('provider', 'doc_type')
 
     def __str__(self):
-        return f"{self.provider.user.get_full_name()} - {self.doc_type}"
+        return f"{self.provider.user.full_name} - {self.doc_type}"
 
 
 class BankDetail(models.Model):
@@ -116,4 +116,4 @@ class ProviderAvailability(models.Model):
         unique_together = ('provider', 'day_of_week')
 
     def __str__(self):
-        return f"{self.provider.user.get_full_name()} - {self.get_day_of_week_display()}"
+        return f"{self.provider.user.full_name} - {self.get_day_of_week_display()}"

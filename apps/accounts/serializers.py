@@ -1,5 +1,6 @@
 import random
 import datetime
+import uuid
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
@@ -22,8 +23,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'first_name', 'last_name', 'phone',
-            'country_code', 'email', 'role', 'password', 'password2',
+            'id', 'full_name',
+            'email', 'role', 'password', 'password2',
         ]
 
     def validate(self, attrs):
@@ -36,10 +37,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
         password = validated_data.pop('password')
-        validated_data.setdefault('country_code', '+33')
-        validated_data.setdefault('email', '')
+        validated_data.setdefault('username', validated_data.get('email', str(uuid.uuid4())))
         user = User(**validated_data)
-        user.username = validated_data.get('phone')
         user.is_verified = False
         user.set_password(password)
         user.save()
@@ -62,19 +61,19 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    phone = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
 
 class OTPRequestSerializer(serializers.Serializer):
-    phone = serializers.CharField()
+    email = serializers.EmailField()
     purpose = serializers.ChoiceField(
         choices=['verification', 'password_reset'], default='verification'
     )
 
 
 class OTPVerifySerializer(serializers.Serializer):
-    phone = serializers.CharField()
+    email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
 
 
@@ -90,7 +89,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class CreateNewPasswordSerializer(serializers.Serializer):
-    phone = serializers.CharField()
+    email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
     new_password = serializers.CharField(write_only=True, min_length=8)
     confirm_password = serializers.CharField(write_only=True)
@@ -102,11 +101,20 @@ class CreateNewPasswordSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
-            'id', 'first_name', 'last_name', 'phone',
-            'country_code', 'email', 'role', 'avatar',
+            'id', 'full_name', 'phone',
+            'email', 'role', 'avatar',
             'is_verified', 'language', 'created_at',
         ]
-        read_only_fields = ['id', 'role', 'is_verified', 'created_at']
+        read_only_fields = ['id', 'email', 'role', 'is_verified', 'created_at']
+
+    def get_avatar(self, obj):
+        if obj.avatar:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.avatar.url)
+        return None

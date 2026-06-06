@@ -62,7 +62,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone\": \"+971501234567\",\n  \"country_code\": \"+971\",\n  \"email\": \"john@example.com\",\n  \"role\": \"customer\",\n  \"password\": \"securepass123\",\n  \"password2\": \"securepass123\"\n}",
+              "raw": "{\n  \"full_name\": \"John Doe\",\n  \"phone\": \"+971501234567\",\n  \"email\": \"john@example.com\",\n  \"role\": \"customer\",\n  \"password\": \"securepass123\",\n  \"password2\": \"securepass123\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
@@ -240,7 +240,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"john.smith@example.com\"\n}",
+              "raw": "{\n  \"full_name\": \"John Smith\",\n  \"email\": \"john.smith@example.com\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
@@ -248,7 +248,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "auth", "me", ""]
             },
-            "description": "Update profile fields (first_name, last_name, email, avatar, language)."
+            "description": "Update profile fields (full_name, email, avatar, language)."
           }
         },
         {
