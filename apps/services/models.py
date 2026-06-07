@@ -1,21 +1,6 @@
 from django.db import models
 
 
-class Service(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    image = models.ImageField(upload_to='services/', null=True, blank=True)
-    base_price = models.DecimalField(max_digits=8, decimal_places=2)
-    is_active = models.BooleanField(default=True)
-    order = models.PositiveSmallIntegerField(default=0)
-
-    class Meta:
-        ordering = ['order']
-
-    def __str__(self):
-        return self.name
-
-
 class VehicleType(models.Model):
     name = models.CharField(max_length=50)
     extra_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
@@ -41,6 +26,43 @@ class EngineType(models.Model):
 
     def __str__(self):
         return self.get_engine_type_display()
+
+
+class Service(models.Model):
+    vehicle_type = models.ForeignKey(
+        VehicleType,
+        on_delete=models.CASCADE,
+        related_name='services',
+        null=True,
+        blank=True,
+        verbose_name="Vehicle Type"
+    )
+    engine_type = models.ForeignKey(
+        EngineType,
+        on_delete=models.SET_NULL,
+        related_name='services',
+        null=True,
+        blank=True,
+        verbose_name="Engine Type"
+    )
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    image = models.ImageField(upload_to='services/', null=True, blank=True)
+    base_price = models.DecimalField(max_digits=8, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        parts = [self.name]
+        if self.vehicle_type:
+            parts.append(f"({self.vehicle_type.name})")
+        if self.engine_type:
+            parts.append(f"[{self.engine_type.get_engine_type_display()}]")
+        return " ".join(parts)
+
 
 
 class DirtLevel(models.Model):

@@ -27,6 +27,21 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             'payment_card', 'photos',
         ]
 
+    def validate(self, attrs):
+        service = attrs.get('service')
+        vehicle = attrs.get('vehicle')
+        
+        if service and vehicle:
+            if service.vehicle_type and service.vehicle_type != vehicle.vehicle_type:
+                raise serializers.ValidationError(
+                    {"service": f"Selected service '{service.name}' is only available for vehicle type '{service.vehicle_type.name}'."}
+                )
+            if service.engine_type and service.engine_type != vehicle.engine_type:
+                raise serializers.ValidationError(
+                    {"service": f"Selected service '{service.name}' is only available for engine type '{service.engine_type.get_engine_type_display()}'."}
+                )
+        return attrs
+
     def create(self, validated_data):
         photos_data = validated_data.pop('photos', [])
         booking = Booking.objects.create(**validated_data)

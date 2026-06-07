@@ -11,11 +11,21 @@ from .serializers import (
 )
 
 
+from django.db.models import Q
+
 class ServiceListView(BaseResponseMixin, APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
         services = Service.objects.filter(is_active=True)
+        vehicle_type_id = request.query_params.get('vehicle_type')
+        engine_type_id = request.query_params.get('engine_type')
+
+        if vehicle_type_id:
+            services = services.filter(Q(vehicle_type_id=vehicle_type_id) | Q(vehicle_type__isnull=True))
+        if engine_type_id:
+            services = services.filter(Q(engine_type_id=engine_type_id) | Q(engine_type__isnull=True))
+
         data = ServiceSerializer(services, many=True).data
         return self.success_response(data=data)
 
