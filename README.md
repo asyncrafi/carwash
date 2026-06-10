@@ -282,3 +282,4 @@ curl -X POST http://localhost:8000/api/bookings/ \
 # 5. Check Swagger docs
 open http://localhost:8000/api/docs/
 ```
+# carwash
