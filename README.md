@@ -283,3 +283,4 @@ curl -X POST http://localhost:8000/api/bookings/ \
 open http://localhost:8000/api/docs/
 ```
 # carwash
+# carwash
