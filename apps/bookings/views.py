@@ -199,10 +199,21 @@ class ProviderJobListView(BaseResponseMixin, APIView):
 
     def get(self, request):
         profile = get_object_or_404(ProviderProfile, user=request.user)
-        status_f = request.query_params.get('status')
-        jobs = Booking.objects.filter(provider=profile).order_by('-created_at')
-        if status_f:
-            jobs = jobs.filter(status=status_f)
+        
+        # Get available jobs (requested status, not yet assigned to any provider)
+        jobs = Booking.objects.filter(
+            status=Booking.STATUS_REQUESTED,
+            provider__isnull=True
+        ).order_by('-created_at')
+        
+        # Filter jobs by provider's service radius
+        from decimal import Decimal
+        service_radius = Decimal(str(profile.service_radius_km))
+        jobs = [
+            job for job in jobs 
+            if Decimal(str(job.distance_km)) <= service_radius
+        ]
+        
         data = JobListSerializer(
             jobs, many=True, context={'request': request}
         ).data
@@ -214,7 +225,22 @@ class ProviderJobDetailView(BaseResponseMixin, APIView):
 
     def get(self, request, pk):
         profile = get_object_or_404(ProviderProfile, user=request.user)
-        job = get_object_or_404(Booking, pk=pk, provider=profile)
+        # Allow viewing available jobs (not yet assigned) within service radius
+        job = get_object_or_404(
+            Booking, 
+            pk=pk, 
+            status=Booking.STATUS_REQUESTED,
+            provider__isnull=True
+        )
+        
+        # Verify job is within provider's service radius
+        from decimal import Decimal
+        service_radius = Decimal(str(profile.service_radius_km))
+        if Decimal(str(job.distance_km)) > service_radius:
+            return self.error_response(
+                message="This job is outside your service radius."
+            )
+        
         data = BookingDetailSerializer(job, context={'request': request}).data
         return self.success_response(data=data)
 
@@ -227,6 +253,14 @@ class ProviderJobAcceptView(BaseResponseMixin, APIView):
         booking = get_object_or_404(
             Booking, pk=pk, status=Booking.STATUS_REQUESTED
         )
+        
+        # Verify job is within provider's service radius
+        from decimal import Decimal
+        service_radius = Decimal(str(profile.service_radius_km))
+        if Decimal(str(booking.distance_km)) > service_radius:
+            return self.error_response(
+                message="This job is outside your service radius."
+            )
         
         # Check if provider has any active jobs
         active_statuses = [
