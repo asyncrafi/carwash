@@ -41,6 +41,8 @@ def on_booking_status_change(sender, instance, created, **kwargs):
             service_address=instance.service_address,
             total_amount=str(instance.total_amount),
             distance_km=str(instance.distance_km),
+            service_latitude=getattr(instance, 'service_latitude', None),
+            service_longitude=getattr(instance, 'service_longitude', None),
         )
         return
 

@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from apps.core.mixins import BaseResponseMixin
-from apps.core.utils import calculate_booking_price
+from apps.core.utils import calculate_booking_price, haversine_distance_km
 from apps.customers.models import CustomerProfile
 from apps.providers.models import ProviderProfile
 from apps.ratings.models import Rating
@@ -31,18 +31,60 @@ class BookingCreateView(BaseResponseMixin, APIView):
 
         service = serializer.validated_data.get('service')
         vehicle = serializer.validated_data.get('vehicle')
+        vehicle_data = serializer.validated_data.get('vehicle_data')
+        # If inline vehicle data provided, create a temporary object for pricing
+        if not vehicle and vehicle_data:
+            class _TmpVehicle:
+                pass
+            tmp = _TmpVehicle()
+            tmp.vehicle_type = vehicle_data.get('vehicle_type')
+            tmp.engine_type = vehicle_data.get('engine_type')
+            vehicle_for_price = tmp
+        else:
+            vehicle_for_price = vehicle
         dirt_level = serializer.validated_data.get('dirt_level')
-        distance_km = float(serializer.validated_data.get('distance_km', 0.0))
+        # compute distance_km from booking coords or use provided value
+        distance_km = serializer.validated_data.get('distance_km')
+        try:
+            distance_km = float(distance_km) if distance_km is not None else 0.0
+        except Exception:
+            distance_km = 0.0
+
+        # If client didn't provide distance, attempt to estimate using nearest provider who offers the service
+        service_lat = serializer.validated_data.get('service_latitude')
+        service_lon = serializer.validated_data.get('service_longitude')
+        if (not distance_km or distance_km == 0.0) and service_lat is not None and service_lon is not None and service is not None:
+            try:
+                from apps.providers.models import ProviderService
+                offers_qs = ProviderService.objects.filter(
+                    service=service,
+                    is_active=True,
+                    provider__status=ProviderProfile.STATUS_APPROVED,
+                    provider__service_latitude__isnull=False,
+                    provider__service_longitude__isnull=False,
+                ).select_related('provider')
+                min_dist = None
+                for offer in offers_qs:
+                    p = offer.provider
+                    d = haversine_distance_km(p.service_latitude, p.service_longitude, service_lat, service_lon)
+                    if min_dist is None or d < min_dist:
+                        min_dist = d
+                if min_dist is not None:
+                    distance_km = float(min_dist)
+            except Exception:
+                # ignore and keep distance_km as provided or 0
+                pass
 
         prices = calculate_booking_price(
             service=service,
-            vehicle=vehicle,
+            vehicle=vehicle_for_price,
             dirt_level=dirt_level,
             distance_km=distance_km,
         )
 
         booking = serializer.save(
             customer=profile,
+            distance_km=distance_km,
             service_price=prices['service_price'],
             vehicle_price=prices['vehicle_price'],
             dirt_price=prices['dirt_price'],

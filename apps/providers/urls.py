@@ -10,4 +10,8 @@ urlpatterns = [
     path('documents/', views.ProviderDocumentUploadView.as_view(), name='documents'),
     path('bank/', views.BankDetailView.as_view(), name='bank'),
     path('availability/', views.ProviderAvailabilityView.as_view(), name='availability'),
+    path('services/', views.ProviderServiceListCreateView.as_view(), name='services'),
+    path('services/<int:pk>/', views.ProviderServiceDeleteView.as_view(), name='service-delete'),
+    path('service-area/', views.ProviderServiceAreaView.as_view(), name='service-area'),
+    path('submit/', views.ProviderSubmitForReviewView.as_view(), name='submit-for-review'),
 ]

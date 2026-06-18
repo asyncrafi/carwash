@@ -27,6 +27,17 @@ class ProviderProfile(models.Model):
     current_longitude = models.DecimalField(
         max_digits=9, decimal_places=6, null=True, blank=True
     )
+    # Service area fields
+    service_address = models.TextField(blank=True)
+    service_latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True
+    )
+    service_longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True
+    )
+    service_radius_km = models.DecimalField(
+        max_digits=5, decimal_places=2, default=20
+    )
     bio = models.TextField(blank=True)
     total_washes = models.PositiveIntegerField(default=0)
     average_rating = models.DecimalField(
@@ -36,6 +47,25 @@ class ProviderProfile(models.Model):
 
     def __str__(self):
         return f"Provider: {self.user.full_name} [{self.status}]"
+
+
+class ProviderService(models.Model):
+    provider = models.ForeignKey(
+        ProviderProfile, on_delete=models.CASCADE, related_name='services'
+    )
+    service = models.ForeignKey(
+        'services.Service', on_delete=models.CASCADE
+    )
+    is_active = models.BooleanField(default=True)
+    price_override = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True
+    )
+
+    class Meta:
+        unique_together = ('provider', 'service')
+
+    def __str__(self):
+        return f"{self.provider.user.full_name} - {self.service.name}"
 
 
 class ProviderDocument(models.Model):

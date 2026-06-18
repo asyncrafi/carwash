@@ -10,7 +10,7 @@ from apps.accounts.tasks import send_welcome_email_task
 
 @shared_task
 def handle_booking_created(booking_id, customer_user_id, service_name, service_city,
-                           service_address, total_amount, distance_km):
+                           service_address, total_amount, distance_km, service_latitude=None, service_longitude=None):
     notify_all_online_providers_task.delay(
         booking_id=booking_id,
         service_name=service_name,
@@ -18,6 +18,8 @@ def handle_booking_created(booking_id, customer_user_id, service_name, service_c
         service_address=service_address,
         total_amount=total_amount,
         distance_km=distance_km,
+        service_latitude=service_latitude,
+        service_longitude=service_longitude,
     )
     create_notification_task.delay(
         user_id=customer_user_id,

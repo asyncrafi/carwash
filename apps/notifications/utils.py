@@ -19,4 +19,6 @@ def notify_all_online_providers(booking):
         service_address=booking.service_address,
         total_amount=str(booking.total_amount),
         distance_km=str(booking.distance_km),
+        service_latitude=getattr(booking, 'service_latitude', None),
+        service_longitude=getattr(booking, 'service_longitude', None),
     )

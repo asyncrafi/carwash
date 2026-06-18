@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import ProviderProfile, ProviderDocument, BankDetail, ProviderAvailability
+from .models import ProviderService
+from apps.services.serializers import ServiceSerializer
 
 
 class ProviderDocumentSerializer(serializers.ModelSerializer):
@@ -41,14 +43,17 @@ class ProviderProfileSerializer(serializers.ModelSerializer):
     documents = ProviderDocumentSerializer(many=True, read_only=True)
     bank_detail = BankDetailSerializer(read_only=True)
     availability = ProviderAvailabilitySerializer(many=True, read_only=True)
+    services = serializers.SerializerMethodField()
 
     class Meta:
         model = ProviderProfile
         fields = [
             'id', 'user', 'status', 'is_online',
             'current_latitude', 'current_longitude', 'bio',
+            'service_address', 'service_latitude', 'service_longitude', 'service_radius_km',
             'total_washes', 'average_rating',
             'documents', 'bank_detail', 'availability', 'created_at',
+            'services',
         ]
         read_only_fields = [
             'id', 'status', 'total_washes', 'average_rating', 'created_at',
@@ -57,6 +62,26 @@ class ProviderProfileSerializer(serializers.ModelSerializer):
     def get_user(self, obj):
         from apps.accounts.serializers import UserSerializer
         return UserSerializer(obj.user).data
+
+    def get_services(self, obj):
+        return [
+            {
+                'service_id': s.service.id,
+                'service_name': s.service.name,
+                'is_active': s.is_active,
+                'price_override': str(s.price_override) if s.price_override is not None else None,
+            }
+            for s in obj.services.select_related('service').all()
+        ]
+
+
+class ProviderServiceSerializer(serializers.ModelSerializer):
+    service = serializers.PrimaryKeyRelatedField(queryset=ServiceSerializer.Meta.model.objects.all())
+
+    class Meta:
+        model = ProviderService
+        fields = ['id', 'service', 'is_active', 'price_override']
+        read_only_fields = ['id']
 
 
 class ProviderLocationSerializer(serializers.Serializer):

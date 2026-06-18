@@ -3,6 +3,20 @@ from .models import Booking, BookingPhoto
 from apps.services.serializers import ServiceSerializer, DirtLevelSerializer
 from apps.customers.serializers import VehicleSerializer, PaymentCardSerializer
 from apps.providers.serializers import ProviderBasicInfoSerializer
+from apps.services.models import EngineType, VehicleType
+from apps.customers.models import Vehicle as CustomerVehicle
+
+
+class VehicleCreateSerializer(serializers.Serializer):
+    engine_type = serializers.PrimaryKeyRelatedField(
+        queryset=EngineType.objects.all(), required=False, allow_null=True
+    )
+    vehicle_type = serializers.PrimaryKeyRelatedField(
+        queryset=VehicleType.objects.all(), required=False, allow_null=True
+    )
+    make = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    model = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    plate_number = serializers.CharField(max_length=20, required=False, allow_blank=True)
 
 
 class BookingPhotoSerializer(serializers.ModelSerializer):
@@ -16,6 +30,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
     photos = serializers.ListField(
         child=serializers.ImageField(), write_only=True, required=False
     )
+    vehicle_data = VehicleCreateSerializer(write_only=True, required=False)
 
     class Meta:
         model = Booking
@@ -23,6 +38,8 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             'service', 'vehicle', 'dirt_level',
             'service_address', 'service_city',
             'service_latitude', 'service_longitude',
+            'distance_km',
+            'vehicle_data',
             'schedule_type', 'scheduled_at',
             'payment_card', 'photos',
         ]
@@ -30,7 +47,9 @@ class BookingCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         service = attrs.get('service')
         vehicle = attrs.get('vehicle')
+        vehicle_data = attrs.get('vehicle_data')
         
+        # If a saved vehicle is provided, validate compatibility
         if service and vehicle:
             if service.vehicle_type and service.vehicle_type != vehicle.vehicle_type:
                 raise serializers.ValidationError(
@@ -40,10 +59,38 @@ class BookingCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"service": f"Selected service '{service.name}' is only available for engine type '{service.engine_type.get_engine_type_display()}'."}
                 )
+
+        # If inline vehicle data is provided (no saved vehicle), validate compatibility
+        if service and not vehicle and vehicle_data:
+            vt = vehicle_data.get('vehicle_type')
+            et = vehicle_data.get('engine_type')
+            if service.vehicle_type and vt and service.vehicle_type != vt:
+                raise serializers.ValidationError(
+                    {"service": f"Selected service '{service.name}' is only available for vehicle type '{service.vehicle_type.name}'."}
+                )
+            if service.engine_type and et and service.engine_type != et:
+                raise serializers.ValidationError(
+                    {"service": f"Selected service '{service.name}' is only available for engine type '{service.engine_type.get_engine_type_display()}'."}
+                )
         return attrs
 
     def create(self, validated_data):
         photos_data = validated_data.pop('photos', [])
+        # If client sent inline vehicle data instead of existing vehicle PK, create it
+        vehicle_data = validated_data.pop('vehicle_data', None)
+        if not validated_data.get('vehicle') and vehicle_data:
+            customer = validated_data.get('customer')
+            # create a Customer Vehicle linked to the customer
+            created_vehicle = CustomerVehicle.objects.create(
+                customer=customer,
+                engine_type=vehicle_data.get('engine_type'),
+                vehicle_type=vehicle_data.get('vehicle_type'),
+                make=vehicle_data.get('make', ''),
+                model=vehicle_data.get('model', ''),
+                plate_number=vehicle_data.get('plate_number', ''),
+            )
+            validated_data['vehicle'] = created_vehicle
+
         booking = Booking.objects.create(**validated_data)
         for photo in photos_data:
             BookingPhoto.objects.create(booking=booking, image=photo)

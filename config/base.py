@@ -13,6 +13,7 @@ _raw_hosts = config('DJANGO_ALLOWED_HOSTS', default='*')
 ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(',') if h.strip()]
 
 DJANGO_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -26,7 +27,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
-    'drf_spectacular',
+    'drf_spectacular',  
     'django_filters',
 ]
 
@@ -41,6 +42,7 @@ PROJECT_APPS = [
     'apps.ratings',
     'apps.notifications',
     'apps.admin_dashboard',
+    'apps.messages.apps.ChatMessagesConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
@@ -90,6 +92,19 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# ─────────────────────────────────────────────
+#  DJANGO CHANNELS
+# ─────────────────────────────────────────────
+ASGI_APPLICATION = 'config.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis', 6379)],
+        },
+    },
+}
 
 # ─────────────────────────────────────────────
 #  EMAIL

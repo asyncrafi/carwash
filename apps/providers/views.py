@@ -13,6 +13,10 @@ from .serializers import (
     ProviderLocationSerializer,
     ProviderOnlineStatusSerializer,
 )
+from .serializers import ProviderServiceSerializer
+from .models import ProviderService
+from apps.services.models import Service
+from apps.core.utils import haversine_distance_km
 
 
 class ProviderProfileView(BaseResponseMixin, APIView):
@@ -78,6 +82,63 @@ class ProviderDocumentUploadView(BaseResponseMixin, APIView):
         return self.created_response(
             data=serializer.data, message="Document uploaded successfully."
         )
+
+
+class ProviderServiceListCreateView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        data = ProviderServiceSerializer(profile.services.all(), many=True).data
+        return self.success_response(data=data)
+
+    def post(self, request):
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        serializer = ProviderServiceSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        service = serializer.validated_data['service']
+        obj, created = ProviderService.objects.update_or_create(
+            provider=profile, service=service,
+            defaults={
+                'is_active': serializer.validated_data.get('is_active', True),
+                'price_override': serializer.validated_data.get('price_override')
+            }
+        )
+        return self.created_response(data=ProviderServiceSerializer(obj).data)
+
+
+class ProviderServiceDeleteView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        obj = get_object_or_404(ProviderService, pk=pk, provider=profile)
+        obj.delete()
+        return self.deleted_response(message="Service removed.")
+
+
+class ProviderServiceAreaView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        # accept fields: service_address, service_latitude, service_longitude, service_radius_km
+        for f in ['service_address', 'service_latitude', 'service_longitude', 'service_radius_km']:
+            if f in request.data:
+                setattr(profile, f, request.data.get(f))
+        profile.save()
+        return self.updated_response(data=ProviderProfileSerializer(profile).data, message="Service area updated.")
+
+
+class ProviderSubmitForReviewView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        # Mark provider as pending review
+        profile.status = ProviderProfile.STATUS_PENDING
+        profile.save()
+        return self.success_response(message="Profile submitted for review.")
 
 
 class BankDetailView(BaseResponseMixin, APIView):

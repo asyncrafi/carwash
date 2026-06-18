@@ -45,6 +45,7 @@ class Booking(models.Model):
     dirt_level = models.ForeignKey(
         DirtLevel, on_delete=models.SET_NULL, null=True
     )
+    
     service_address = models.TextField()
     service_city = models.CharField(max_length=100, blank=True)
     service_latitude = models.DecimalField(max_digits=9, decimal_places=6)

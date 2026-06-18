@@ -101,8 +101,6 @@ class CreateNewPasswordSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    avatar = serializers.SerializerMethodField()
-
     class Meta:
         model = User
         fields = [
@@ -112,9 +110,10 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'email', 'role', 'is_verified', 'created_at']
 
-    def get_avatar(self, obj):
-        if obj.avatar:
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.avatar:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.avatar.url)
-        return None
+                data['avatar'] = request.build_absolute_uri(instance.avatar.url)
+        return data
