@@ -166,28 +166,94 @@ class ProviderAvailabilityView(BaseResponseMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """Get provider availability for all days of the week"""
         profile = get_object_or_404(ProviderProfile, user=request.user)
         availability = ProviderAvailability.objects.filter(provider=profile)
-        data = ProviderAvailabilitySerializer(availability, many=True).data
-        return self.success_response(data=data)
+        
+        # Create a full week schedule (0-6 for Monday-Sunday)
+        day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        week_schedule = []
+        available_days = []
+        start_time = None
+        end_time = None
+        
+        for day_num in range(7):
+            day_availability = availability.filter(day_of_week=day_num).first()
+            if day_availability:
+                available_days.append(day_names[day_num])
+                if start_time is None:
+                    start_time = str(day_availability.start_time)
+                    end_time = str(day_availability.end_time)
+                day_data = ProviderAvailabilitySerializer(day_availability).data
+            else:
+                day_data = {
+                    'id': None,
+                    'day_of_week': day_num,
+                    'day_display': day_names[day_num],
+                    'start_time': None,
+                    'end_time': None,
+                    'is_active': False,
+                }
+            week_schedule.append(day_data)
+        
+        return self.success_response(
+            data={
+                'week_schedule': week_schedule,
+                'available_days': available_days,
+                'available_days_count': len(available_days),
+                'start_time': start_time,
+                'end_time': end_time,
+            }
+        )
 
     def post(self, request):
+        """
+        Save provider availability for multiple weekdays with one time slot.
+        Request format:
+        {
+            "days": [0, 1, 2, 3, 4],  # Monday-Friday (0-6)
+            "start_time": "08:00",
+            "end_time": "18:00",
+            "is_active": true
+        }
+        """
         profile = get_object_or_404(ProviderProfile, user=request.user)
-        data = request.data if isinstance(request.data, list) else [request.data]
+        
+        days = request.data.get('days', [])
+        start_time = request.data.get('start_time')
+        end_time = request.data.get('end_time')
+        is_active = request.data.get('is_active', True)
+        
+        if not days or not start_time or not end_time:
+            return self.error_response(
+                message="Missing required fields: days (list), start_time, end_time"
+            )
+        
         results = []
-        for item in data:
-            serializer = ProviderAvailabilitySerializer(data=item)
-            serializer.is_valid(raise_exception=True)
+        available_days = []
+        
+        # Create/update availability for each selected day
+        for day_of_week in days:
             obj, _ = ProviderAvailability.objects.update_or_create(
                 provider=profile,
-                day_of_week=serializer.validated_data['day_of_week'],
+                day_of_week=day_of_week,
                 defaults={
-                    'start_time': serializer.validated_data['start_time'],
-                    'end_time': serializer.validated_data['end_time'],
-                    'is_active': serializer.validated_data.get('is_active', True),
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'is_active': is_active,
                 },
             )
+            if obj.is_active:
+                available_days.append(obj.get_day_of_week_display())
             results.append(ProviderAvailabilitySerializer(obj).data)
+        
         return self.created_response(
-            data=results, message="Availability saved."
+            data={
+                'availability': results,
+                'available_days': available_days,
+                'total_available_days': len(available_days),
+                'start_time': str(start_time),
+                'end_time': str(end_time),
+            },
+            message="Availability saved."
         )

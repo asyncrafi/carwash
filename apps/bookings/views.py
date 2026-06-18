@@ -227,6 +227,23 @@ class ProviderJobAcceptView(BaseResponseMixin, APIView):
         booking = get_object_or_404(
             Booking, pk=pk, status=Booking.STATUS_REQUESTED
         )
+        
+        # Check if provider has any active jobs
+        active_statuses = [
+            Booking.STATUS_ACCEPTED,
+            Booking.STATUS_EN_ROUTE,
+            Booking.STATUS_IN_PROGRESS,
+        ]
+        active_job = Booking.objects.filter(
+            provider=profile,
+            status__in=active_statuses
+        ).exists()
+        
+        if active_job:
+            return self.error_response(
+                message="You have an active job. Please complete it before accepting another job."
+            )
+        
         booking.provider = profile
         booking.status = Booking.STATUS_ACCEPTED
         booking.accepted_at = timezone.now()

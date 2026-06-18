@@ -48,8 +48,8 @@ class Booking(models.Model):
     
     service_address = models.TextField()
     service_city = models.CharField(max_length=100, blank=True)
-    service_latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    service_longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    service_latitude = models.FloatField(null=True, blank=True)
+    service_longitude = models.FloatField(null=True, blank=True)
     distance_km = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     schedule_type = models.CharField(
         max_length=10, choices=SCHEDULE_CHOICES, default=SCHEDULE_NOW
