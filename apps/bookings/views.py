@@ -326,3 +326,45 @@ class ProviderJobStatusUpdateView(BaseResponseMixin, APIView):
         return self.success_response(
             message=f"Status updated to {new_status}."
         )
+
+
+class ProviderJobHistoryView(BaseResponseMixin, APIView):
+    """
+    Get provider's job history (accepted, active, completed, canceled jobs).
+    
+    Query Parameters:
+    - status: Filter by status (accepted, en_route, in_progress, completed, cancelled)
+    - type: 'active' (accepted/en_route/in_progress), 'completed', 'cancelled', or 'all' (default)
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        
+        # Get jobs assigned to this provider
+        jobs = Booking.objects.filter(provider=profile).order_by('-created_at')
+        
+        # Filter by type if provided
+        job_type = request.query_params.get('type', 'all').lower()
+        if job_type == 'active':
+            active_statuses = [
+                Booking.STATUS_ACCEPTED,
+                Booking.STATUS_EN_ROUTE,
+                Booking.STATUS_IN_PROGRESS,
+            ]
+            jobs = jobs.filter(status__in=active_statuses)
+        elif job_type == 'completed':
+            jobs = jobs.filter(status=Booking.STATUS_COMPLETED)
+        elif job_type == 'cancelled':
+            jobs = jobs.filter(status=Booking.STATUS_CANCELLED)
+        # 'all' returns all jobs assigned to provider
+        
+        # Filter by specific status if provided
+        status_f = request.query_params.get('status')
+        if status_f:
+            jobs = jobs.filter(status=status_f)
+        
+        data = JobListSerializer(
+            jobs, many=True, context={'request': request}
+        ).data
+        return self.success_response(data=data)

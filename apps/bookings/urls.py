@@ -10,6 +10,7 @@ urlpatterns = [
     path('<int:pk>/tip/', views.BookingAddTipView.as_view(), name='tip'),
     path('<int:pk>/rate/', views.BookingRateView.as_view(), name='rate'),
     path('jobs/', views.ProviderJobListView.as_view(), name='job-list'),
+    path('jobs/history/', views.ProviderJobHistoryView.as_view(), name='job-history'),
     path('jobs/<int:pk>/', views.ProviderJobDetailView.as_view(), name='job-detail'),
     path('jobs/<int:pk>/accept/', views.ProviderJobAcceptView.as_view(), name='job-accept'),
     path('jobs/<int:pk>/reject/', views.ProviderJobRejectView.as_view(), name='job-reject'),
