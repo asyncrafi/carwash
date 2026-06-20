@@ -1,4 +1,6 @@
 from celery import shared_task
+from datetime import timedelta
+from django.utils import timezone
 
 from apps.notifications.tasks import (
     create_notification_task,
@@ -6,6 +8,7 @@ from apps.notifications.tasks import (
 )
 from apps.payments.tasks import create_provider_earning_task
 from apps.accounts.tasks import send_welcome_email_task
+from .models import Booking
 
 
 @shared_task
@@ -109,3 +112,37 @@ def handle_user_registered(user_id, email, full_name):
         email=email,
         full_name=full_name,
     )
+
+
+@shared_task
+def delete_expired_now_bookings():
+    """
+    Auto-delete (cancel) bookings with 'now' schedule type that haven't been 
+    accepted by any provider within 5 minutes of creation.
+    Notifies the customer when their booking expires.
+    """
+    five_minutes_ago = timezone.now() - timedelta(minutes=5)
+    
+    # Find all expired "now" bookings that are still in requested status
+    expired_bookings = Booking.objects.filter(
+        status=Booking.STATUS_REQUESTED,
+        provider__isnull=True,
+        schedule_type=Booking.SCHEDULE_NOW,
+        created_at__lt=five_minutes_ago
+    )
+    
+    for booking in expired_bookings:
+        # Cancel the booking
+        booking.status = Booking.STATUS_CANCELLED
+        booking.cancelled_at = timezone.now()
+        booking.cancel_reason = "No provider accepted within 5 minutes"
+        booking.save()
+        
+        # Notify the customer that their booking expired
+        create_notification_task.delay(
+            user_id=booking.customer.user.id,
+            notif_type="booking_cancelled",
+            title="Booking Expired",
+            body="No provider accepted your booking within 5 minutes. It has been cancelled.",
+            data={"booking_id": booking.id},
+        )

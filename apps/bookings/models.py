@@ -93,3 +93,27 @@ class BookingPhoto(models.Model):
 
     def __str__(self):
         return f"Photo for Booking #{self.booking.id}"
+
+
+class BookingRejection(models.Model):
+    """
+    Track which providers have rejected which bookings.
+    Used to prevent showing rejected jobs to the same provider again.
+    """
+    booking = models.ForeignKey(
+        Booking, on_delete=models.CASCADE, related_name='rejections'
+    )
+    provider = models.ForeignKey(
+        ProviderProfile, on_delete=models.CASCADE, related_name='job_rejections'
+    )
+    rejected_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('booking', 'provider')
+        indexes = [
+            models.Index(fields=['booking']),
+            models.Index(fields=['provider']),
+        ]
+
+    def __str__(self):
+        return f"Provider {self.provider.user.full_name} rejected Booking #{self.booking.id}"

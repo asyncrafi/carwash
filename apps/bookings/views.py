@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from django.utils import timezone
+from datetime import timedelta
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -11,7 +12,7 @@ from apps.customers.models import CustomerProfile
 from apps.providers.models import ProviderProfile
 from apps.ratings.models import Rating
 from apps.ratings.serializers import RatingSerializer, TipSerializer
-from .models import Booking
+from .models import Booking, BookingRejection
 from .serializers import (
     BookingCreateSerializer,
     BookingListSerializer,
@@ -198,20 +199,31 @@ class ProviderJobListView(BaseResponseMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from decimal import Decimal
+        
         profile = get_object_or_404(ProviderProfile, user=request.user)
         
         # Get available jobs (requested status, not yet assigned to any provider)
         jobs = Booking.objects.filter(
             status=Booking.STATUS_REQUESTED,
             provider__isnull=True
+        ).exclude(
+            # Exclude jobs that are "now" type and older than 5 minutes
+            schedule_type=Booking.SCHEDULE_NOW,
+            created_at__lt=timezone.now() - timedelta(minutes=5)
         ).order_by('-created_at')
         
-        # Filter jobs by provider's service radius
-        from decimal import Decimal
+        # Get rejected job IDs by this provider
+        rejected_booking_ids = set(
+            profile.job_rejections.values_list('booking_id', flat=True)
+        )
+        
+        # Filter jobs by provider's service radius and exclude rejected jobs
         service_radius = Decimal(str(profile.service_radius_km))
         jobs = [
             job for job in jobs 
-            if Decimal(str(job.distance_km)) <= service_radius
+            if (Decimal(str(job.distance_km)) <= service_radius and 
+                job.id not in rejected_booking_ids)
         ]
         
         data = JobListSerializer(
@@ -289,6 +301,20 @@ class ProviderJobRejectView(BaseResponseMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        booking = get_object_or_404(
+            Booking, 
+            pk=pk, 
+            status=Booking.STATUS_REQUESTED,
+            provider__isnull=True
+        )
+        
+        # Create a rejection record to prevent showing this job to this provider again
+        BookingRejection.objects.get_or_create(
+            booking=booking,
+            provider=profile
+        )
+        
         return self.success_response(message="Job rejected.")
 
 

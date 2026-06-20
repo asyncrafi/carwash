@@ -11,6 +11,7 @@ from .tasks import (
     handle_booking_in_progress,
     handle_booking_completed,
     handle_booking_cancelled,
+    delete_expired_now_bookings,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,11 @@ def on_booking_status_change(sender, instance, created, **kwargs):
             service_latitude=getattr(instance, 'service_latitude', None),
             service_longitude=getattr(instance, 'service_longitude', None),
         )
+        
+        # Schedule cleanup for "now" bookings - run after 5 minutes to auto-cancel if no provider accepts
+        if instance.schedule_type == Booking.SCHEDULE_NOW:
+            delete_expired_now_bookings.apply_async(countdown=300)  # 300 seconds = 5 minutes
+        
         return
 
     if old_status == new_status:
