@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Booking, BookingPhoto
 from apps.services.serializers import ServiceSerializer, DirtLevelSerializer
-from apps.customers.serializers import VehicleSerializer, PaymentCardSerializer
+from apps.customers.serializers import VehicleSerializer, PaymentCardSerializer, CustomerBasicInfoSerializer
 from apps.providers.serializers import ProviderBasicInfoSerializer
 from apps.services.models import EngineType, VehicleType
 from apps.customers.models import Vehicle as CustomerVehicle
@@ -102,12 +102,13 @@ class BookingListSerializer(serializers.ModelSerializer):
     provider_name = serializers.SerializerMethodField()
     provider_avatar = serializers.SerializerMethodField()
     provider_rating = serializers.SerializerMethodField()
+    provider_distance_km = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
         fields = [
             'id', 'service_name', 'status', 'total_amount',
-            'provider_name', 'provider_avatar', 'provider_rating',
+            'provider_name', 'provider_avatar', 'provider_rating', 'provider_distance_km',
             'schedule_type', 'scheduled_at', 'created_at',
         ]
 
@@ -124,28 +125,66 @@ class BookingListSerializer(serializers.ModelSerializer):
     def get_provider_rating(self, obj):
         return float(obj.provider.average_rating) if obj.provider else None
 
+    def get_provider_distance_km(self, obj):
+        if obj.provider:
+            provider_lat = obj.provider.current_latitude or obj.provider.service_latitude
+            provider_lon = obj.provider.current_longitude or obj.provider.service_longitude
+            if (provider_lat is not None and provider_lon is not None and 
+                    obj.service_latitude is not None and obj.service_longitude is not None):
+                from apps.core.utils import haversine_distance_km
+                dist = haversine_distance_km(
+                    provider_lat, provider_lon,
+                    obj.service_latitude, obj.service_longitude
+                )
+                return round(dist, 2)
+        return None
+
 
 class BookingDetailSerializer(serializers.ModelSerializer):
+    customer = CustomerBasicInfoSerializer(read_only=True)
     service = ServiceSerializer(read_only=True)
     vehicle = VehicleSerializer(read_only=True)
     dirt_level = DirtLevelSerializer(read_only=True)
     provider = ProviderBasicInfoSerializer(read_only=True)
     photos = BookingPhotoSerializer(many=True, read_only=True)
     payment_card = PaymentCardSerializer(read_only=True)
+    provider_distance_km = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
         fields = [
-            'id', 'status', 'service', 'vehicle', 'dirt_level', 'provider',
+            'id', 'status', 'customer', 'service', 'vehicle', 'dirt_level', 'provider',
             'service_address', 'service_city',
             'service_latitude', 'service_longitude',
-            'distance_km', 'schedule_type', 'scheduled_at',
+            'distance_km', 'provider_distance_km', 'schedule_type', 'scheduled_at',
             'service_price', 'vehicle_price', 'dirt_price', 'distance_price',
             'engine_discount', 'platform_fee', 'tip_amount', 'total_amount',
             'payment_card', 'is_paid', 'photos',
             'created_at', 'accepted_at', 'started_at', 'completed_at',
         ]
         read_only_fields = fields
+
+    def get_provider_distance_km(self, obj):
+        provider_lat = None
+        provider_lon = None
+        if obj.provider:
+            provider_lat = obj.provider.current_latitude or obj.provider.service_latitude
+            provider_lon = obj.provider.current_longitude or obj.provider.service_longitude
+        else:
+            request = self.context.get('request')
+            if request and request.user and hasattr(request.user, 'provider_profile'):
+                provider_lat = request.user.provider_profile.current_latitude or request.user.provider_profile.service_latitude
+                provider_lon = request.user.provider_profile.current_longitude or request.user.provider_profile.service_longitude
+
+        if (provider_lat is not None and provider_lon is not None and 
+                obj.service_latitude is not None and obj.service_longitude is not None):
+            from apps.core.utils import haversine_distance_km
+            dist = haversine_distance_km(
+                provider_lat, provider_lon,
+                obj.service_latitude, obj.service_longitude
+            )
+            return round(dist, 2)
+        return None
 
 
 class BookingStatusUpdateSerializer(serializers.Serializer):
@@ -164,12 +203,38 @@ class JobListSerializer(serializers.ModelSerializer):
     customer_name = serializers.CharField(
         source='customer.user.full_name', read_only=True
     )
+    customer_avatar = serializers.SerializerMethodField()
     photos = BookingPhotoSerializer(many=True, read_only=True)
+    provider_distance_km = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
         fields = [
             'id', 'service_name', 'vehicle_type', 'engine_type',
-            'customer_name', 'service_address', 'distance_km',
-            'total_amount', 'status', 'scheduled_at', 'photos', 'created_at',
+            'customer_name', 'customer_avatar', 'service_address', 'distance_km', 'provider_distance_km',
+            'total_amount', 'status', 'schedule_type', 'scheduled_at', 'photos', 'created_at',
         ]
+
+    def get_customer_avatar(self, obj):
+        if obj.customer and obj.customer.user.avatar:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.customer.user.avatar.url)
+            return obj.customer.user.avatar.url
+        return None
+
+    def get_provider_distance_km(self, obj):
+        request = self.context.get('request')
+        if request and request.user and hasattr(request.user, 'provider_profile'):
+            provider = request.user.provider_profile
+            provider_lat = provider.current_latitude or provider.service_latitude
+            provider_lon = provider.current_longitude or provider.service_longitude
+            if (provider_lat is not None and provider_lon is not None and
+                    obj.service_latitude is not None and obj.service_longitude is not None):
+                from apps.core.utils import haversine_distance_km
+                dist = haversine_distance_km(
+                    provider_lat, provider_lon,
+                    obj.service_latitude, obj.service_longitude
+                )
+                return round(dist, 2)
+        return None

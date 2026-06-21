@@ -15,10 +15,11 @@ from apps.bookings.models import Booking
 from apps.payments.models import Payment, ProviderEarning
 from apps.services.models import Service, PlatformConfig
 from apps.notifications.tasks import bulk_create_notifications_task
-from apps.providers.serializers import ProviderDocumentSerializer
+from apps.providers.serializers import ProviderDocumentSerializer, ProviderProfileSerializer
 from apps.bookings.serializers import BookingListSerializer, BookingDetailSerializer
 from apps.payments.serializers import ProviderEarningSerializer
 from apps.services.serializers import ServiceSerializer, PlatformConfigSerializer
+from apps.providers.tasks import send_documents_verified_email_task, send_documents_rejected_email_task
 
 
 class AdminDashboardView(BaseResponseMixin, APIView):
@@ -275,9 +276,17 @@ class AdminProviderApproveView(BaseResponseMixin, APIView):
     def post(self, request, pk):
         provider = get_object_or_404(ProviderProfile, pk=pk)
         provider.status = 'approved'
+        provider.document_verification_status = ProviderProfile.DOCUMENT_STATUS_VERIFIED
+        provider.documents_verified_at = timezone.now()
+        provider.documents_rejection_reason = ""
         provider.save()
+        
+        # Send verification notification to provider
+        send_documents_verified_email_task.delay(provider.user.id)
+        
         return self.success_response(
-            message=f"Provider {provider.user.full_name} approved."
+            message=f"Provider {provider.user.full_name} approved.",
+            data=ProviderProfileSerializer(provider).data
         )
 
 
@@ -286,10 +295,19 @@ class AdminProviderRejectView(BaseResponseMixin, APIView):
 
     def post(self, request, pk):
         provider = get_object_or_404(ProviderProfile, pk=pk)
+        rejection_reason = request.data.get('reason', 'Provider profile does not meet requirements.')
+        
         provider.status = 'rejected'
+        provider.document_verification_status = ProviderProfile.DOCUMENT_STATUS_REJECTED
+        provider.documents_rejection_reason = rejection_reason
         provider.save()
+        
+        # Send rejection notification to provider
+        send_documents_rejected_email_task.delay(provider.user.id, rejection_reason)
+        
         return self.success_response(
-            message=f"Provider {provider.user.full_name} rejected."
+            message=f"Provider {provider.user.full_name} rejected.",
+            data=ProviderProfileSerializer(provider).data
         )
 
 

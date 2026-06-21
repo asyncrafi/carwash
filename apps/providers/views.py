@@ -166,7 +166,15 @@ class ProviderAvailabilityView(BaseResponseMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """Get provider availability for all days of the week"""
+        """
+        Get provider availability for all days of the week with comprehensive details:
+        - Week schedule with all day availability
+        - Provider's available services with vehicle types, engine types, and pricing
+        - Job statistics (total jobs, completed, pending)
+        - Provider ratings and metrics
+        """
+        from apps.bookings.models import Booking
+        
         profile = get_object_or_404(ProviderProfile, user=request.user)
         availability = ProviderAvailability.objects.filter(provider=profile)
         
@@ -196,13 +204,66 @@ class ProviderAvailabilityView(BaseResponseMixin, APIView):
                 }
             week_schedule.append(day_data)
         
+        # Get provider's services with vehicle types and pricing
+        provider_services = profile.services.select_related(
+            'service__vehicle_type', 'service__engine_type'
+        ).all()
+        from .serializers import DetailedProviderServiceSerializer
+        services_data = DetailedProviderServiceSerializer(provider_services, many=True).data
+        
+        # Get unique vehicle types from services
+        vehicle_types = set()
+        for svc in provider_services.filter(is_active=True):
+            if svc.service.vehicle_type:
+                vehicle_types.add({
+                    'id': svc.service.vehicle_type.id,
+                    'name': svc.service.vehicle_type.name,
+                    'extra_price': str(svc.service.vehicle_type.extra_price),
+                })
+        vehicle_types_list = list(vehicle_types)
+        
+        # Get job statistics
+        all_jobs = profile.jobs.all()
+        completed_jobs = all_jobs.filter(status=Booking.STATUS_COMPLETED).count()
+        pending_jobs = all_jobs.filter(status__in=[Booking.STATUS_REQUESTED, Booking.STATUS_ACCEPTED]).count()
+        total_jobs = all_jobs.count()
+        
         return self.success_response(
             data={
-                'week_schedule': week_schedule,
-                'available_days': available_days,
-                'available_days_count': len(available_days),
-                'start_time': start_time,
-                'end_time': end_time,
+                'provider': {
+                    'id': profile.id,
+                    'full_name': profile.user.full_name,
+                    'is_online': profile.is_online,
+                    'bio': profile.bio,
+                    'average_rating': float(profile.average_rating),
+                    'total_washes': profile.total_washes,
+                    'document_verification_status': profile.document_verification_status,
+                },
+                'availability': {
+                    'week_schedule': week_schedule,
+                    'available_days': available_days,
+                    'available_days_count': len(available_days),
+                    'start_time': start_time,
+                    'end_time': end_time,
+                },
+                'services': {
+                    'total_services': len(services_data),
+                    'active_services': sum(1 for s in services_data if s['is_active']),
+                    'vehicle_types': vehicle_types_list,
+                    'list': services_data,
+                },
+                'statistics': {
+                    'total_jobs': total_jobs,
+                    'completed_jobs': completed_jobs,
+                    'pending_jobs': pending_jobs,
+                    'completion_rate': round((completed_jobs / total_jobs * 100) if total_jobs > 0 else 0, 2),
+                },
+                'service_area': {
+                    'address': profile.service_address,
+                    'latitude': profile.service_latitude,
+                    'longitude': profile.service_longitude,
+                    'radius_km': profile.service_radius_km,
+                },
             }
         )
 
@@ -217,6 +278,8 @@ class ProviderAvailabilityView(BaseResponseMixin, APIView):
             "is_active": true
         }
         """
+        from apps.bookings.models import Booking
+        
         profile = get_object_or_404(ProviderProfile, user=request.user)
         
         days = request.data.get('days', [])
@@ -247,13 +310,66 @@ class ProviderAvailabilityView(BaseResponseMixin, APIView):
                 available_days.append(obj.get_day_of_week_display())
             results.append(ProviderAvailabilitySerializer(obj).data)
         
+        # Get provider's services with vehicle types and pricing
+        provider_services = profile.services.select_related(
+            'service__vehicle_type', 'service__engine_type'
+        ).all()
+        from .serializers import DetailedProviderServiceSerializer
+        services_data = DetailedProviderServiceSerializer(provider_services, many=True).data
+        
+        # Get unique vehicle types from services
+        vehicle_types = set()
+        for svc in provider_services.filter(is_active=True):
+            if svc.service.vehicle_type:
+                vehicle_types.add(tuple(sorted({
+                    'id': svc.service.vehicle_type.id,
+                    'name': svc.service.vehicle_type.name,
+                    'extra_price': str(svc.service.vehicle_type.extra_price),
+                }.items())))
+        vehicle_types_list = [dict(t) for t in vehicle_types]
+        
+        # Get job statistics
+        all_jobs = profile.jobs.all()
+        completed_jobs = all_jobs.filter(status=Booking.STATUS_COMPLETED).count()
+        pending_jobs = all_jobs.filter(status__in=[Booking.STATUS_REQUESTED, Booking.STATUS_ACCEPTED]).count()
+        total_jobs = all_jobs.count()
+        
         return self.created_response(
             data={
-                'availability': results,
-                'available_days': available_days,
-                'total_available_days': len(available_days),
-                'start_time': str(start_time),
-                'end_time': str(end_time),
+                'provider': {
+                    'id': profile.id,
+                    'full_name': profile.user.full_name,
+                    'is_online': profile.is_online,
+                    'bio': profile.bio,
+                    'average_rating': float(profile.average_rating),
+                    'total_washes': profile.total_washes,
+                    'document_verification_status': profile.document_verification_status,
+                },
+                'availability': {
+                    'schedule_updates': results,
+                    'available_days': available_days,
+                    'available_days_count': len(available_days),
+                    'start_time': str(start_time),
+                    'end_time': str(end_time),
+                },
+                'services': {
+                    'total_services': len(services_data),
+                    'active_services': sum(1 for s in services_data if s['is_active']),
+                    'vehicle_types': vehicle_types_list,
+                    'list': services_data,
+                },
+                'statistics': {
+                    'total_jobs': total_jobs,
+                    'completed_jobs': completed_jobs,
+                    'pending_jobs': pending_jobs,
+                    'completion_rate': round((completed_jobs / total_jobs * 100) if total_jobs > 0 else 0, 2),
+                },
+                'service_area': {
+                    'address': profile.service_address,
+                    'latitude': profile.service_latitude,
+                    'longitude': profile.service_longitude,
+                    'radius_km': profile.service_radius_km,
+                },
             },
             message="Availability saved."
         )

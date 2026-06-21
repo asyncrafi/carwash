@@ -12,6 +12,15 @@ class ProviderProfile(models.Model):
         (STATUS_REJECTED, 'Rejected'),
     ]
 
+    DOCUMENT_STATUS_PENDING = 'pending'
+    DOCUMENT_STATUS_VERIFIED = 'verified'
+    DOCUMENT_STATUS_REJECTED = 'rejected'
+    DOCUMENT_STATUS_CHOICES = [
+        (DOCUMENT_STATUS_PENDING, 'Pending Verification'),
+        (DOCUMENT_STATUS_VERIFIED, 'Verified'),
+        (DOCUMENT_STATUS_REJECTED, 'Rejected'),
+    ]
+
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -20,6 +29,15 @@ class ProviderProfile(models.Model):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING
     )
+    # Document verification status
+    document_verification_status = models.CharField(
+        max_length=20,
+        choices=DOCUMENT_STATUS_CHOICES,
+        default=DOCUMENT_STATUS_PENDING,
+        help_text="Verification status of provider documents (ID, insurance, etc.)"
+    )
+    documents_verified_at = models.DateTimeField(null=True, blank=True)
+    documents_rejection_reason = models.TextField(blank=True)
     is_online = models.BooleanField(default=False)
     current_latitude = models.DecimalField(
         max_digits=9, decimal_places=6, null=True, blank=True

@@ -237,21 +237,28 @@ class ProviderJobDetailView(BaseResponseMixin, APIView):
 
     def get(self, request, pk):
         profile = get_object_or_404(ProviderProfile, user=request.user)
-        # Allow viewing available jobs (not yet assigned) within service radius
-        job = get_object_or_404(
-            Booking, 
-            pk=pk, 
-            status=Booking.STATUS_REQUESTED,
-            provider__isnull=True
-        )
-        
-        # Verify job is within provider's service radius
         from decimal import Decimal
-        service_radius = Decimal(str(profile.service_radius_km))
-        if Decimal(str(job.distance_km)) > service_radius:
-            return self.error_response(
-                message="This job is outside your service radius."
-            )
+        
+        # Try to get the job - either an available job or a job assigned to this provider
+        try:
+            # First, check if it's one of the provider's own jobs
+            job = Booking.objects.get(pk=pk, provider=profile)
+        except Booking.DoesNotExist:
+            # If not their own job, check if it's an available job they can view
+            try:
+                job = Booking.objects.get(
+                    pk=pk, 
+                    status=Booking.STATUS_REQUESTED,
+                    provider__isnull=True
+                )
+                # Verify job is within provider's service radius
+                service_radius = Decimal(str(profile.service_radius_km))
+                if Decimal(str(job.distance_km)) > service_radius:
+                    return self.error_response(
+                        message="This job is outside your service radius."
+                    )
+            except Booking.DoesNotExist:
+                return self.error_response(message="Job not found.")
         
         data = BookingDetailSerializer(job, context={'request': request}).data
         return self.success_response(data=data)

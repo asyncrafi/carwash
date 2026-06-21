@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import ProviderProfile, ProviderDocument, BankDetail, ProviderAvailability
 from .models import ProviderService
-from apps.services.serializers import ServiceSerializer
+from apps.services.serializers import ServiceSerializer, VehicleTypeSerializer, EngineTypeSerializer
+from apps.bookings.models import Booking
 
 
 class ProviderDocumentSerializer(serializers.ModelSerializer):
@@ -38,6 +39,29 @@ class ProviderAvailabilitySerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'day_display']
 
 
+class DetailedProviderServiceSerializer(serializers.ModelSerializer):
+    """Enhanced service serializer with full details for availability endpoint"""
+    service_id = serializers.IntegerField(source='service.id', read_only=True)
+    service_name = serializers.CharField(source='service.name', read_only=True)
+    description = serializers.CharField(source='service.description', read_only=True)
+    base_price = serializers.DecimalField(
+        source='service.base_price', max_digits=8, decimal_places=2, read_only=True
+    )
+    vehicle_type = VehicleTypeSerializer(source='service.vehicle_type', read_only=True)
+    engine_type = EngineTypeSerializer(source='service.engine_type', read_only=True)
+    image = serializers.ImageField(source='service.image', read_only=True)
+    service_order = serializers.IntegerField(source='service.order', read_only=True)
+
+    class Meta:
+        model = ProviderService
+        fields = [
+            'id', 'service_id', 'service_name', 'description',
+            'base_price', 'vehicle_type', 'engine_type', 'image',
+            'is_active', 'price_override', 'service_order',
+        ]
+        read_only_fields = ['id']
+
+
 class ProviderProfileSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     documents = ProviderDocumentSerializer(many=True, read_only=True)
@@ -52,11 +76,13 @@ class ProviderProfileSerializer(serializers.ModelSerializer):
             'current_latitude', 'current_longitude', 'bio',
             'service_address', 'service_latitude', 'service_longitude', 'service_radius_km',
             'total_washes', 'average_rating',
+            'document_verification_status', 'documents_verified_at', 'documents_rejection_reason',
             'documents', 'bank_detail', 'availability', 'created_at',
             'services',
         ]
         read_only_fields = [
             'id', 'status', 'total_washes', 'average_rating', 'created_at',
+            'document_verification_status', 'documents_verified_at', 'documents_rejection_reason',
         ]
 
     def get_user(self, obj):
