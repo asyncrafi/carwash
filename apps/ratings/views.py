@@ -12,5 +12,5 @@ class RatingView(BaseResponseMixin, APIView):
 
     def get(self, request):
         ratings = Rating.objects.filter(reviewee=request.user)
-        data = RatingSerializer(ratings, many=True).data
+        data = RatingSerializer(ratings, many=True, context={'request': request}).data
         return self.success_response(data=data)

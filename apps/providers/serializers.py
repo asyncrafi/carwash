@@ -120,13 +120,11 @@ class ProviderOnlineStatusSerializer(serializers.Serializer):
 
 
 class ProviderBasicInfoSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(source='user.full_name', read_only=True)
-    avatar = serializers.ImageField(source='user.avatar', read_only=True)
-    phone = serializers.CharField(source='user.phone', read_only=True)
+    id = serializers.IntegerField(source='user.id', read_only=True)
+    full_name = serializers.CharField(source='user.full_name')
+    avatar = serializers.ImageField(source='user.avatar')
+    phone = serializers.CharField(source='user.phone')
 
     class Meta:
         model = ProviderProfile
-        fields = [
-            'id', 'full_name', 'avatar', 'phone',
-            'average_rating', 'total_washes', 'is_online',
-        ]
+        fields = ['id', 'full_name', 'avatar', 'phone', 'average_rating', 'total_washes', 'is_online']

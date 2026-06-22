@@ -43,21 +43,14 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
 
 
 class CustomerBasicInfoSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(source='user.full_name', read_only=True)
-    avatar = serializers.SerializerMethodField()
-    phone = serializers.CharField(source='user.phone', read_only=True)
+    id = serializers.IntegerField(source='user.id', read_only=True)
+    full_name = serializers.CharField(source='user.full_name')
+    avatar = serializers.ImageField(source='user.avatar')
+    phone = serializers.CharField(source='user.phone')
 
     class Meta:
         model = CustomerProfile
         fields = ['id', 'full_name', 'avatar', 'phone']
-
-    def get_avatar(self, obj):
-        if obj.user and obj.user.avatar:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.user.avatar.url)
-            return obj.user.avatar.url
-        return None
 
 
 class VehicleSerializer(serializers.ModelSerializer):
