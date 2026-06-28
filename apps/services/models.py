@@ -1,5 +1,5 @@
 from django.db import models
-
+from apps.accounts.models import User
 
 class VehicleType(models.Model):
     name = models.CharField(max_length=50)
@@ -101,3 +101,38 @@ class PlatformConfig(models.Model):
 
     def __str__(self):
         return "Platform Config"
+
+
+
+class AppSetting(models.Model):
+    """App settings (Privacy, Terms, About, FAQ) - multilingual"""
+    
+    SETTINGS_TYPE_CHOICES = [
+        ('privacy', 'Privacy Policy'),
+        ('terms', 'Terms of Service'),
+        ('about_us', 'About Us'),
+        ('faq', 'FAQ'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='settings',
+        null=True,
+        blank=True
+    )  # NULL for global settings
+
+    content = models.TextField(blank=True, help_text="Content of the setting (HTML allowed)") 
+    
+    settings_type = models.CharField(max_length=20, choices=SETTINGS_TYPE_CHOICES)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'settings'
+        verbose_name = 'Setting'
+        verbose_name_plural = 'Settings'
+    
+    def __str__(self):
+        return f"{self.get_settings_type_display()} - {self.user.username if self.user else 'Global'}"

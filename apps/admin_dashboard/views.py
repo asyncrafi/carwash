@@ -545,3 +545,158 @@ class AdminSendNotificationView(BaseResponseMixin, APIView):
         return self.success_response(
             message=f"Notification queued for {len(user_ids)} users."
         )
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAdminUser
+from django.shortcuts import get_object_or_404
+
+from apps.services.models import VehicleType, EngineType, Service, DirtLevel
+from apps.admin_dashboard.serializers import (
+    VehicleTypeSerializer, EngineTypeSerializer,
+    ServiceSerializer, DirtLevelSerializer
+)
+
+
+class AdminOnlyMixin:
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
+
+
+# ─── Vehicle Type ───────────────────────────────────────────
+
+class VehicleTypeListCreateView(AdminOnlyMixin, APIView):
+    def get(self, request):
+        qs = VehicleType.objects.all()
+        return Response(VehicleTypeSerializer(qs, many=True).data)
+
+    def post(self, request):
+        serializer = VehicleTypeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VehicleTypeDetailView(AdminOnlyMixin, APIView):
+    def get_object(self, pk):
+        return get_object_or_404(VehicleType, pk=pk)
+
+    def get(self, request, pk):
+        return Response(VehicleTypeSerializer(self.get_object(pk)).data)
+
+    def patch(self, request, pk):
+        serializer = VehicleTypeSerializer(self.get_object(pk), data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        self.get_object(pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ─── Engine Type ────────────────────────────────────────────
+
+class EngineTypeListCreateView(AdminOnlyMixin, APIView):
+    def get(self, request):
+        qs = EngineType.objects.all()
+        return Response(EngineTypeSerializer(qs, many=True).data)
+
+    def post(self, request):
+        serializer = EngineTypeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EngineTypeDetailView(AdminOnlyMixin, APIView):
+    def get_object(self, pk):
+        return get_object_or_404(EngineType, pk=pk)
+
+    def get(self, request, pk):
+        return Response(EngineTypeSerializer(self.get_object(pk)).data)
+
+    def patch(self, request, pk):
+        serializer = EngineTypeSerializer(self.get_object(pk), data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        self.get_object(pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ─── Service ────────────────────────────────────────────────
+
+class ServiceListCreateView(AdminOnlyMixin, APIView):
+    def get(self, request):
+        qs = Service.objects.select_related('vehicle_type', 'engine_type').filter(is_active=True)
+        return Response(ServiceSerializer(qs, many=True).data)
+
+    def post(self, request):
+        serializer = ServiceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ServiceDetailView(AdminOnlyMixin, APIView):
+    def get_object(self, pk):
+        return get_object_or_404(Service, pk=pk)
+
+    def get(self, request, pk):
+        return Response(ServiceSerializer(self.get_object(pk)).data)
+
+    def patch(self, request, pk):
+        serializer = ServiceSerializer(self.get_object(pk), data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        self.get_object(pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ─── Dirt Level ─────────────────────────────────────────────
+
+class DirtLevelListCreateView(AdminOnlyMixin, APIView):
+    def get(self, request):
+        qs = DirtLevel.objects.all()
+        return Response(DirtLevelSerializer(qs, many=True).data)
+
+    def post(self, request):
+        serializer = DirtLevelSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DirtLevelDetailView(AdminOnlyMixin, APIView):
+    def get_object(self, pk):
+        return get_object_or_404(DirtLevel, pk=pk)
+
+    def get(self, request, pk):
+        return Response(DirtLevelSerializer(self.get_object(pk)).data)
+
+    def patch(self, request, pk):
+        serializer = DirtLevelSerializer(self.get_object(pk), data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        self.get_object(pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

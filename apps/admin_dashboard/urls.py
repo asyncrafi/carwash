@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 app_name = 'admin_dashboard'
 
 urlpatterns = [
@@ -23,4 +24,13 @@ urlpatterns = [
     path('services/<int:pk>/', views.AdminServiceDetailView.as_view(), name='service-detail'),
     path('config/', views.AdminPlatformConfigView.as_view(), name='config'),
     path('notifications/send/', views.AdminSendNotificationView.as_view(), name='notif-send'),
+
+    # ─── Vehicle & Engine & Dirt ────────────────────────────
+    path('vehicle-types/', views.VehicleTypeListCreateView.as_view(), name='vehicle-type-list'),
+    path('vehicle-types/<int:pk>/', views.VehicleTypeDetailView.as_view(), name='vehicle-type-detail'),
+    path('engine-types/', views.EngineTypeListCreateView.as_view(), name='engine-type-list'),
+    path('engine-types/<int:pk>/', views.EngineTypeDetailView.as_view(), name='engine-type-detail'),
+    path('dirt-levels/', views.DirtLevelListCreateView.as_view(), name='dirt-level-list'),
+    path('dirt-levels/<int:pk>/', views.DirtLevelDetailView.as_view(), name='dirt-level-detail'),
+
 ]

@@ -9,3 +9,10 @@ urlpatterns = [
     path('engine-types/', views.EngineTypeListView.as_view(), name='engine-types'),
     path('dirt-levels/', views.DirtLevelListView.as_view(), name='dirt-levels'),
 ]
+
+from .views import AppSettingListCreateView, AppSettingDetailView
+
+urlpatterns = urlpatterns + [
+    path('settings/', AppSettingListCreateView.as_view(), name='app-setting-list'),
+    path('settings/<int:pk>/', AppSettingDetailView.as_view(), name='app-setting-detail'),
+]
