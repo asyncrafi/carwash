@@ -1,3 +1,5 @@
+# Django settings for production environment.
+
 from decouple import config
 from .base import *
 

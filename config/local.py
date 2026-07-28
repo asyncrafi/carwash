@@ -1,3 +1,4 @@
+# Django settings for local development environment.
 from decouple import config
 from .base import *
 

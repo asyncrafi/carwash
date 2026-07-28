@@ -49,6 +49,7 @@ PyYAML==6.0.3
 redis==5.2.1
 referencing==0.37.0
 requests==2.34.2
+resend==2.35.0
 rpds-py==2026.5.1
 service-identity==26.1.0
 six==1.17.0
@@ -62,5 +63,5 @@ uritemplate==4.2.0
 urllib3==2.7.0
 vine==5.1.0
 wcwidth==0.7.0
-zope.interface==8.5
 whitenoise==6.11.0
+zope.interface==8.5
