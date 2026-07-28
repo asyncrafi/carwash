@@ -38,16 +38,17 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
     env_file:
       - .env
     environment:
       DJANGO_SETTINGS_MODULE: config.production
       DB_HOST: db
       CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
 
   celery_worker:
     build:
@@ -66,8 +67,9 @@ services:
       DJANGO_SETTINGS_MODULE: config.production
       DB_HOST: db
       CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
     volumes:
-      - media_volume:/app/media
+      - ./media:/app/media
 
   celery_beat:
     build:
@@ -86,9 +88,8 @@ services:
       DJANGO_SETTINGS_MODULE: config.production
       DB_HOST: db
       CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
 
 volumes:
   postgres_data:
   redis_data:
-  static_volume:
-  media_volume:
