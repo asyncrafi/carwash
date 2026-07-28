@@ -1,28 +1,28 @@
 import logging
 
+import resend
 from celery import shared_task
-from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 
+resend.api_key = settings.RESEND_API_KEY
 
-@shared_task
-def send_email_task(subject, email_to, template_name, context=None, email_from=None):
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=30)
+def send_email_task(self, subject, email_to, template_name, context=None):
+    context = context or {}
+    html_content = render_to_string(template_name, context)
+
     try:
-        context = context or {}
-        html_message = render_to_string(template_name, context)
-        plain_message = strip_tags(html_message)
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=email_from or settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email_to] if isinstance(email_to, str) else email_to,
-            html_message=html_message,
-            fail_silently=False,
-        )
-        logger.info(f"Email sent to {email_to}: {subject}")
-    except Exception as e:
-        logger.error(f"Failed to send email to {email_to}: {e}")
+        resend.Emails.send({
+            "from": settings.DEFAULT_FROM_EMAIL,
+            "to": [email_to],
+            "subject": subject,
+            "html": html_content,
+        })
+        logger.info(f"Email sent to {email_to} — subject: {subject}")
+    except Exception as exc:
+        logger.error(f"Resend send failed for {email_to}: {exc}")
+        raise self.retry(exc=exc)

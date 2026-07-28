@@ -1,6 +1,7 @@
 import random
 import datetime
 
+from django.conf import settings
 from django.contrib.auth import get_user_model, authenticate
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -11,7 +12,11 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.core.mixins import BaseResponseMixin
-from apps.accounts.tasks import send_password_reset_email_task
+from apps.accounts.tasks import (
+    send_welcome_email_task,
+    send_otp_email_task,
+    send_password_reset_email_task,
+)
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
@@ -55,11 +60,14 @@ class RegisterView(BaseResponseMixin, APIView):
                 else:
                     serializer = RegisterSerializer()
                     code = serializer.send_verification_otp(user)
+                    send_otp_email_task.delay(
+                        email=user.email, code=code, full_name=user.full_name or user.email,
+                    )
                     return self.success_response(
                         data={
                             'email': email,
                             'is_sent': True,
-                            'otp_code': code,
+                            **({'otp_code': code} if settings.DEBUG else {}),
                         },
                         message='User not verified. New OTP sent.',
                         status_code=status.HTTP_200_OK,
@@ -75,11 +83,16 @@ class RegisterView(BaseResponseMixin, APIView):
         ).order_by('-created_at').first()
         code = last_otp.code if last_otp else None
 
+        if code:
+            send_otp_email_task.delay(
+                email=user.email, code=code, full_name=user.full_name or user.email,
+            )
+
         return self.created_response(
             data={
                 'user': UserSerializer(user, context={'request': request}).data,
-                'otp_code': code,
                 'is_sent': True,
+                **({'otp_code': code} if settings.DEBUG else {}),
             },
             message='Registration successful. Please verify your email with the OTP code.',
         )
@@ -137,7 +150,13 @@ class OTPRequestView(BaseResponseMixin, APIView):
             purpose=purpose,
             expires_at=timezone.now() + datetime.timedelta(minutes=10),
         )
-        return self.success_response(data={'otp_code': code}, message="OTP sent successfully.")
+        send_otp_email_task.delay(
+            email=user.email, code=code, full_name=user.full_name or user.email,
+        )
+        return self.success_response(
+            data={**({'otp_code': code} if settings.DEBUG else {})},
+            message="OTP sent successfully.",
+        )
 
 
 class OTPVerifyView(BaseResponseMixin, APIView):
@@ -159,6 +178,9 @@ class OTPVerifyView(BaseResponseMixin, APIView):
         otp.save()
         user.is_verified = True
         user.save()
+        send_welcome_email_task.delay(
+            user_id=user.id, email=user.email, full_name=user.full_name or user.email,
+        )
         tokens = get_tokens_for_user(user)
         data = {'tokens': tokens}
         return self.success_response(data=data, message="Email verified successfully.")
