@@ -72,7 +72,7 @@ class ProviderProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProviderProfile
         fields = [
-            'id', 'user', 'status', 'is_online',
+            'id', 'user', 'status', 'stripe_account_id', 'stripe_onboarding_complete', 'is_online',
             'current_latitude', 'current_longitude', 'bio',
             'service_address', 'service_latitude', 'service_longitude', 'service_radius_km',
             'total_washes', 'average_rating',

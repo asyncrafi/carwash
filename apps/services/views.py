@@ -67,6 +67,29 @@ from .models import AppSetting
 from .serializers import AppSettingSerializer
 
 
+class PublicAppSettingListView(APIView):
+    """Public GET-only settings list for frontend apps."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        settings_type = request.query_params.get('type')
+        qs = AppSetting.objects.filter(user=None)
+        if settings_type:
+            qs = qs.filter(settings_type=settings_type)
+        serializer = AppSettingSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class PublicAppSettingDetailView(APIView):
+    """Public GET-only detail endpoint for a specific app setting type."""
+    permission_classes = [AllowAny]
+
+    def get(self, request, settings_type):
+        setting = get_object_or_404(AppSetting, user=None, settings_type=settings_type)
+        serializer = AppSettingSerializer(setting)
+        return Response(serializer.data)
+
+
 class AppSettingListCreateView(APIView):
     """
     GET  /settings/          → anyone can list (global settings)

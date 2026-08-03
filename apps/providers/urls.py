@@ -4,6 +4,8 @@ from . import views
 app_name = 'providers'
 
 urlpatterns = [
+    path('stripe/create-account/', views.ProviderStripeConnectView.as_view(), name='stripe-create-account'),
+    path('stripe/account-link/', views.ProviderStripeAccountLinkView.as_view(), name='stripe-account-link'),
     path('profile/', views.ProviderProfileView.as_view(), name='profile'),
     path('online-status/', views.ProviderOnlineStatusView.as_view(), name='online-status'),
     path('location/', views.ProviderLocationUpdateView.as_view(), name='location'),

@@ -153,7 +153,7 @@ class BookingDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            'id', 'status', 'customer', 'service', 'vehicle', 'dirt_level', 'provider',
+            'id', 'status', 'payment_status', 'stripe_payment_intent_id', 'customer', 'service', 'vehicle', 'dirt_level', 'provider',
             'service_address', 'service_city',
             'service_latitude', 'service_longitude',
             'distance_km', 'provider_distance_km', 'schedule_type', 'scheduled_at',

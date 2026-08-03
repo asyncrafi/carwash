@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 
+import stripe
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -17,6 +19,67 @@ from .serializers import ProviderServiceSerializer
 from .models import ProviderService
 from apps.services.models import Service
 from apps.core.utils import haversine_distance_km
+
+
+class ProviderStripeConnectView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not settings.STRIPE_SECRET_KEY:
+            return self.error_response(
+                message="Stripe secret key is not configured.",
+                error_code="STRIPE_NOT_CONFIGURED",
+            )
+
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        if profile.stripe_account_id:
+            return self.success_response(
+                data={'account_id': profile.stripe_account_id, 'already_exists': True},
+                message="Stripe account already exists.",
+            )
+
+        account = stripe.Account.create(
+            type='express',
+            email=request.user.email,
+            metadata={'provider_profile_id': str(profile.id)},
+        )
+        profile.stripe_account_id = account.id
+        profile.save(update_fields=['stripe_account_id'])
+        return self.created_response(
+            data={'account_id': account.id},
+            message='Stripe Express account created successfully.'
+        )
+
+
+class ProviderStripeAccountLinkView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not settings.STRIPE_SECRET_KEY:
+            return self.error_response(
+                message="Stripe secret key is not configured.",
+                error_code="STRIPE_NOT_CONFIGURED",
+            )
+
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        if not profile.stripe_account_id:
+            return self.bad_request_response(
+                message="Provider Stripe account has not been created yet."
+            )
+
+        return_url = request.data.get('return_url') or request.build_absolute_uri('/provider/onboarding/complete/')
+        refresh_url = request.data.get('refresh_url') or request.build_absolute_uri('/provider/onboarding/refresh/')
+
+        account_link = stripe.AccountLink.create(
+            account=profile.stripe_account_id,
+            refresh_url=refresh_url,
+            return_url=return_url,
+            type='account_onboarding',
+        )
+        return self.success_response(
+            data={'url': account_link.url, 'account_id': profile.stripe_account_id},
+            message='Stripe onboarding link generated successfully.'
+        )
 
 
 class ProviderProfileView(BaseResponseMixin, APIView):

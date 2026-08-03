@@ -69,6 +69,20 @@ class Booking(models.Model):
     payment_card = models.ForeignKey(
         PaymentCard, on_delete=models.SET_NULL, null=True, blank=True
     )
+    PAYMENT_STATUS_PENDING = 'pending'
+    PAYMENT_STATUS_PAID = 'paid'
+    PAYMENT_STATUS_RELEASED = 'released'
+    PAYMENT_STATUS_REFUNDED = 'refunded'
+    PAYMENT_STATUS_CHOICES = [
+        (PAYMENT_STATUS_PENDING, 'Pending'),
+        (PAYMENT_STATUS_PAID, 'Paid'),
+        (PAYMENT_STATUS_RELEASED, 'Released'),
+        (PAYMENT_STATUS_REFUNDED, 'Refunded'),
+    ]
+    payment_status = models.CharField(
+        max_length=20, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING
+    )
+    stripe_payment_intent_id = models.CharField(max_length=255, blank=True, default='')
     is_paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     accepted_at = models.DateTimeField(null=True, blank=True)

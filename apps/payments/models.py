@@ -7,11 +7,15 @@ from apps.providers.models import ProviderProfile
 class Payment(models.Model):
     STATUS_PENDING = 'pending'
     STATUS_SUCCESS = 'success'
+    STATUS_PAID = 'paid'
+    STATUS_RELEASED = 'released'
     STATUS_FAILED = 'failed'
     STATUS_REFUNDED = 'refunded'
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Pending'),
         (STATUS_SUCCESS, 'Success'),
+        (STATUS_PAID, 'Paid'),
+        (STATUS_RELEASED, 'Released'),
         (STATUS_FAILED, 'Failed'),
         (STATUS_REFUNDED, 'Refunded'),
     ]
@@ -43,6 +47,7 @@ class ProviderEarning(models.Model):
     gross_amount = models.DecimalField(max_digits=8, decimal_places=2)
     platform_fee = models.DecimalField(max_digits=8, decimal_places=2)
     net_amount = models.DecimalField(max_digits=8, decimal_places=2)
+    stripe_transfer_id = models.CharField(max_length=255, blank=True, default='')
     is_paid_out = models.BooleanField(default=False)
     paid_out_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

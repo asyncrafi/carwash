@@ -15,4 +15,6 @@ urlpatterns = [
     path('jobs/<int:pk>/accept/', views.ProviderJobAcceptView.as_view(), name='job-accept'),
     path('jobs/<int:pk>/reject/', views.ProviderJobRejectView.as_view(), name='job-reject'),
     path('jobs/<int:pk>/status/', views.ProviderJobStatusUpdateView.as_view(), name='job-status'),
+    path('jobs/<int:pk>/finish/', views.ProviderJobFinishView.as_view(), name='job-finish'),
+    path('jobs/<int:pk>/confirm/', views.CustomerJobConfirmView.as_view(), name='job-confirm'),
 ]

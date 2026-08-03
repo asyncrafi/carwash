@@ -693,6 +693,51 @@
             },
             "description": "List dirt levels with extra prices. Public."
           }
+        },
+        {
+          "name": "Public App Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/settings/public/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "settings", "public", ""]
+            },
+            "description": "List all public app settings (privacy, terms, about us, faq). No auth required."
+          }
+        },
+        {
+          "name": "Public App Settings by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/settings/public/terms/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "settings", "public", "terms", ""]
+            },
+            "description": "Get a specific public setting by type. Example valid values: privacy, terms, about_us, faq."
+          }
+        },
+        {
+          "name": "Public App Settings Filter by Query",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/settings/public/?type=terms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "settings", "public", ""],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "terms"
+                }
+              ]
+            },
+            "description": "Filter public app settings by `type` query parameter. Example: ?type=privacy or ?type=terms"
+          }
         }
       ]
     },

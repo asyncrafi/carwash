@@ -29,6 +29,8 @@ class ProviderProfile(models.Model):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING
     )
+    stripe_account_id = models.CharField(max_length=255, blank=True, default='')
+    stripe_onboarding_complete = models.BooleanField(default=False)
     # Document verification status
     document_verification_status = models.CharField(
         max_length=20,

@@ -1,3 +1,7 @@
+from decimal import Decimal
+
+import stripe
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from django.utils import timezone
@@ -401,3 +405,106 @@ class ProviderJobHistoryView(BaseResponseMixin, APIView):
             jobs, many=True, context={'request': request}
         ).data
         return self.success_response(data=data)
+
+
+class ProviderJobFinishView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        booking = get_object_or_404(Booking, pk=pk, provider=profile)
+
+        if booking.status != Booking.STATUS_IN_PROGRESS:
+            return self.error_response(
+                message='Only jobs in progress can be finished.',
+                error_code='INVALID_JOB_STATUS',
+            )
+
+        booking.status = Booking.STATUS_COMPLETED
+        booking.completed_at = timezone.now()
+        booking.provider.total_washes += 1
+        booking.provider.save(update_fields=['total_washes'])
+        booking.save(update_fields=['status', 'completed_at'])
+
+        return self.success_response(
+            data={'job_id': booking.id, 'status': booking.status},
+            message='Job marked as finished. Waiting for customer confirmation.',
+        )
+
+
+class CustomerJobConfirmView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        profile = get_object_or_404(CustomerProfile, user=request.user)
+        booking = get_object_or_404(Booking, pk=pk, customer=profile)
+
+        if booking.status != Booking.STATUS_COMPLETED:
+            return self.error_response(
+                message='Only completed jobs can be confirmed.',
+                error_code='INVALID_JOB_STATUS',
+            )
+
+        if booking.payment_status == Booking.PAYMENT_STATUS_RELEASED:
+            return self.error_response(message='This job has already been released to the provider.', status_code=409)
+
+        if booking.payment_status != Booking.PAYMENT_STATUS_PAID:
+            return self.error_response(
+                message='Payment must be captured before the provider can be paid.',
+                error_code='PAYMENT_NOT_PAID',
+            )
+
+        if not booking.provider or not booking.provider.stripe_account_id:
+            return self.error_response(
+                message='Provider is not connected to Stripe.',
+                error_code='PROVIDER_NOT_CONNECTED',
+            )
+
+        if not settings.STRIPE_SECRET_KEY:
+            return self.error_response(
+                message='Stripe secret key is not configured.',
+                error_code='STRIPE_NOT_CONFIGURED',
+            )
+
+        earning, created = booking.earning if hasattr(booking, 'earning') else (None, False)
+        if earning is None:
+            from apps.payments.utils import create_provider_earning
+            create_provider_earning(booking)
+            earning = booking.earning if hasattr(booking, 'earning') else None
+
+        if earning is None:
+            breakdown = calculate_provider_earning(booking)
+            earning = booking.earning if hasattr(booking, 'earning') else None
+            if earning is None:
+                earning = ProviderEarning.objects.create(
+                    provider=booking.provider,
+                    booking=booking,
+                    gross_amount=breakdown['gross_amount'],
+                    platform_fee=breakdown['platform_fee'],
+                    net_amount=breakdown['net_amount'],
+                )
+
+        transfer = stripe.Transfer.create(
+            amount=int((Decimal(str(earning.net_amount)) * 100).to_integral_value()),
+            currency='eur',
+            destination=booking.provider.stripe_account_id,
+            metadata={'booking_id': str(booking.id), 'provider_id': str(booking.provider_id)},
+        )
+
+        earning.stripe_transfer_id = transfer.id
+        earning.is_paid_out = True
+        earning.paid_out_at = timezone.now()
+        earning.save(update_fields=['stripe_transfer_id', 'is_paid_out', 'paid_out_at'])
+
+        booking.payment_status = Booking.PAYMENT_STATUS_RELEASED
+        booking.save(update_fields=['payment_status'])
+
+        return self.success_response(
+            data={
+                'booking_id': booking.id,
+                'transfer_id': transfer.id,
+                'provider_amount': str(earning.net_amount),
+                'payment_status': booking.payment_status,
+            },
+            message='Provider payout transferred successfully.',
+        )
