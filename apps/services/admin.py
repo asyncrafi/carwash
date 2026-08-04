@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, VehicleType, EngineType, DirtLevel, PlatformConfig
+from .models import Service, VehicleType, EngineType, DirtLevel, PlatformConfig, AppSetting
 
 
 class ServiceVehicleInline(admin.TabularInline):
@@ -49,3 +49,17 @@ class DirtLevelAdmin(admin.ModelAdmin):
 @admin.register(PlatformConfig)
 class PlatformConfigAdmin(admin.ModelAdmin):
     list_display = ['platform_fee_fixed', 'commission_percent', 'distance_price_per_km', 'updated_at']
+
+
+@admin.register(AppSetting)
+class AppSettingAdmin(admin.ModelAdmin):
+    list_display = ['settings_type', 'user', 'updated_at']
+    list_filter = ['settings_type', 'user']
+    search_fields = ['settings_type', 'content']
+    ordering = ['settings_type']
+    list_per_page = 25
+    fieldsets = (
+        (None, {
+            'fields': ('settings_type', 'content', 'user')
+        }),
+    )
