@@ -62,9 +62,37 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 
 from .models import AppSetting
 from .serializers import AppSettingSerializer
+
+
+def render_public_setting_page(request, settings_type, title):
+    setting = AppSetting.objects.filter(user=None, settings_type=settings_type).first()
+    if not setting:
+        setting = AppSetting(
+            settings_type=settings_type,
+            content=f"<p>Content for {title} will be added here.</p>",
+            user=None,
+        )
+
+    return render(
+        request,
+        'apps/app_settings/settings.html',
+        {
+            'title': title,
+            'setting': setting,
+        },
+    )
+
+
+def public_terms_page(request):
+    return render_public_setting_page(request, 'terms', 'Terms & Conditions')
+
+
+def public_privacy_policy_page(request):
+    return render_public_setting_page(request, 'privacy', 'Privacy Policy')
 
 
 class PublicAppSettingListView(APIView):

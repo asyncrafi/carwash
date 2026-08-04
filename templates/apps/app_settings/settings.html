@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px 24px 60px;
+            line-height: 1.7;
+            color: #1f2937;
+        }
+        .last-updated {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 24px;
+        }
+        .content {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 24px;
+        }
+        h1, h2, h3 {
+            color: #111827;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <p class="last-updated">
+        Last updated: {{ setting.updated_at|default:setting.created_at|date:"F d, Y" }}
+    </p>
+    <div class="content">
+        {{ setting.content|safe }}
+    </div>
+</body>
+</html>

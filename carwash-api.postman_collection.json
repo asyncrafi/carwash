@@ -693,9 +693,14 @@
             },
             "description": "List dirt levels with extra prices. Public."
           }
-        },
+        }
+      ]
+    },
+    {
+      "name": "📖 App Settings",
+      "item": [
         {
-          "name": "Public App Settings",
+          "name": "List Public App Settings",
           "request": {
             "method": "GET",
             "header": [],
@@ -708,7 +713,20 @@
           }
         },
         {
-          "name": "Public App Settings by Type",
+          "name": "Get Privacy Policy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/settings/public/privacy/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "settings", "public", "privacy", ""]
+            },
+            "description": "Fetch the public privacy policy content."
+          }
+        },
+        {
+          "name": "Get Terms & Conditions",
           "request": {
             "method": "GET",
             "header": [],
@@ -717,26 +735,90 @@
               "host": ["{{base_url}}"],
               "path": ["api", "services", "settings", "public", "terms", ""]
             },
-            "description": "Get a specific public setting by type. Example valid values: privacy, terms, about_us, faq."
+            "description": "Fetch the public terms and conditions content."
           }
         },
         {
-          "name": "Public App Settings Filter by Query",
+          "name": "Get About Us",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/services/settings/public/?type=terms",
+              "raw": "{{base_url}}/api/services/settings/public/about_us/",
               "host": ["{{base_url}}"],
-              "path": ["api", "services", "settings", "public", ""],
-              "query": [
-                {
-                  "key": "type",
-                  "value": "terms"
-                }
-              ]
+              "path": ["api", "services", "settings", "public", "about_us", ""]
             },
-            "description": "Filter public app settings by `type` query parameter. Example: ?type=privacy or ?type=terms"
+            "description": "Fetch the public About Us content."
+          }
+        },
+        {
+          "name": "Get FAQ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/services/settings/public/faq/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "settings", "public", "faq", ""]
+            },
+            "description": "Fetch the FAQ public content."
+          }
+        },
+        {
+          "name": "Admin Create App Setting",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settings_type\": \"terms\",\n  \"content\": \"<h2>Terms & Conditions</h2><p>Welcome to CarWash. By using our service you agree to these terms.</p>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/services/settings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "settings", ""]
+            },
+            "description": "Create a new app setting. Admin only. Valid types: privacy, terms, about_us, faq."
+          }
+        },
+        {
+          "name": "Admin Update App Setting",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"<h2>Updated Terms & Conditions</h2><p>Updated content here.</p>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/services/settings/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "settings", "1", ""]
+            },
+            "description": "Update an app setting by ID. Admin only."
+          }
+        },
+        {
+          "name": "Admin Delete App Setting",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/services/settings/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "services", "settings", "1", ""]
+            },
+            "description": "Delete an app setting by ID. Admin only."
           }
         }
       ]

@@ -9,6 +9,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.utils import timezone
 
+from apps.services.views import public_terms_page, public_privacy_policy_page
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -25,6 +27,8 @@ def health_check(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('terms-and-conditions/', public_terms_page, name='terms_page'),
+    path('privacy-policy/', public_privacy_policy_page, name='privacy_policy_page'),
     path('api/health/', health_check, name='health'),
     path('api/auth/', include('apps.accounts.urls')),
     path('api/customer/', include('apps.customers.urls')),
