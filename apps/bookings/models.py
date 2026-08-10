@@ -83,6 +83,7 @@ class Booking(models.Model):
         max_length=20, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING
     )
     stripe_payment_intent_id = models.CharField(max_length=255, blank=True, default='')
+    stripe_transfer_id = models.CharField(max_length=255, blank=True, default='')
     is_paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     accepted_at = models.DateTimeField(null=True, blank=True)

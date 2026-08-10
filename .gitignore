@@ -1054,4 +1054,4 @@ local.py
 
 # Compiled translations
 locale/*/LC_MESSAGES/django.po
-locale/*/LC_MESSAGES/django.mo
+locale/*/LC_MESSAGES/django.mofirebase-credentials.json

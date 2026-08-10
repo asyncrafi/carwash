@@ -16,6 +16,7 @@ from apps.bookings.models import Booking
 from apps.core.utils import calculate_provider_earning
 from .models import Payment, ProviderEarning
 from .serializers import ProviderEarningSerializer
+from .utils import create_provider_earning
 
 
 class StripeWebhookView(BaseResponseMixin, APIView):
@@ -123,6 +124,130 @@ class CreatePaymentIntentView(BaseResponseMixin, APIView):
                 'payment_status': booking.payment_status,
             },
             message='Stripe PaymentIntent created successfully.',
+        )
+
+
+class ConnectOnboardingView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not settings.STRIPE_SECRET_KEY:
+            return self.error_response(
+                message='Stripe secret key is not configured.',
+                error_code='STRIPE_NOT_CONFIGURED',
+            )
+
+        profile, _ = ProviderProfile.objects.get_or_create(user=request.user)
+
+        account_id = profile.stripe_account_id
+        if not account_id:
+            account = stripe.Account.create(
+                type='standard',
+                email=request.user.email,
+                metadata={'user_id': str(request.user.id)},
+            )
+            account_id = account.get('id')
+            profile.stripe_account_id = account_id
+            profile.save(update_fields=['stripe_account_id'])
+
+        return_url = request.build_absolute_uri('/api/health/')
+        refresh_url = request.build_absolute_uri('/api/health/')
+        account_link = stripe.AccountLink.create(
+            account=account_id,
+            refresh_url=refresh_url,
+            return_url=return_url,
+            type='account_onboarding',
+        )
+
+        return self.success_response(
+            data={
+                'account_id': account_id,
+                'onboarding_url': account_link.get('url'),
+                'onboarding_complete': profile.stripe_onboarding_complete,
+            },
+            message='Stripe Connect onboarding link created successfully.',
+        )
+
+
+class ReleasePayoutView(BaseResponseMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        booking_id = request.data.get('booking_id')
+        if not booking_id:
+            return self.bad_request_response(message='booking_id is required.')
+
+        profile = get_object_or_404(ProviderProfile, user=request.user)
+        booking = get_object_or_404(Booking, pk=booking_id, provider=profile)
+
+        if booking.status != Booking.STATUS_COMPLETED:
+            return self.error_response(
+                message='Only completed bookings can be paid out.',
+                error_code='INVALID_BOOKING_STATUS',
+            )
+
+        if booking.payment_status == Booking.PAYMENT_STATUS_RELEASED:
+            return self.error_response(message='This payout has already been released.', status_code=409)
+
+        if booking.payment_status != Booking.PAYMENT_STATUS_PAID:
+            return self.error_response(
+                message='Payment must be captured before the provider can be paid.',
+                error_code='PAYMENT_NOT_PAID',
+            )
+
+        if not profile.stripe_account_id:
+            return self.error_response(
+                message='Provider is not connected to Stripe.',
+                error_code='PROVIDER_NOT_CONNECTED',
+            )
+
+        earning = None
+        try:
+            earning = booking.earning
+        except Exception:
+            earning = None
+
+        if earning is None:
+            create_provider_earning(booking)
+            try:
+                earning = booking.earning
+            except Exception:
+                earning = None
+
+        if earning is None:
+            breakdown = calculate_provider_earning(booking)
+            earning = ProviderEarning.objects.create(
+                provider=profile,
+                booking=booking,
+                gross_amount=breakdown['gross_amount'],
+                platform_fee=breakdown['platform_fee'],
+                net_amount=breakdown['net_amount'],
+            )
+
+        transfer = stripe.Transfer.create(
+            amount=int((Decimal(str(earning.net_amount)) * 100).to_integral_value()),
+            currency='eur',
+            destination=profile.stripe_account_id,
+            metadata={'booking_id': str(booking.id), 'provider_id': str(profile.id)},
+        )
+
+        earning.stripe_transfer_id = transfer.id
+        earning.is_paid_out = True
+        earning.paid_out_at = timezone.now()
+        earning.save(update_fields=['stripe_transfer_id', 'is_paid_out', 'paid_out_at'])
+
+        booking.stripe_transfer_id = transfer.id
+        booking.payment_status = Booking.PAYMENT_STATUS_RELEASED
+        booking.save(update_fields=['stripe_transfer_id', 'payment_status'])
+
+        return self.success_response(
+            data={
+                'booking_id': booking.id,
+                'transfer_id': transfer.id,
+                'provider_amount': str(earning.net_amount),
+                'payment_status': booking.payment_status,
+            },
+            message='Provider payout transferred successfully.',
         )
 
 

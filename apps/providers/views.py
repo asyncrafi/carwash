@@ -21,6 +21,67 @@ from apps.services.models import Service
 from apps.core.utils import haversine_distance_km
 
 
+def _ensure_provider_onboarding_ready(request, profile, action):
+    if not settings.STRIPE_SECRET_KEY:
+        return False, {
+            'requires_onboarding': True,
+            'message': 'Stripe is not configured yet.',
+            'onboarding_url': None,
+            'account_id': None,
+        }
+
+    if not profile.stripe_account_id:
+        account = stripe.Account.create(
+            type='express',
+            email=profile.user.email,
+            metadata={'provider_profile_id': str(profile.id)},
+        )
+        profile.stripe_account_id = account.id
+        profile.save(update_fields=['stripe_account_id'])
+
+    try:
+        account = stripe.Account.retrieve(profile.stripe_account_id)
+    except stripe.error.StripeError:
+        account = None
+
+    if account is None:
+        return False, {
+            'requires_onboarding': True,
+            'message': 'We could not verify your Stripe account right now. Please try again.',
+            'onboarding_url': None,
+            'account_id': profile.stripe_account_id,
+        }
+
+    profile.stripe_onboarding_complete = bool(
+        account.get('charges_enabled') and account.get('payouts_enabled')
+    )
+    profile.save(update_fields=['stripe_onboarding_complete'])
+
+    if profile.stripe_onboarding_complete:
+        return True, {
+            'requires_onboarding': False,
+            'message': 'Stripe onboarding is complete.',
+            'onboarding_url': None,
+            'account_id': profile.stripe_account_id,
+        }
+
+    return_url = request.build_absolute_uri('/provider/onboarding/complete/')
+    refresh_url = request.build_absolute_uri('/provider/onboarding/refresh/')
+    account_link = stripe.AccountLink.create(
+        account=profile.stripe_account_id,
+        refresh_url=refresh_url,
+        return_url=return_url,
+        type='account_onboarding',
+    )
+
+    return False, {
+        'requires_onboarding': True,
+        'message': f'Complete your Stripe payout setup before you can {action}.',
+        'onboarding_url': account_link.url,
+        'account_id': profile.stripe_account_id,
+    }
+
+
 class ProviderStripeConnectView(BaseResponseMixin, APIView):
     permission_classes = [IsAuthenticated]
 
@@ -107,6 +168,19 @@ class ProviderOnlineStatusView(BaseResponseMixin, APIView):
         profile = get_object_or_404(ProviderProfile, user=request.user)
         serializer = ProviderOnlineStatusSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        if serializer.validated_data['is_online']:
+            is_ready, onboarding_data = _ensure_provider_onboarding_ready(
+                request, profile, 'go online'
+            )
+            if not is_ready:
+                return self.error_response(
+                    message=onboarding_data.get('message', 'Complete your payout setup first.'),
+                    error_code='STRIPE_ONBOARDING_REQUIRED',
+                    status_code=403,
+                    data=onboarding_data,
+                )
+
         profile.is_online = serializer.validated_data['is_online']
         profile.save()
         return self.success_response(

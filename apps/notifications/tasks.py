@@ -1,13 +1,34 @@
 import logging
 
 from celery import shared_task
+from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
-from .models import Notification
+from .models import FCMToken, Notification
 from apps.providers.models import ProviderProfile, ProviderService
 from apps.core.utils import haversine_distance_km
 
 logger = logging.getLogger(__name__)
+
+try:
+    import firebase_admin
+    from firebase_admin import credentials, messaging
+except Exception:
+    firebase_admin = None
+    credentials = None
+    messaging = None
+
+if firebase_admin is not None and not firebase_admin._apps:
+    credentials_path = getattr(settings, 'FIREBASE_CREDENTIALS_PATH', '')
+    if credentials_path:
+        try:
+            cred = credentials.Certificate(credentials_path)
+            firebase_admin.initialize_app(cred)
+        except Exception as exc:
+            logger.warning(f"Firebase initialization skipped: {exc}")
 
 
 @shared_task
@@ -27,6 +48,63 @@ def create_notification_task(user_id, notif_type, title, body, data=None):
         logger.warning(f"User {user_id} not found for notification")
     except Exception as e:
         logger.error(f"Failed to create notification: {e}")
+
+
+@shared_task
+def send_push_notification_task(notification_id):
+    try:
+        notification = Notification.objects.get(id=notification_id)
+        if messaging is None:
+            logger.warning('Firebase Admin SDK is not available; skipping push notification.')
+            return
+
+        tokens = list(
+            FCMToken.objects.filter(user=notification.user, is_active=True).values_list('token', flat=True)
+        )
+        if not tokens:
+            logger.info(f'No active FCM tokens for user {notification.user.id}')
+            return
+
+        message = messaging.MulticastMessage(
+            notification=messaging.Notification(
+                title=notification.title,
+                body=notification.body,
+            ),
+            data={str(k): str(v) for k, v in (notification.data or {}).items()} if notification.data else {'type': 'notification'},
+            tokens=tokens,
+        )
+        response = messaging.send_each_for_multicast(message)
+        if response.failure_count:
+            logger.warning(f'FCM failures for notification {notification.id}: {response.failure_count}')
+        notification.is_read = False
+        notification.save(update_fields=['is_read'])
+    except Exception as exc:
+        logger.error(f'Push notification failed: {exc}')
+
+
+@shared_task
+def send_websocket_notification_task(notification_id):
+    try:
+        notification = Notification.objects.get(id=notification_id)
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'user_{notification.user.id}',
+            {
+                'type': 'notification_message',
+                'notification': {
+                    'id': notification.id,
+                    'notif_type': notification.notif_type,
+                    'title': notification.title,
+                    'body': notification.body,
+                    'data': notification.data or {},
+                    'created_at': notification.created_at.isoformat(),
+                },
+            },
+        )
+        notification.is_read = False
+        notification.save(update_fields=['is_read'])
+    except Exception as exc:
+        logger.error(f'WebSocket notification failed: {exc}')
 
 
 @shared_task

@@ -17,6 +17,7 @@ from apps.accounts.tasks import (
     send_otp_email_task,
     send_password_reset_email_task,
 )
+from apps.notifications.utils import NotificationService
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
@@ -239,6 +240,14 @@ class UserProfileView(BaseResponseMixin, APIView):
         serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        NotificationService.send_notification(
+            user_id=request.user.id,
+            title='Profile Updated',
+            message='Your profile was updated successfully.',
+            notification_types=['push'],
+            data={'action': 'profile_update'},
+        )
         return self.updated_response(data=serializer.data)
 
 

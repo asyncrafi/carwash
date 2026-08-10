@@ -14,6 +14,8 @@ from apps.core.mixins import BaseResponseMixin
 from apps.core.utils import calculate_booking_price, haversine_distance_km
 from apps.customers.models import CustomerProfile
 from apps.providers.models import ProviderProfile
+from apps.notifications.utils import NotificationService
+from apps.providers.views import _ensure_provider_onboarding_ready
 from apps.ratings.models import Rating
 from apps.ratings.serializers import RatingSerializer, TipSerializer
 from .models import Booking, BookingRejection
@@ -97,6 +99,14 @@ class BookingCreateView(BaseResponseMixin, APIView):
             engine_discount=prices['engine_discount'],
             platform_fee=prices['platform_fee'],
             total_amount=prices['total_amount'],
+        )
+
+        NotificationService.send_notification(
+            user_id=profile.user.id,
+            title='Booking Requested',
+            message='Your booking request has been created successfully.',
+            notification_types=['push'],
+            data={'booking_id': booking.id, 'action': 'booking_created'},
         )
 
         data = BookingDetailSerializer(booking, context={'request': request}).data
@@ -285,6 +295,17 @@ class ProviderJobAcceptView(BaseResponseMixin, APIView):
                 message="This job is outside your service radius."
             )
         
+        is_ready, onboarding_data = _ensure_provider_onboarding_ready(
+            request, profile, 'accept jobs'
+        )
+        if not is_ready:
+            return self.error_response(
+                message=onboarding_data.get('message', 'Complete your payout setup first.'),
+                error_code='STRIPE_ONBOARDING_REQUIRED',
+                status_code=403,
+                data=onboarding_data,
+            )
+
         # Check if provider has any active jobs
         active_statuses = [
             Booking.STATUS_ACCEPTED,
@@ -305,6 +326,14 @@ class ProviderJobAcceptView(BaseResponseMixin, APIView):
         booking.status = Booking.STATUS_ACCEPTED
         booking.accepted_at = timezone.now()
         booking.save()
+
+        NotificationService.send_notification(
+            user_id=booking.customer.user.id,
+            title='Booking Accepted',
+            message='Your booking was accepted by a provider.',
+            notification_types=['push'],
+            data={'booking_id': booking.id, 'action': 'booking_accepted'},
+        )
         return self.success_response(message="Job accepted.")
 
 
@@ -360,6 +389,23 @@ class ProviderJobStatusUpdateView(BaseResponseMixin, APIView):
             booking.provider.total_washes += 1
             booking.provider.save()
         booking.save()
+
+        if new_status == Booking.STATUS_IN_PROGRESS:
+            NotificationService.send_notification(
+                user_id=booking.customer.user.id,
+                title='Wash Started',
+                message='Your wash is now in progress.',
+                notification_types=['push'],
+                data={'booking_id': booking.id, 'action': 'booking_in_progress'},
+            )
+        elif new_status == Booking.STATUS_COMPLETED:
+            NotificationService.send_notification(
+                user_id=booking.customer.user.id,
+                title='Wash Completed',
+                message='Your wash has been completed. Please confirm the job.',
+                notification_types=['push'],
+                data={'booking_id': booking.id, 'action': 'booking_completed'},
+            )
         return self.success_response(
             message=f"Status updated to {new_status}."
         )
@@ -425,6 +471,14 @@ class ProviderJobFinishView(BaseResponseMixin, APIView):
         booking.provider.total_washes += 1
         booking.provider.save(update_fields=['total_washes'])
         booking.save(update_fields=['status', 'completed_at'])
+
+        NotificationService.send_notification(
+            user_id=booking.customer.user.id,
+            title='Wash Completed',
+            message='Your wash is complete. Please confirm the service.',
+            notification_types=['push'],
+            data={'booking_id': booking.id, 'action': 'booking_completed'},
+        )
 
         return self.success_response(
             data={'job_id': booking.id, 'status': booking.status},
@@ -498,6 +552,14 @@ class CustomerJobConfirmView(BaseResponseMixin, APIView):
 
         booking.payment_status = Booking.PAYMENT_STATUS_RELEASED
         booking.save(update_fields=['payment_status'])
+
+        NotificationService.send_notification(
+            user_id=booking.provider.user.id,
+            title='Payout Released',
+            message='Your payout for the completed wash has been released.',
+            notification_types=['push'],
+            data={'booking_id': booking.id, 'action': 'payout_released'},
+        )
 
         return self.success_response(
             data={
