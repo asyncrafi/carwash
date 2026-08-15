@@ -1082,6 +1082,99 @@
           }
         },
         {
+          "name": "Register FCM Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"firebase_device_token_here\",\n  \"device_type\": \"android\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/notifications/register-token/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "register-token", ""]
+            },
+            "description": "Register or update the logged-in user's FCM token for push notifications."
+          }
+        },
+        {
+          "name": "Get Saved FCM Tokens",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/register-token/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "register-token", ""]
+            },
+            "description": "List all active FCM tokens for the logged-in user."
+          }
+        },
+        {
+          "name": "Delete FCM Token",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"firebase_device_token_here\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/notifications/register-token/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "register-token", ""]
+            },
+            "description": "Delete a saved FCM token from the current user."
+          }
+        },
+        {
+          "name": "Get Notification Preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/preferences/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "preferences", ""]
+            },
+            "description": "Read the current user's notification preferences."
+          }
+        },
+        {
+          "name": "Update Notification Preferences",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"push_enabled\": true,\n  \"in_app_enabled\": true,\n  \"email_enabled\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/notifications/preferences/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "preferences", ""]
+            },
+            "description": "Update push/in-app/email notification preferences."
+          }
+        },
+        {
           "name": "Mark Notification Read",
           "request": {
             "method": "PATCH",
@@ -1402,6 +1495,159 @@
               "path": ["api", "admin", "services", "1", ""]
             },
             "description": "GET to view, PATCH to update, DELETE to remove a service."
+          }
+        },
+        {
+          "name": "Vehicle Types - List / Create",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/vehicle-types/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "vehicle-types", ""]
+            },
+            "description": "GET to list all vehicle types. POST to create a new vehicle type. Admin only."
+          }
+        },
+        {
+          "name": "Vehicle Type - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"SUV\",\n  \"extra_price\": \"25.00\",\n  \"is_active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/vehicle-types/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "vehicle-types", ""]
+            },
+            "description": "Create a vehicle type. Example: SUV, Sedan, Truck."
+          }
+        },
+        {
+          "name": "Vehicle Type Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/vehicle-types/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "vehicle-types", "1", ""]
+            },
+            "description": "GET to view, PATCH to update, DELETE to remove a vehicle type."
+          }
+        },
+        {
+          "name": "Engine Types - List / Create",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/engine-types/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "engine-types", ""]
+            },
+            "description": "GET to list all engine types. POST to create a new engine type. Admin only."
+          }
+        },
+        {
+          "name": "Engine Type - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"engine_type\": \"electric\",\n  \"discount_percent\": \"10.00\",\n  \"description\": \"Electric vehicle service\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/engine-types/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "engine-types", ""]
+            },
+            "description": "Create an engine type. Allowed values: electric, petrol."
+          }
+        },
+        {
+          "name": "Engine Type Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/engine-types/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "engine-types", "1", ""]
+            },
+            "description": "GET to view, PATCH to update, DELETE to remove an engine type."
+          }
+        },
+        {
+          "name": "Dirt Levels - List / Create",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dirt-levels/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "dirt-levels", ""]
+            },
+            "description": "GET to list all dirt levels. POST to create a new dirt level. Admin only."
+          }
+        },
+        {
+          "name": "Dirt Level - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"heavy\",\n  \"description\": \"Heavy dirt requiring deep cleaning\",\n  \"extra_price\": \"35.00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/dirt-levels/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "dirt-levels", ""]
+            },
+            "description": "Create a dirt level. Allowed values: light, medium, heavy."
+          }
+        },
+        {
+          "name": "Dirt Level Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dirt-levels/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "dirt-levels", "1", ""]
+            },
+            "description": "GET to view, PATCH to update, DELETE to remove a dirt level."
           }
         },
         {
