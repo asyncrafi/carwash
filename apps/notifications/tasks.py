@@ -54,17 +54,20 @@ def create_notification_task(user_id, notif_type, title, body, data=None):
 def send_push_notification_task(notification_id):
     try:
         notification = Notification.objects.get(id=notification_id)
+        logger.info(f'[FCM DEBUG] Starting push notification for Notification ID: {notification_id}, User ID: {notification.user.id}')
+        
         if messaging is None:
-            logger.warning('Firebase Admin SDK is not available; skipping push notification.')
+            logger.warning('[FCM DEBUG] Firebase Admin SDK is not available; skipping push notification.')
             return
 
         tokens = list(
             FCMToken.objects.filter(user=notification.user, is_active=True).values_list('token', flat=True)
         )
         if not tokens:
-            logger.info(f'No active FCM tokens for user {notification.user.id}')
+            logger.info(f'[FCM DEBUG] No active FCM tokens registered for user ID {notification.user.id}')
             return
 
+        logger.info(f'[FCM DEBUG] Sending notification to {len(tokens)} token(s) for user {notification.user.id}: {tokens}')
         message = messaging.MulticastMessage(
             notification=messaging.Notification(
                 title=notification.title,
@@ -74,12 +77,18 @@ def send_push_notification_task(notification_id):
             tokens=tokens,
         )
         response = messaging.send_each_for_multicast(message)
+        logger.info(f'[FCM DEBUG] Multicast sent. Success count: {response.success_count}, Failure count: {response.failure_count}')
+        
         if response.failure_count:
-            logger.warning(f'FCM failures for notification {notification.id}: {response.failure_count}')
+            for idx, resp in enumerate(response.responses):
+                if not resp.success:
+                    logger.warning(f'[FCM DEBUG] Token failure [{tokens[idx]}]: {resp.exception}')
+                    
         notification.is_read = False
         notification.save(update_fields=['is_read'])
     except Exception as exc:
-        logger.error(f'Push notification failed: {exc}')
+        logger.error(f'[FCM DEBUG] Push notification failed with exception: {exc}', exc_info=True)
+
 
 
 @shared_task
