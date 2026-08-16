@@ -1027,6 +1027,63 @@
       "name": "💰 Payments",
       "item": [
         {
+          "name": "Create Payment Intent (Customer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/create-payment-intent/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "create-payment-intent", ""]
+            },
+            "description": "Create a Stripe PaymentIntent for a customer booking. Returns client_secret to complete payment in Flutter Stripe SDK."
+          }
+        },
+        {
+          "name": "Stripe Connect Onboarding (Provider)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments/connect/onboard/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "connect", "onboard", ""]
+            },
+            "description": "Generate a Stripe Connect onboarding URL for providers to set up bank/payout account."
+          }
+        },
+        {
+          "name": "Release Payout (Provider)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/release-payout/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "release-payout", ""]
+            },
+            "description": "Release payout earnings to the provider's connected Stripe account after completing a booking job."
+          }
+        },
+        {
           "name": "My Earnings (Provider)",
           "request": {
             "method": "GET",
@@ -1038,7 +1095,28 @@
               "host": ["{{base_url}}"],
               "path": ["api", "payments", "earnings", ""]
             },
-            "description": "Get provider's earnings summary + transaction list."
+            "description": "Get provider's total balance, today's earnings, job count, and detailed transaction history."
+          }
+        },
+        {
+          "name": "Stripe Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Stripe-Signature", "value": "t=12345,v1=signature_hash_here" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_12345\"\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/stripe/webhook/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "stripe", "webhook", ""]
+            },
+            "description": "Stripe webhook endpoint handling payment_intent.succeeded and account.updated events."
           }
         }
       ]

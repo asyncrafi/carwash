@@ -51,3 +51,12 @@ class NotificationApiTests(APITestCase):
         self.assertTrue(response.data['success'])
         self.assertFalse(response.data['data']['push_enabled'])
         self.assertFalse(response.data['data']['email_enabled'])
+
+    def test_method_not_allowed_returns_405_without_crashing(self):
+        url = reverse('notifications:fcm-token')
+        response = self.client.put(url, {'token': 'abc'}, format='json')
+
+        self.assertEqual(response.status_code, 405)
+        self.assertFalse(response.data['success'])
+        self.assertEqual(response.data['error_code'], 'METHOD_NOT_ALLOWED')
+        self.assertIn('not allowed', response.data['message'].lower())

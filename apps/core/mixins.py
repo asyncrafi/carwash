@@ -91,10 +91,12 @@ def custom_exception_handler(exc, context):
             status=status.HTTP_404_NOT_FOUND,
         )
     if isinstance(exc, MethodNotAllowed):
+        request = context.get('request')
+        method = request.method if request is not None else 'unknown'
         return Response(
             {
                 "success": False,
-                "message": f"Method '{exc.method}' not allowed.",
+                "message": f"Method '{method}' not allowed.",
                 "error_code": "METHOD_NOT_ALLOWED",
                 "timestamp": timezone.now().isoformat(),
                 "status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
