@@ -1,7 +1,6 @@
 import random
 import datetime
 
-from django.conf import settings
 from django.contrib.auth import get_user_model, authenticate
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -68,7 +67,6 @@ class RegisterView(BaseResponseMixin, APIView):
                         data={
                             'email': email,
                             'is_sent': True,
-                            **({'otp_code': code} if settings.DEBUG else {}),
                         },
                         message='User not verified. New OTP sent.',
                         status_code=status.HTTP_200_OK,
@@ -93,7 +91,6 @@ class RegisterView(BaseResponseMixin, APIView):
             data={
                 'user': UserSerializer(user, context={'request': request}).data,
                 'is_sent': True,
-                **({'otp_code': code} if settings.DEBUG else {}),
             },
             message='Registration successful. Please verify your email with the OTP code.',
         )
@@ -155,7 +152,7 @@ class OTPRequestView(BaseResponseMixin, APIView):
             email=user.email, code=code, full_name=user.full_name or user.email,
         )
         return self.success_response(
-            data={**({'otp_code': code} if settings.DEBUG else {})},
+            data={},
             message="OTP sent successfully.",
         )
 
