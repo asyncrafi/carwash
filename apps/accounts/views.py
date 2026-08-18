@@ -5,10 +5,11 @@ from django.contrib.auth import get_user_model, authenticate
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.throttling import AnonRateThrottle
 
 from apps.core.mixins import BaseResponseMixin
 from apps.accounts.tasks import (
@@ -25,6 +26,7 @@ from .serializers import (
     ChangePasswordSerializer,
     CreateNewPasswordSerializer,
     UserSerializer,
+    SocialAuthSerializer,
 )
 from .models import OTPVerification
 
@@ -258,3 +260,67 @@ class LanguageUpdateView(BaseResponseMixin, APIView):
         request.user.language = lang
         request.user.save()
         return self.success_response(message="Language updated successfully.")
+
+
+class SocialAuthView(BaseResponseMixin, generics.GenericAPIView):
+    """
+    Social authentication endpoint for Google, Facebook, and Apple.
+    
+    POST /api/accounts/social-auth/
+    
+    Request:
+    {
+        "provider": "google",  # or "facebook" or "apple"
+        "access_token": "token_from_provider",
+        "role": "customer"  # or "provider"
+    }
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "refresh": "refresh_token",
+            "access": "access_token",
+            "user": {
+                "id": 1,
+                "email": "user@example.com",
+                "full_name": "John Doe",
+                "role": "customer",
+                "social_auth_provider": "google"
+            }
+        },
+        "message": "Login successful"
+    }
+    """
+    serializer_class = SocialAuthSerializer
+    permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Create or login user
+        user = serializer.create_or_login_user()
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+
+        return self.success_response(
+            data={
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "full_name": user.full_name,
+                    "role": user.role,
+                    "phone": user.phone,
+                    "avatar": user.avatar.url if user.avatar else None,
+                    "is_verified": user.is_verified,
+                    "social_auth_provider": user.social_auth_provider,
+                },
+            },
+            message="Social login successful",
+            status_code=status.HTTP_200_OK,
+        )

@@ -12,6 +12,16 @@ class User(AbstractUser):
         (ROLE_PROVIDER, 'Provider'),
         (ROLE_ADMIN, 'Admin'),
     ]
+    
+    PROVIDER_GOOGLE = 'google'
+    PROVIDER_FACEBOOK = 'facebook'
+    PROVIDER_APPLE = 'apple'
+    PROVIDER_CHOICES = [
+        (PROVIDER_GOOGLE, 'Google'),
+        (PROVIDER_FACEBOOK, 'Facebook'),
+        (PROVIDER_APPLE, 'Apple'),
+    ]
+    
     full_name = models.CharField(max_length=255, blank=True, null=True)
     first_name = None
     last_name = None
@@ -21,6 +31,19 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     language = models.CharField(max_length=10, default='en')
+    social_auth_provider = models.CharField(
+        max_length=20, 
+        choices=PROVIDER_CHOICES,
+        null=True, 
+        blank=True,
+        verbose_name="Social Auth Provider"
+    )
+    social_auth_id = models.CharField(
+        max_length=500,
+        null=True,
+        blank=True,
+        verbose_name="Social Auth ID"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
