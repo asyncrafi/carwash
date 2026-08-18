@@ -18,6 +18,9 @@ from .models import Payment, ProviderEarning
 from .serializers import ProviderEarningSerializer
 from .utils import create_provider_earning
 
+# Initialize Stripe API key
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 class StripeWebhookView(BaseResponseMixin, APIView):
     permission_classes = [AllowAny]
