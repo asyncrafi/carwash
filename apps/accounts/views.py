@@ -270,9 +270,10 @@ class SocialAuthView(BaseResponseMixin, generics.GenericAPIView):
     
     Request:
     {
+        "email": "user@example.com",
         "provider": "google",  # or "facebook" or "apple"
-        "access_token": "token_from_provider",
-        "role": "customer"  # or "provider"
+        "name": "John Doe",
+        "role": "customer"  # optional, defaults to customer
     }
     
     Response:
@@ -289,7 +290,7 @@ class SocialAuthView(BaseResponseMixin, generics.GenericAPIView):
                 "social_auth_provider": "google"
             }
         },
-        "message": "Login successful"
+        "message": "Social login successful"
     }
     """
     serializer_class = SocialAuthSerializer

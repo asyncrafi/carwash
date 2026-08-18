@@ -1,7 +1,6 @@
 import random
 import datetime
 import uuid
-import requests
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
@@ -123,112 +122,31 @@ class UserSerializer(serializers.ModelSerializer):
 class SocialAuthSerializer(serializers.Serializer):
     """
     Serializer for social authentication (Google, Facebook, Apple)
+    
+    Simple format:
+    {
+        "email": "user@example.com",
+        "provider": "google",
+        "name": "John Doe",
+        "role": "customer"  # optional, defaults to customer
+    }
     """
-    provider = serializers.ChoiceField(
-        choices=['google', 'facebook', 'apple'],
-        help_text="Social auth provider: google, facebook, or apple"
-    )
-    access_token = serializers.CharField(
-        max_length=5000,
-        write_only=True,
-        help_text="Access token from social provider"
-    )
+    email = serializers.EmailField()
+    provider = serializers.ChoiceField(choices=['google', 'facebook', 'apple'])
+    name = serializers.CharField(max_length=255)
     role = serializers.ChoiceField(
         choices=['customer', 'provider'],
         default='customer',
-        help_text="User role: customer or provider"
+        required=False
     )
-
-    def validate(self, data):
-        provider = data.get('provider')
-        access_token = data.get('access_token')
-
-        if provider == 'google':
-            user_info = self._verify_google_token(access_token)
-        elif provider == 'facebook':
-            user_info = self._verify_facebook_token(access_token)
-        elif provider == 'apple':
-            user_info = self._verify_apple_token(access_token)
-        else:
-            raise serializers.ValidationError("Invalid provider")
-
-        if not user_info:
-            raise serializers.ValidationError("Invalid or expired token")
-
-        data['user_info'] = user_info
-        return data
-
-    def _verify_google_token(self, token):
-        """Verify Google access token and get user info"""
-        try:
-            response = requests.get(
-                'https://www.googleapis.com/oauth2/v2/userinfo',
-                headers={'Authorization': f'Bearer {token}'}
-            )
-            if response.status_code == 200:
-                return response.json()
-            return None
-        except Exception as e:
-            raise serializers.ValidationError(f"Google token verification failed: {str(e)}")
-
-    def _verify_facebook_token(self, token):
-        """Verify Facebook access token and get user info"""
-        try:
-            response = requests.get(
-                'https://graph.facebook.com/me',
-                params={
-                    'access_token': token,
-                    'fields': 'id,name,email,picture'
-                }
-            )
-            if response.status_code == 200:
-                return response.json()
-            return None
-        except Exception as e:
-            raise serializers.ValidationError(f"Facebook token verification failed: {str(e)}")
-
-    def _verify_apple_token(self, token):
-        """Verify Apple token and get user info"""
-        try:
-            # Apple token validation is more complex and requires server-to-server verification
-            # This is a simplified version - you may need to implement full JWT verification
-            import jwt
-            from jwt import PyJWTError
-
-            try:
-                # Decode without verification first to get header
-                unverified = jwt.decode(token, options={"verify_signature": False})
-                # In production, you should verify the signature against Apple's public keys
-                return unverified
-            except PyJWTError as e:
-                raise serializers.ValidationError(f"Apple token verification failed: {str(e)}")
-        except Exception as e:
-            raise serializers.ValidationError(f"Apple token verification failed: {str(e)}")
 
     def create_or_login_user(self):
         """Create or login user based on social auth data"""
-        user_info = self.validated_data.get('user_info')
+        email = self.validated_data.get('email')
         provider = self.validated_data.get('provider')
-        role = self.validated_data.get('role')
-
-        # Extract user info based on provider
-        if provider == 'google':
-            email = user_info.get('email')
-            full_name = user_info.get('name')
-            social_id = user_info.get('id')
-        elif provider == 'facebook':
-            email = user_info.get('email')
-            full_name = user_info.get('name')
-            social_id = user_info.get('id')
-        elif provider == 'apple':
-            email = user_info.get('email')
-            full_name = user_info.get('name', 'Apple User')
-            social_id = user_info.get('sub')
-        else:
-            raise serializers.ValidationError("Invalid provider")
-
-        if not email:
-            raise serializers.ValidationError("Email not provided by social provider")
+        full_name = self.validated_data.get('name')
+        role = self.validated_data.get('role', User.ROLE_CUSTOMER)
+        social_id = f"{provider}_{email}"  # Simple social ID
 
         # Get or create user
         user, created = User.objects.get_or_create(
@@ -238,7 +156,7 @@ class SocialAuthSerializer(serializers.Serializer):
                 'role': role,
                 'social_auth_provider': provider,
                 'social_auth_id': social_id,
-                'is_verified': True,  # Mark as verified since they're using social auth
+                'is_verified': True,
                 'username': email,
             }
         )

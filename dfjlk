@@ -1,0 +1,1717 @@
+ls
+git push origin main
+git commit -m "working on new deisng authenticaon pages now it's done ."
+git add .
+git status
+git satus
+docker exec carwash-app-1 python manage.py migrate accounts
+docker exec carwash-app-1 python manage.py makemigrations accounts
+docker exec carwash-app-1 python manage.py check --database default
+docker ps
+docker exec  python manage.py check --database default
+docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up
+docker compose -f docker-compose.dev.yml logs carwash-db-1
+docker compose -f docker-compose.dev.yml exec carwash-app-1 python manage.py makemigrations accounts
+docker compose -f docker-compose.dev.yml
+docker compose -f docker-compose.dev.yml exec web python manage.py makemigrations accounts
+docker-compose -f docker-compose.dev.yml exec web python manage.py makemigrations accounts
+code .
+cd carwash
+cd Documents/
+ssh root@165.22.185.180
+postman
+gi
+flutter run
+flutter build apk --debug
+flutter pub get
+flutter clean
+flutter build apk
+git commit -m "working on new deisng authenticaon pages"
+git commit -m "home paage is done"
+git commit -m "finally home page header and dsing done .. but need some imporovement but this much awomem "
+git commit -m "i am close this version almost close to perfect color perfect now .. just little of work to do"
+git commit -m "i am close this version almost close to perfect"
+git commit -m "alll is good other thing now going to work on home page"
+git commit -m "udpte backgorund"
+git satutus
+git satatus
+git commit -m "updated some deisng "
+git statu
+git sttaus
+git commit -m "updated terms and confiiotn pricavy poilciy page done"
+git commit -m "working on profile carrer profile update section"
+git commit -m "added new version of home page"
+pip freeze > requirements.txt
+pip install -r requirements.txt
+pip install firebase-admin
+pip list
+l
+source /home/r4fi/Documents/aivoice/venv/bin/activate.fish
+git commit -m "updated job scroll match"
+ssh root@167.172.31.216
+git push origin production-working-3996995
+git commit -m "updated filter radius section"
+rm -f /home/r4fi/develop/flutter/bin/cache/lockfile
+ish: Job 5, 'flutter clean' has stopped
+r4fi@kernel-panic ~/D/hrlyxfronted (main)> pkill -9 -f flutter_tools.snapshot
+pkill -9 -f dart-sdk
+fish: Job 7, 'flutter run' has stopped
+fish: Job 6, 'flutter pub get' has stopped
+fish: Job 5, 'flutter clean' has stopped
+fish: Job 4, 'flutter doctor' has stopped
+fish: Job 3, 'flutter run' has stopped
+fish: Job 2, 'flutter clean' has stopped
+fish: Job 1, 'flutter run' has stopped
+r4fi@kernel-panic ~/D/hrlyxfronted (main)> ps aux | grep -E 'flutter|dart'
+.r4fi      449686 73.8  2.4 1190924 388452 ?      Sl   20:05   0:05 /home/r4fi/develop/flutter/bin/cache/dart-sdk/bin/dart language-server --protocol=lsp --client-id=VS-Code --client-version=3.140.0
+r4fi      449834  0.0  0.0   9644  2512 pts/2    S+   20:05   0:00 grep --color=auto -E flutter|dart
+r4fi@kernel-panic ~/D/hrlyxfronted (main)> .^C
+r4fi@kernel-panic ~/D/hrlyxfronted (main)>
+ps aux | grep -E 'flutter|dart'
+pkill -9 -f flutter_tools.snapshot
+pkill -9 -f dart-sdk
+flutter clean
+flutter pub get
+flutter run
+flutter doctor
+pkill -f flutter
+kill %1
+kill %2
+kill %3
+flutter clean && flutter run
+flutter clean
+flutter pub get
+flutter build apk
+adb -s 00158357P000259 uninstall com.lynxova.hrlnyx
+adb -s 00158357P000259 install -r build/app/outputs/flutter-apk/app-debug.apk
+adb -s 00158357P000259 install -r build/app/outputs/flutter-apk/app-debug.apk
+flutter clean
+flutter pub get
+flutter build apk
+adb -s 00158357P000259 uninstall com.lynxova.hrlnyx
+adb -s 00158357P000259 install -r build/app/outputs/flutter-apk/app-debug.apk
+adb -s 00158357P000259 devices
+adb -s 00158357P000259 shell pm list packages | grep hrlnyx
+adb -s 00158357P000259 uninstall com.lynxova.hrlnyx
+adb -s 00158357P000259 install -r build/app/outputs/flutter-apk/app-debug.apk
+adb devices
+git commit -m "updated ui screen when cv not uploaded"
+cd hrlyxfronted/
+git add
+git
+history
+cd carwash/
+git remote add origin git@github.com:asyncrafi/carwash.git
+git push origin main --force
+git staus
+git push origin main --force
+git rev-list --objects --all | grep firebase-credentials.json
+git log --all -- firebase-credentials.json
+git filter-repo --path firebase-credentials.json --invert-paths --force
+nano .gitignore
+git filter-repo --help
+which git-filter-repo
+fish_add_path ~/.local/bin
+locale/*/LC_MESSAGES/django.mofirebase-credentials.json
+firebase-credentials.jsonfirebase-credentials.json
+firebase-credentials.json
+git remote add origin git@github.com:asyncrafi/carwash.git
+git remote -v
+git grep -n "private_key" $(git rev-list --all) -- firebase-credentials.json
+487347f1d82bde59e9a7818a82586180f15fe7df
+echo "firebase-credentials.json" >> .gitignore
+grep -n "firebase-credentials.json" .gitignore
+ls firebase-credentials.json
+pipx install git-filter-repo
+pipx --version
+sudo apt update
+sudo apt install pipx
+pipx ensurepath
+git ls-files | grep firebase
+firebase-credentials.json
+cat .gitignore
+pip install git-filter-repo
+echo 'firebase-credentials.json' >> .gitignore
+git add .gitignore && git commit -m "ignore firebase creds"
+\\\\\\\\\\\\\\\\\\\\git filter-repo --path firebase-credentials.json --invert-paths --force
+\
+
+rm firebase-credentials.json
+git log --all -p -- firebase-credentials.json
+echo "firebase-credentials.json" >> .gitignore
+git add .gitignore && git commit -m "ignore firebase credentials file"
+# find where the file was added
+git log --oneline --all -- firebase-credentials.json
+
+# interactive rebase back to just before that commit
+git rebase -i 487347f1d82bde59e9a7818a82586180f15fe7df^
+165.22.185.180
+postmna
+git hrai-project/
+git commit -m "updated docker files"
+jobs
+cat install.log
+nohup adb -s 00158357P000259 install -r build/app/outputs/flutter-apk/app-debug.apk > install.log 2>&1 &
+bind --user | grep -i ctrl-z
+stty -a | grep susp
+kill -9 %1 %2 %3
+flutter run -d 00158357P000259
+jobs
+kill -9 %1
+bind --user | grep -i '\\cz'
+flutter run -d 00158357P00025
+flutter run -d 00158357P000259 --no-fast-start
+adb devices -l
+.
+git sttus
+ssh root@167.172.31.216\
+\
+
+s
+git statlus
+flutter run -d 192.168.x.x:5555
+adb connect 192.168.x.x:5555
+adb -s 00158357P000259 tcpip 5555
+adb -s 00158357P000259 shell ip route
+flutter run -d 00158357P000259 -v
+set -Ux ANDROID_ADB_SERVER_MDNS 0
+adb devicesadb -s 00158357P000259 install -r build/app/outputs/flutter-apk/app-debug.apk
+jobs
+ps aux | grep -E 'flutter|dart'
+pkill -9 -f flutter
+pkill -9 -f dart
+rm -f /home/r4fi/develop/flutter/bin/cache/lockfile
+kill -9 %1 %2 %3 %4
+cat /sys/bus/usb/devices/1-1/power/control
+cat /var/log/apt/history.log | grep -i "android-tools\|linux-image" | tail -20
+adb connect 192.168.1.42:5555
+dmesg -T | tail -30
+adb connect <phone-ip>:5555
+timeout 10 adb -s <phone-ip>:5555 shell getprop
+ps aux | grep -E 'flutter|dart'
+jobs
+pkill -9 -f flutter
+pkill -9 -f dart
+Ctrl+C
+flutter run -d 00158357P000259 -v
+kill -9 %1
+kill -9 %2
+fg %1
+fg
+echo $PATH
+export ANDROID_ADB_SERVER_MDNS=0
+flutter run -d 00158357P000259
+pkill -9 adb
+$ANDROID_HOME/platform-tools/adb start-server
+which -a adb
+ps aux | grep adb
+adb kill-server && adb start-server
+flutter run -d A059
+flutter doctor -v
+adb shell getprop ro.build.version.sdk
+adb shell getprop ro.build.version.release
+rm -rf ~/.cache/flutter_tools_device_cache 2>/dev/null
+flutter devices
+pkill -f flutter
+pkill -f dart
+adb kill-server
+adb start-server
+adb devices
+kvm-ok
+grep -n "READ_MEDIA_IMAGES\|READ_EXTERNAL_STORAGE" android/app/src/main/AndroidManifest.xml
+grep -n "NSPhotoLibraryUsageDescription" ios/Runner/Info.plis
+adb
+git commit -m "working on updated pptx file"
+docker compose -f  docker-compose-dev.yml up
+docker compose -f  docker-compose-dev.yml down
+git push origin main --force-with-lease
+git rm --cached firebase-credentials.json
+echo "firebase-credentials.json" >> .gitignore
+git add .gitignore
+git commit --amend --no-edit
+git log --all --oneline -- firebase-credentials.json
+docker exec -it carwash-app-1 python manage.py migrate
+docker exec -it carwash-app-1 python manage.py makemigrations
+opencode
+sed -n '210,250p' apps/jobs/tasks.py
+grep -n "generate_quickscan" apps/jobs/tasks.py apps/jobs/views.py
+cat apps/jobs/management/commands/backfill_quickscans.py
+sed -n '258,306p' apps/jobs/models.py
+grep -n "quickscan" apps/jobs/models.py
+grep -rln "generate_quickscan" apps/
+grep -rn "has_quickscan\|quickscan_preview\|QuickScan" apps/jobs/models.py
+"salary_period": salary.get("period"),
+sed -n '1,70p' apps/jobs/utils/job_normalizer.py
+sed -n '120,150p' apps/jobs/utils/quickscan_ai.py
+grep -rn "salary_period" .
+clear
+cls
+# Via Snap (easiest on Mint)
+sudo snap install caprine
+
+# Or via Flatpak
+flatpak install flathub com.sindresorhus.Caprine
+]
+pip install stripe
+cd  ...
+git pull origin main
+flutter --version
+flutter -version
+cloudflared tunnel --url http://localhost:8000
+cd aivoice
+flutter build appbundle --release
+docker compose -f  docker-compose-dev.yml
+adb uninstall com.lynxova.hrlnyx
+adb devices
+
+adb devices
+   adb uninstall com.lynxova.hrlnyx
+abs
+cat keystore.properties
+cd android/
+cat android/key.properties
+[15~
+ssh root@64.227.11.95
+cat lib/app/api_servies/repository/jobs_repo.dart
+cat lib/app/modules/jobs/jobs_controller.dart
+cat lib/app/model/jobs/career_profile_model.dart
+grep -rl "career-profile/resume/upload\|best_matches" lib/
+grep -n "READ_MEDIA_IMAGES\|READ_EXTERNAL_STORAGE" android/app/src/main/AndroidManifest.xml
+grep -n "NSPhotoLibraryUsageDescription" ios/Runner/Info.plist
+cp lib/app/modules/profile/UploadData/upload_data_controller.dart lib/app/modules/profile/UploadData/upload_data_controller.dart.bak
+cat lib/app/modules/profile/UploadData/uploadDataView.dart
+cat lib/app/modules/profile/UploadData/upload_data_controller.dart
+grep -rl "image_picker\|pickImage\|uploadImage" lib/
+ls -la
+adb shell monkey -p com.lynxova.hrlnyx -c android.intent.category.LAUNCHER 1
+adb tcpip 5555
+adb connect <phone-ip>:5555
+adb install -r -d build/app/outputs/flutter-apk/app-debug.apk
+adb install -r build/app/outputs/flutter-apk/app-debug.apk
+adb uninstall com.lynxova.hrlnyx
+adb install -r build/app/outputs/flutter-apk/app-debug.apk
+grep applicationId android/app/build.gradle.kts
+rm -f (flutter --version --machine 2>/dev/null; echo) # ignore, just checking flutter works
+rm -f $HOME/.local/share/flutter/bin/cache/lockfile 2>/dev/null
+rm -f $HOME/flutter/bin/cache/lockfile 2>/dev/null
+flutter run -d 00
+# Reset back 2 commits (or however many commits back c243cc99 was), keeping changes
+git reset --soft HEAD~2
+
+# Stage the sanitized .env.example
+git add .env.example
+
+# Commit your changes freshly
+git commit -m "updated docker files and sanitized env template"
+
+# Push to GitHub
+git push origin main
+git add .env.example
+git commit --amend --no-edit
+git push origin main
+gita dd .
+cat docker-compose.prod.yml
+cat docker-compose.dev.yml
+cat docker-compose-dev.yml
+cat carwash.conf
+cd sites-available/
+cd nginx
+docker compose -f docker-compose.dev.yml logs -f celery_worker
+celery -A config worker -l info
+pip install resend
+source venv/bin/activate.fish
+source venv/bin/activate
+.\venv\Scripts\Activate.ps1
+. venv/Scripts/activate
+source venv/Scripts/activate
+adb kill-server && adb start-server && adb devices
+[24adb devices
+[24~adb devices
+adb -s A059 install -r build/app/outputs/flutter-apk/app-debug.apk
+git co
+docker compose -f docker-compose-dev.yml up --build
+pip freeze -r requirements.txt
+pip uninstall pyOpenSSL service-identity -y
+grep -i "pyopenssl\|service-identity\|twisted" requirements.txt
+pip install pipdeptree --break-system-packages
+pipdeptree -p cryptography
+cat Dockerfile
+cat docker-compose-dev.yml111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+pip install python-docx --break-system-packages
+pip show python-docx
+source /home/r4fi/Documents/hrai-project/venv/bin/activate.fish
+cd c
+docker exec -it carwash-app-1 python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+for uid in [35, 36]:
+    u = User.objects.filter(id=uid).first()
+    print(uid, u, u.email if u else None, u.role if u else None)
+"
+ssh root@187.127.207.244
+ssh root@ssh root@187.127.207.244
+git commit -m "updated docker files"zz
+docker compose -f docker-compose-dev.yml up
+ssh -i ~/.ssh/rugondemand-key.pem ubuntu@51.20.54.147
+git sattus
+cd homesrug/
+cd homesrug
+docker exec -it homesrug_backend python manage.py migrate
+docker exec -it homesrug_backend python manage.py makemigrations
+\git c
+git stutus
+docker exec -it hrai_backend python manage.py shell
+docker exec -it hrai_backend python manage.py makemigrations
+
+docker exec -it hrai_backend python manage.py migrate
+docker exec -it hrai_backend python manage.py makemigrations
+git commit -m "updateed job chat "
+cd documnet
+docker exec -it hrai_backend python manage.py createsuperuser
+reboot
+adb kill-server
+adb start-server
+
+sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules https://raw.githubusercontent.com/M0Rf30/android-udev-rules/main/51-android.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+
+sudo usermod -aG plugdev $LOGNAME
+adb start-server
+adb kill-server
+
+
+
+
+
+adb kill-server
+hrlyxfronted/
+ssh robin@187.127.207.244
+
+ssh root@187.127.207.244
+
+git commit -m "updated docker files"]
+docker exec -it hrai_backend python manage.py makemigrations jobs
+cd do
+ssh root@66.42.116.172
+docker exec -it homesrug_backend python manage.py shell
+docker exec -it homesrug-backend python manage.py shell
+[1;5A
+notebook
+jupyternote
+python3
+docker stop $(docker ps -q)
+r4fi@kernel-panic ~/D/homesrug (main)> docker ps
+CONTAINER ID   IMAGE                          COMMAND                  CREATED       STATUS                 PORTS                                                                                                NAMES
+
+r4fi@kernel-panic ~/D/homesrug (main)> docker ps
+CONTAINER ID   IMAGE                          COMMAND                  CREATED       STATUS                 PORTS                                                                                                NAMES
+28501dc62488   aivoice-app          pastedhow to stop tem all jsut stop not delteIdentified straightforward Docker command for halting containersIdentified straightforward Docker command for halting containersdocker stop $(docker ps -q)
+git commit -m "first push"
+git push origi main
+lks
+ssh root@137.184.100.214
+notion-desktop
+sudo snap install notion-desktop
+sudo snap install notion-desktop.
+sudo rm /etc/apt/preferences.d/nosnap.pref
+sudo apt update
+sudo apt install snapd
+apt-cache policy snapd
+sudo rm /etc/apt/sources.list.d/stripe.list
+curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+sudo apt update && sudo apt install snapd
+docker exec -it aivoice-app-1 python manage.py migrate
+docker exec -it aivoice-app-1 python manage.py makemigrations
+ssh root@45.55.159.56
+docker compose -f docker-compose.dev.yml logs -f app
+docker compose logs -f app
+docker exec -it aivoice-app-1 python manage.py createsuperuser
+git commit -m "changed ai version gpt"
+[24~
+python3 manage.py runserver
+python3 manage.py startapp notifications
+python3 manage.py startapp dashboard
+python3 manage.py startapp docpolicy
+subl .
+# Edit README.md with project details
+nano README.md
+# Then commit the changes
+git add README.md
+git commit -m "Update README with project description"
+git push
+echo "# ai_voice_agent" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:asyncrafi/ai_voice_agent.git
+git push -u origin main
+python3 manage.py migrate
+python3 manage.py makemigrations
+git init
+python3 manage.py startapp training
+python3 manage.py startapp accounts
+python3 manage.py startapp core
+mkdir apps
+django-admin startproject config .
+python3 -m venv venv
+mkdir aivoice
+cd settings/
+cd config
+cd cofign
+cl
+cd ...
+cd apps
+ssh 66.42.116.172
+cd chatterbee/
+git  add .
+docker exec -it homesrug_backend python manage.py makemigrations
+
+cd mysportsnest/\
+
+`
+docker exec -it -e BREVO_API_KEY="your_brevo_api_key_here" homesrug_backend python manage.py makemigrations
+rugondemand username … aws
+rugondemand!1 pass
+451586779536 id
+
+ssh -i ~/.ssh/rugondemand-key.pem ubuntu@51.20.54.147
+asfdsadf\
+
+git add -A && git commit -m "fix cors maiahomes"
+git push origin main
+cd ls
+ssh root@72.62.248.97
+
+cdcd ..
+
+ssh -i ~/.ssh/rugondemand-key.pem ubuntu@<51.20.54.147>
+mv ~/Downloads/rugondemand-key.pem ~/.ssh/
+chmod 400 ~/.ssh/rugondemand-key.pem
+cd Downloads/
+sed -i 's/Get.put(UserController())/Get.find<UserController>()/g' ./lib/app/modules/profile/porfile_view.dart
+sed -i 's/Get.put(ProfileController(),)/Get.find<ProfileController>()/g' ./lib/app/modules/profile/porfile_view.dart
+sed -i 's/Get.put(LogoutController())/Get.find<LogoutController>()/g' ./lib/app/modules/profile/porfile_view.dart
+sed -i 's/Get.put(DeleteAccountController())/Get.find<DeleteAccountController>()/g' ./lib/app/modules/profile/porfile_view.dart
+sed -i 's/Get.put(UserIsSubcribedController())/Get.find<UserIsSubcribedController>()/g' ./lib/app/modules/profile/porfile_view.dart
+sed -i 's/Get.put(UserIsSubcribedController())/Get.find<UserIsSubcribedController>()/g' ./lib/app/modules/home/home_view.dart
+sed -i 's/Get.put(ChatAllAiPersona())/Get.find<ChatAllAiPersona>()/g' ./lib/app/modules/home/home_view.dart
+head -40 ./lib/app/modules/profile/porfile_view.dart
+grep -rn "Get.put" ./lib/app/modules/home/ ./lib/app/modules/news/ ./lib/app/modules/profile/ --include="*.dart"
+grep -rn "GetX<" ./lib/app/modules/ --include="*.dart"
+cat ./lib/app/modules/home/home_view.dart | head -100
+sed -i 's/      const HomeView()/      HomeView()/g; s/      const NewsView()/      NewsView()/g; s/      const JobsView()/      JobsView()/g; s/      const ProfileView()/      ProfileView()/g' ./lib/app/modules/main_screen/main_screen_view.dart
+cat ./lib/app/modules/jobs/widget/job_card_widget.dart && echo "---" && cat ./lib/app/modules/main_screen/main_screen_view.dart && echo "---" && cat ./lib/app/modules/main_screen/main_screen_controller.dart
+cat ./lib/app/modules/jobs/jobs_view.dart
+grep -rn "GetX\|Obx\|GetBuilder" ./lib/app/modules/jobs/ --include="*.dart" | grep -v "career_profile"
+flutter run 2>&1 | grep -A 5 "infinite\|GetX\|assertion\|RenderFlex\|RenderPadding" | head -60
+cat ./lib/app/api_servies/api_Constant.dart
+updateCareerProfile
+cat ./lib/app/api_servies/neteork_api_services.dart
+cat ./lib/app/api_servies/repository/jobs_repo.dart
+cat ./lib/app/modules/jobs/career_profile/career_profile_controller.dart && echo "---SPLIT---" && cat ./lib/app/modules/jobs/career_profile/career_profile_view.dart && echo "---SPLIT---" && cat ./lib/app/model/jobs/career_profile_model.dart
+find . -type f -name "*.dart" | grep -v build | sort
+cd app
+cd lib
+cd lig
+cd lab
+=
+cat lib/app/modules/profile/porfile_view.dart
+cat lib/app/modules/jobs/jobs_view.dart
+v
+cat lib/app/modules/main_screen/main_screen_view.dart
+flutter run\
+
+c
+git push origin main \
+
+docker exec -it hrai_celery python manage.py shell -c "from apps.jobs.tasks import sync_linkedin_jobs; sync_linkedin_jobs.delay()"
+docker logs hrai_celery --tail 50 -f
+cat lib/app/model/jobs/job_model.dart
+cat lib/app/model/jobs/quickscan_model.dart
+cat lib/app/api_servies/repository/jobs_repo.dart
+grep -r "baseUrl\|http\|api\|endpoint\|/api" lib/app/api_servies/ --include="*.dart" | grep -v ".dart_tool"
+cat ./lib/app/routes/app_routes.dart
+cat ./lib/app/routes/app_pages.dart
+cat ./lib/main.dart
+cat ./lib/app/api_servies/api_Constant.dart
+find . -type f -name "*.dart" | grep -v ".dart_tool" | sort
+find . -type f -name "*.dart" | head -60
+cloudflared tunnel --url http://localhost:8001
+cloudflared tunnel --url http://localhost:8001\]
+docker exec -it hrai_backend python -c "
+import os, requests
+key = os.environ.get('RAPIDAPI_KEY') or os.environ.get('LINKEDIN_RAPIDAPI_KEY')
+print('Using key:', (key[:6] + '...') if key else 'NOT FOUND IN ENV')
+r = requests.get(
+    'https://linkedin-job-search-api.p.rapidapi.com/active-jb-24h',
+    headers={'x-rapidapi-host': 'linkedin-job-search-api.p.rapidapi.com', 'x-rapidapi-key': key},
+    params={'title_filter': 'Test', 'location_filter': 'United States'}
+)
+print(r.status_code)
+print('remaining:', r.headers.get('x-ratelimit-requests-remaining'))
+print('limit:', r.headers.get('x-ratelimit-requests-limit'))
+print('reset:', r.headers.get('x-ratelimit-requests-reset'))
+print(r.text[:300])
+"
+docker exec -it hrai_backend python -c "
+import requests
+r = requests.get(
+    'https://linkedin-job-search-api.p.rapidapi.com/active-jb-24h',
+    headers={'x-rapidapi-host': 'linkedin-job-search-api.p.rapidapi.com', 'x-rapidapi-key': '<your key>'},
+    params={'title_filter': 'Test', 'location_filter': 'United States'}
+)
+print(r.status_code)
+print(r.headers.get('x-ratelimit-requests-remaining'))
+print(r.headers.get('x-ratelimit-requests-reset'))
+print(r.text[:300])
+"
+git add apps/jobs/migrations/0004_alter_job_organization_logo_and_more.py apps/jobs/migrations/0005_alter_job_url.py apps/jobs/models.py
+git commit -m "fix: bump organization_logo, organization_url, url field max_length to 500 to fix LinkedIn sync upsert failures"
+docker exec -it hrai_backend manage.py makemigrations
+git stacd ..
+cd migrations/
+cd jobs
+cat apps/jobs/migrations/0003_jobquickscan_company_overview_and_more.py
+docker exec -it hrai_backend cat /app/apps/jobs/models.py | grep "organization_logo\|organization_url\|url = models"
+cat models.py
+cd popas
+docker exec -it hrai_celery python manage.py shell -c "from apps.jobs.tasks import sync_linkedin_jobs; sync_linkedin_jobs.delay()"
+docker exec -it hrai_backend python manage.py makemigrations jobs
+docker exec -it hrai_backend python manage.py migrate jobs
+docker exec -it hrai_backend python manage.py migrate jobs
+docker compose exec backend python manage.py makemigrations jobs
+docker compose exec backend python manage.py migrate jobs
+gls
+cd utils
+cd utlis
+docker logs hrai_celery 2>&1 | grep -i "429\|rate limit\|too many requests"
+cat migrations/0002_fix_description_to_textfield.py
+docker exec -it hrai_backend python manage.py migrate jobs 0002_fix_description_to_textfield
+docker exec -it hrai_backend python manage.py migrate jobs 0001_initial
+docker exec -it hrai_backend python manage.py migrate jobs 0001_initial
+docker exec -it hrai_backend python manage.py migrate jobs 0002_fix_description_to_textfield
+nano migrations/0002_fix_description_to_textfield.py
+sudo chown r4fi:r4fi migrations/0002_fix_description_to_textfield.py
+cat jobs/migrations/0002_fix_description_to_textfield.py
+cat apps/jobs/migrations/0002_fix_description_to_textfield.py
+docker exec -it hrai_backend python manage.py makemigrations jobs --empty --name fix_description_to_textfield
+docker exec -it hrai_backend python manage.py dbshell
+cat models.ps
+la
+docker exec -it hrai_backend python manage.py showmigrations jobs
+docker exec -it hrai_backend python manage.py showmigrations apps.jobs
+docker exec -it carwash-app-1 python manage.py createsuperuser
+gist
+docker exec -it carwash-app-1 manage.py shell
+docker compose -f docker-compose.dev.yml down
+docker compose -f docker-compose.dev.yml up -d --build
+echo "whitenoise==6.11.0" >> requirements.txt
+docker compose -f docker-compose.dev.yml up -d --build
+docker exec -it carwash-app-1 python manage.py collectstatic --noinput
+cat requirements.txt
+grep -i whitenoise requirements.txt
+pip installdocker compose -f docker-compose.dev.yml up -d --build
+pip install whitenoise
+curl -I http://localhost:8000/static/admin/css/base.css
+docker exec -it carwash-app-1 python manage.py shell -c "
+from django.conf import settings
+print('STATIC_URL:', settings.STATIC_URL)
+print('STATIC_ROOT:', settings.STATIC_ROOT)
+print('STATICFILES_DIRS:', getattr(settings, 'STATICFILES_DIRS', None))
+print('DEBUG:', settings.DEBUG)
+print(\"whitenoise installed:\", 'whitenoise' in str(settings.MIDDLEWARE).lower())
+"
+cat docker-entrypoint.sh
+docker exec -it carwash-app-1 ls /app/staticfiles/admin/css/
+docker exec -it carwash-app-1 python manage.py collectstatic --noinput
+docker exec -it carwash-app-1 python manage.py shell -c "
+from django.urls import get_resolver
+resolver = get_resolver()
+for p in resolver.url_patterns:
+    print(p.pattern)
+"
+docker exec -it carwash-app-1 cat /app/apps/providers/urls.py
+docker exec -it carwash-app-1 python manage.py shell -c "
+from apps.providers.models import ProviderProfile
+print(list(ProviderProfile.objects.values_list('user_id', 'status')))
+"
+docker compose -f docker-compose.dev.yml down -v
+docker exec -it carwash-app-1 python manage.py shell -c "
+from apps.bookings.models import Booking
+b = Booking.objects.get(id=1)
+print('provider profile id:', b.provider.id, '-> user id:', b.provider.user_id, b.provider.user)
+print('customer profile id:', b.customer.id, '-> user id:', b.customer.user_id, b.customer.user)
+"
+docker exec -it carwash-app-1 python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+print('user 5 exists:', User.objects.filter(id=5).exists())
+print('user 10 exists:', User.objects.filter(id=10).exists())
+from apps.bookings.models import Booking
+b = Booking.objects.get(id=1)
+print('booking.provider:', b.provider, 'type:', type(b.provider))
+print('booking.customer:', b.customer, 'type:', type(b.customer))
+"
+docker exec -it carwash-app-1 python manage.py shell -c "
+from apps.bookings.models import Booking
+qs = Booking.objects.exclude(provider_id=None).values_list('id', 'provider_id', 'customer_id', 'status')[:15]
+print(list(qs))
+"
+docker exec -it carwash-app-1 python manage.py shell -c "
+from apps.bookings.models import Booking
+qs = Booking.objects.filter(provider_id=83).values_list('id', 'status')[:10]
+print(list(qs))
+"
+docker exec -it carwash-app-1 python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+print(list(User.objects.values_list('id', 'phone_number' if hasattr(User, 'phone_number') else 'email', 'role' if hasattr(User, 'role') else None)))
+"
+docker exec -it carwash-app-1 python manage.py shell -c "from django.contrib.auth import get_user_model; u = get_user_model().objects.get(id=19); print(u.is_active, u.role)"
+python manage.py shell -c "from django.contrib.auth import get_user_model; u = get_user_model().objects.get(id=19); print(u.is_active, u.role)"
+python manage.py shell -c "from django.contrib.auth import get_user_model; u = get_user_model().objects.get(id=19); print(u.is_active, u.role)"python manage.py shell -c "from django.contrib.auth import get_user_model; u = get_user_model().objects.get(id=19); print(u.is_active, u.role)"
+docker compose
+gt
+cat lib/app/routes/app_pages.dart | grep -i chat
+cat lib/app/modules/chat/chat_controller.dart | head -30
+git rebase --abort
+git push origin main --force
+git pull origin main --rebase
+git push origin main
+lslls
+docker exec -it carwash-app-1 python manage.py makemigrations
+docker exec -it carwash-app-1 python manage.py migrate
+docker compose exec backend env | grep FRONTEND
+find lib/app/modules/jobs/ -type f | sort
+find lib/app/model/jobs/ -type f | sort
+cat lib/app/api_servies/api_Constant.dart
+cat lib/app/routes/app_pages.dart
+cat lib/app/routes/aap_routes.dart
+cat lib/app/modules/main_screen/main_screen_view.dart
+gita dd
+# full deps
+cat pubspec.yaml
+
+# routing (to see how pages are registered)
+cat lib/app/routes/app_pages.dart
+cat lib/app/routes/aap_routes.dart
+
+# main screen (bottom nav - where Jobs tab will go)
+cat lib/app/modules/main_screen/main_screen_view.dart
+cat lib/app/modules/main_screen/main_screen_controller.dart
+
+# one existing module to copy the pattern
+cat lib/app/modules/news/news_controller.dart
+cat lib/app/modules/news/news_view.dart
+
+# API service to understand how HTTP calls are made
+cat lib/app/api_servies/neteork_api_services.dart
+cat lib/app/api_servies/api_Constant.dart
+cat pubspec.yaml | grep -A 5 "dependencies:"
+find lib/ -type f -name "*.dart" | sort
+i
+pip install PyPDF2 --break-system-packages
+
+cd ~/Documents/chatterbee
+git remote set-url origin git@github.com:abdurrakibrafi/andriannaclark.git
+git push -u origin main --force
+cd ~/Documents/chatterbee
+git remote set-url origin git@github.com:abdurrakibrafi/chatterbee.git
+git push -u origin main
+rm -rf ~/Documents/.git
+cd ~/Documents/chatterbee
+git remote add origin git@github.com:abdurrakibrafi/andriannaclark.git
+git push -u origin main
+echo "# andriannaclark" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:abdurrakibrafi/andriannaclark.git
+git push -u origin main
+git clone git@github.com:asyncrafi/chatterbee.git
+cd..
+pip install openai PyPDF2 django
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install python3.13 python3.13-venv
+
+# now recreate venv
+python3.13 -m venv venv
+source venv/bin/activate.fish
+pip install -r requirements.txt
+sudo apt update
+sudo apt install python3.13 python3.13-venv
+
+# recreate the venv with 3.13
+deactivate
+rm -rf venv
+python3.13 -m venv venv
+source venv/bin/activate.fish
+
+pip install -r requirements.txt
+python --version
+sudo chown -R r4fi:r4fi /home/r4fi/Documents/hrai-project
+docker exec -it hrai_backend python manage.py startapp jobs
+docker exec -it hrai_backend python manage.py migrate aipersona 0002_add_chat_suggestions --fake
+docker exec -it hrai_backend python manage.py migrate aipersona
+docker exec -it hrai_backend python manage.py migrate aipersona
+git status
+git diff apps/aipersona/migrations/
+git checkout production-working-3996995 -- apps/aipersona/migrations/0002_add_chat_suggestions.py
+git checkout production-working-3996995 -- apps/aipersona/migrations/0005_merge_20260222_1502.py
+git checkout production-working-3996995 -- apps/aipersona/migrations/0006_chatsuggestion.py
+git checkout production-working-3996995 -- apps/aipersona/migrations/0003_remove_personalegalconstraint_persona_and_more.py
+cd ~/D/hrai-project
+git checkout production-working-3996995 -- apps/aipersona/migrations/0002_add_chat_suggestions.py
+git checkout production-working-3996995 -- apps/aipersona/migrations/0005_merge_20260222_1502.py
+git checkout production-working-3996995 -- apps/aipersona/migrations/0006_chatsuggestion.py
+git checkout production-working-3996995 -- apps/aipersona/migrations/0003_remove_personalegalconstraint_persona_and_more.py
+docker exec -it hrai_backend python manage.py showmigrations aipersona
+git show production-working-3996995:apps/aipersona/migrations/0002_add_chat_suggestions.py 2>&1 | head -5
+git show production-working-3996995:apps/aipersona/migrations/0005_merge_20260222_1502.py 2>&1 | head -5
+cd ~/D/hrai-project
+git status
+git log --oneline -- apps/aipersona/migrations/ | head -20
+cat migrations/0003_remove_personalegalconstraint_persona_and_more.py
+sed -i '/name="bullets_max"/,+1d;/migrations.RemoveField($/{N;/model_name="aipersona",\n.*name="bullets_max"/d}' migrations/0003_remove_personalegalconstraint_persona_and_more.py
+cat migrations/0006_chatsuggestion.py | head -10
+cat migrations/0003_remove_personalegalconstraint_persona_and_more.py
+sed -i 's/"0002_alter_aipersona_options_aipersona_bullets_max_and_more"/"0001_initial"/' migrations/0003_remove_personalegalconstraint_persona_and_more.py
+sed -i 's/"0005_merge_20260222_1502"/"0004_aipersona_backstory_text_and_more"/' migrations/0006_chatsuggestion.py
+grep -n "approach\|default_mode\|federal_contractor_awareness\|lead_with\|location_awareness\|risk_aversion\|\"tone\"\|word_target" migrations/0001_initial.py
+grep -n "bullets_max\|PersonaLegalConstraint\|PersonaEmpathyCue\|PersonaOutputFormat" migrations/0001_initial.py
+cat migrations/0006_chatsuggestion.py
+rm migrations/0005_merge_20260222_1502.py
+cat migrations/0005_merge_20260222_1502.py
+cat apps/aipersona/migrations/0005_merge_20260222_1502.py
+cd aipersona/
+docker exec -it hrai_backend python manage.py makemigrations
+docker exec -it hrai_backend python manage.py migrate
+# 1. Delete the conflicting/incorrect migration files
+rm apps/aipersona/migrations/0002_add_chat_suggestions.py
+rm apps/aipersona/migrations/0002_alter_aipersona_options_aipersona_bullets_max_and_more.py
+ls -la apps/aipersona/migrations/
+grep -n "class ChatSuggestion" apps/aipersona/models.py
+git pull origin production-working-3996995
+docker exec -it hrlyx_backend python manage.py migrate
+nano .env
+cat apps/chat/services/ai_chat_core.py
+cat apps/chat/services/context_builder.py
+# Run this and paste the output
+cat apps/accounts/models.py
+cat apps/aipersona/models.py
+ls apps/aipersona/
+cat apps/core/models.py
+cat config/settings/base.py | grep -A 40 "INSTALLED_APPS"
+cat config/settings/base.py | grep -A 15 "REST_FRAMEWORK\|CELERY\|OPENAI"
+cat requirements.txt
+cat apps/aipersona/models.py
+ls apps/aipersona/
+cat apps/core/models.py
+ls apps/dashboard/
+cat requirements.txt
+cat config/settings/base.py | grep -A 30 "INSTALLED_APPS"
+cat config/settings/base.py | grep -A 10 "REST_FRAMEWORK"
+cat config/settings/base.py | grep -A 10 "CELERY"
+cat pricing.py
+cd ruggen
+cat apps/ruggen/utils/pricing.py
+git cat apps/ruggen/utils/pricing.py
+git remote set-url origin git@github.com:asyncrafi/homerug.git
+git push origin main
+ssh -T git@github.com
+git remote set-url origin https://Rafi1115:<YOUR_TOKEN_HERE>@github.com/asyncrafi/homerug.git
+docker-compose -f docker-compose-dev.yml up
+ssh root@72.62.248.97
+git pull --rebase origin main
+git remote set-url origin https://github.com/asyncrafi/homerug.git
+git pull origin main
+scp config/settings/base.py root@srv1275752:/var/rafi/homerug/config/settings/base.py
+scp config/settings/development.py root@srv1275752:/var/rafi/homerug/config/settings/development.py
+scp docker-compose-prod.yml root@srv1275752:/var/rafi/homerug/docker-compose-prod.yml
+cd ~/Documents/homesrug
+git pull origin main
+t@srv1275752:/var/rafi/homerug# cat ~/.ssh/id_asyncrafi.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIR3D1pIfOCu0qXdQeVBkiKlYXymCV0XVQRLgSLixb2b asyncrafi-server
+root@srv1275752:/var/rafi/homerug# echo -e "Host github-asyncrafi\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_asyncrafi" >> ~/.ssh/config
+
+git remote set-url origin git@github-asyncrafi:asyncrafi/homerug.git
+git push origin main
+
+
+
+Enumerating objects: 13, done.
+Counting objects: 100% (13/13), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (7/7), done.
+Writing objects: 100% (7/7), 909 bytes | 909.00 KiB/s, done.
+Total 7 (delta 5), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (5/5), completed with 5 local objects.
+To github-asyncrafi:asyncrafi/homerug.git
+   5fe18d5..1c418ff  main -> main
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# git pull origin main 
+From github-asyncrafi:asyncrafi/homerug
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+root@srv1275752:/var/rafi/homerug# git pull origin main
+
+
+
+
+
+
+From github-asyncrafi:asyncrafi/homerug
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# 
+root@srv1275752:/var/rafi/homerug# 
+
+docker exec -it homesrug_backend python manage.py migr
+sed -n '310,328p' apps/ruggen/views.py
+sed -n '320,330p' apps/ruggen/views.py
+docker exec -it homesrug_backend python manage.py check --database default
+docker exec -it
+docker compose -f docker-compose-dev.yml down
+docker compose -f docker-compose-dev.yml up --buil
+docker exec -it carwash-app-1 python manage.py shell -c "from apps.bookings.models import Booking; print(list(Booking.objects.values('id','status','customer_id')))"
+cat routing.py
+cat consumers.py
+cat apps/messages/consumers.py
+cd messages/
+cat asgi.py
+cd cd ..
+cat config/asgi.py
+'daphne',
+'daphne', 'daphne', 'daphne', 'daphne',
+docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml -up --build
+pip install daphne
+source /home/r4fi/Documents/carwash/venv/bin/activate.fish
+docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up
+Run migrations and smoke-test the new endpoints.
+I can: (A) return the created vehicle in the booking response, (B) compute distance server-side and include in price calc, or (C) add Django Channels for real-time push. Which should I do next?
+cat .env
+ssh r
+cat celery.py
+cat urls.py
+cat development.py
+cat production.py
+cd accounts/
+cd account
+cd ho
+cd r4fi/
+l;s
+https://delta-blaming-bleach.ngrok-free.dev/https://delta-blaming-bleach.ngrok-free.dev/
+cd ru
+cdoe .
+echo "# carwash" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/asyncrafi/carwash.git
+git push -u origin main
+cd car
+cd documents
+sl
+sl;s
+cd Doucmnet
+cd ~/Downloads
+wget https://download.anydesk.com/linux/anydesk-8.0.2-amd64.tar.gz
+tar -xvzf anydesk-8.0.2-amd64.tar.gz
+cd anydesk-8.0.2
+sudo ./install.sh --install
+anydesk
+wget -qO - https://keys.anydesk.com/repos/DEB-GPG-KEY | sudo apt-key add -
+echo "deb http://deb.anydesk.com/ all main" | sudo tee /etc/apt/sources.list.d/anydesk.list
+sudo apt update
+sudo apt install anydesk
+wget https://download.anydesk.com/linux/anydesk_6.3.0-1_amd64.deb
+sudo dpkg -i anydesk_6.3.0-1_amd64.deb
+sudo apt -f install
+y
+1
+sudo snap install anydesk
+git pull origin main --allow-unrelated-histories
+git push origin main
+source /home/r4fi/Documents/homesrug/.venv/bin/activate.fish
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:asyncrafi/carwash.git
+git push -u origin main
+g
+git homesrug/
+git pull origin man
+git pull status
+source /home/r4fi/Documents/djproject/venv/bin/activate.fish
+cd djproject/
+ssh root@46.62.193.30
+46.62.193.30
+sls
+dls
+cd jlksfjasdjlkfksjadfjsajsdfkjsdfajkl;
+cd arabiancommerce/
+dfss
+clar
+docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml build --up
+docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml build -up
+cat .en
+git statsus
+# Stop kernel from OOM crashing, let it kill processes gracefully
+echo 'vm.overcommit_memory=1' | sudo tee -a /etc/sysctl.conf
+echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+sudo pkill -f "celery worker"
+sudo pkill -f "celery.*flower"
+sudo fallocate -l 8G /swapfile2
+sudo chmod 600 /swapfile2
+sudo mkswap /swapfile2
+sudo swapon /swapfile2
+echo '/swapfile2 none swap sw 0 0' | sudo tee -a /etc/fstab
+# See what's eating RAM
+ps aux --sort=-%mem | head -20
+
+# Check OOM killer logs
+dmesg | grep -i "oom\|killed" | tail -30
+
+# Or check journalctl
+journalctl -k | grep -i "oom\|out of memory" | tail -20
+co
+docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up -ddocker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up -ddocker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up -d
+code
+cp .env.example .env
+source ~/.config/fish/config.fish
+curl -fsSL https://opencode.ai/install | bash
+git statsu
+git s tatu
+cd aiheadshotgenerator
+pip install django
+touch requirements.txt
+git push origin production-working-3996995
+
+git pull origin production-working-3996995
+git pull origin production-working-3996995
+
+git stash
+git checkout production-working-3996995
+git reset --hard origin/production-working-3996995
+git fetch origin
+git checkout production-working-3996995
+git pull origin production-working-3996995
+git commit -m "thrid world push 2nd gener"
+docker compose -f docker-compose-dev.yml down -v
+docker compose -f docker-compose-dev.yml up --build
+sleep 3 && docker exec -it hrlynx_db psql -U postgres -c "\du"
+docker compose -f docker-compose-dev.yml up -d db
+docker exec -it hrlynx_db psql -U postgres -c "\du"
+touch .env
+git clone git@github.com:Rafi1115/hrai-project.git
+mk
+# 3. See if requests reach Django after a mobile attempt
+docker logs headshot-backend-1 --tail 20
+
+# 2. Check nginx config
+cat /etc/nginx/sites-available/headshot
+
+# 1. Test the CORS preflight
+curl -v -X OPTIONS "https://api.quickheadshotai.com/jobs/create/" \
+  -H "Origin: https://quickheadshotai.com" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: content-type"
+
+git pull origin main --no-rebase
+
+flutter install
+flutter build apk --release
+
+./gradlew --stop
+./gradlew signingReport
+
+sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+
+sudo update-alternatives --config java
+
+sudo dnf install java-17-openjdk-devel -y
+
+sudo apt update && sudo apt install openjdk-17-jdk -y
+
+sudo pacman -Syu jdk17-openjdk
+
+cd android && ./gradlew signingReport
+
+keytool -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore
+
+adb -s 00158357P000259 uninstall --user all com.lynxova.hrlnyx
+
+adb -s 00158357P000259 uninstall com.lynxova.hrlnyx
+
+adb -s 00158357P000259 install build/app/outputs/flutter-apk/app-debug.apk
+adb install build/app/outputs/flutter-apk/app-debug.apk
+cd mysportsnest/
+git commit -m "thrid world push 2nd gener"]
+sudo chown -R r4fi:r4fi /usr/lib/android-sdk
+sudo chown -R $USER:$USER /usr/lib/android-sdk
+flutter emulators
+flutter emulators --launch Pixel_7_Pro
+flutter emulators
+flutter emulators --launch <your_emulator_id>
+Flutter: Launch Emulator
+~/Android/Sdk/emulator/emulator -avd Pixel_7_Pro -wipe-data -no-snapshot -port 5554
+adb kill-server
+pkill -f emulator
+pkill -f qemu
+pkill -f adb
+~/Android/Sdk/emulator/emulator -avd Pixel_7_Pro -wipe-data -no-snapshot -no-accel
+adb kill-server
+pkill -f emulator
+pkill -f qemu-system
+pkill -f adb
+adb disconnect
+adb -s emulator-5556 emu kill
+adb kill-server
+adb start-server
+adb devices
+echo $ANDROID_HOME
+echo $ANDROID_SDK_ROOT
+which emulator
+set -Ux ANDROID_HOME $HOME/Android/Sdk
+set -Ux ANDROID_SDK_ROOT $HOME/Android/Sdk
+fish_add_path $ANDROID_HOME/emulator
+fish_add_path $ANDROID_HOME/platform-tools
+~/Android/Sdk/emulator/emulator -accel-check
+~/Android/Sdk/emulator/emulator -list-avds
+ANDROID_HOME
+ANDROID_SDK_ROOT
+PATH
+which adb
+find ~ -type f -name emulator 2>/dev/null | grep Android | head
+find ~ -type d -name "Sdk" 2>/dev/null | head
+echo $ANDROID_HOME
+echo $ANDROID_SDK_ROOT
+adb kill-server
+pkill -f emulator
+pkill -f qemu
+adb start-server
+emulator -list-avds
+echo "# hrlynxfrontend" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:Rafi1115/hrlynxfrontend.git
+git push -u origin main
+adb -s 00158357P000259 install -r --user 0 ~/Documents/hrlyxfronted/build/app/outputs/flutter-apk/app-debug.apk
+adb -s 00158357P000259 install -r ~/Documents/hrlyxfronted/build/app/outputs/flutter-apk/app-debug.apk
+adb -s 00158357P000259 shell pm uninstall com.lynxova.hrlynx
+adb -s 00158357P000259 shell df -h /data
+sudo killall adb
+sudo rm -rf ~/.android/adbkey*
+# Push APK to phone
+adb -s 00158357P000259 push ~/Documents/hrlyxfronted/build/app/outputs/flutter-apk/app-debug.apk /data/local/tmp/
+
+# Install from phone's storage
+adb -s 00158357P000259 shell pm install /data/local/tmp/app-debug.apk
+sudo adb kill-server
+sudo adb start-server
+adb devices
+adb -s emulator-5556 emu kill
+adb -s 00158357P000259 uninstall com.lynxova.hrlnyx
+adb -s 00158357P000259 uninstall com.reitz14.hopacrosamerica.app
+adb shell pm uninstall --user 0 com.lynxova.hrlnyx
+adb shell pm uninstall --user 0 com.reitz14.hopacrosamerica.app
+adb -s 00158357P000259 uninstall com.lynxova.hrlynx
+adb -s 00158357P000259 shell am force-stop com.lynxova.hrlynx
+adb -s 00158357P000259 shell pm clear com.lynxova.hrlynx
+adb -s 00158357P000259 shell pm list packages -f | grep -i "lynx"
+adb -s 00158357P000259 shell pm list packages | grep -i "hrlynx\|lynx\|reitz\|hopacr"
+adb -s 00158357P000259 shell pm list packages -3
+adb shell pm uninstall --user 0 com.lynxova.hrlynx
+adb shell pm uninstall --user 0
+adb install -r ~/Documents/hrlyxfronted/build/app/outputs/flutter-apk/app-debug.apk
+flutter ru
+sudo apt install -y adb
+# Ubuntu / Linux common path
+/usr/lib/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-36"
+# If sdkmanager is already in PATH
+sdkmanager "platforms;android-36"
+4444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
+cat web/index.html
+sudo usermod -aG kvm $USER
+ls -la /dev/kvm
+cd
+flutter doctor --android-licenses
+sudo apt install -y clang cmake ninja-build libgtk-3-dev
+rm -rf ~/flutter ~/flutter_linux_3.24.0-stable.tar.xz
+flutter --version
+dart --version
+fish_add_path ~/develop/flutter/bin
+mkdir -p ~/develop && tar -xf ~/Downloads/flutter_linux_3.44.1-stable.tar.xz -C ~/develop/
+tar -xf ~/Downloads/flutter_linux_3.44.1-stable.tar.xz -C ~/develop/
+cd download
+sudo apt-get update -y && sudo apt-get upgrade -y
+sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
+
+cd ~/Documents/hrlyxfronted
+flutter run -d chrome
+grep -r "dotenv\|\.env\|Env\." ~/Documents/hrlyxfronted/lib/ --include="*.dart" | grep -v "Binary"
+find ~/Documents/hrlyxfronted -name "*.env*"
+cat ~/Documents/hrlyxfronted/.env.example
+ls -la ~/Documents/hrlyxfronted/
+sudo apt install qemu-kvm
+sudo adduser $USER kvm
+cd ~/Documents/hrlyxfronted
+flutter run
+flutter emulators --launch pixel_test
+/usr/lib/android-sdk/emulator/emulator -avd pixel_test
+sudo sdkmanager "platform-tools" "platforms;android-34"
+set -x ANDROID_SDK_ROOT /usr/lib/android-sdk
+set -x ANDROID_HOME /usr/lib/android-sdk
+mkdir -p ~/Android/Sdk/system-images/android-34/google_apis/
+cp -r /usr/lib/android-sdk/system-images/android-34/google_apis/x86_64 ~/Android/Sdk/system-images/android-34/google_apis/
+~/Android/Sdk/emulator/emulator -avd pixel_test
+avdmanager create avd -n pixel_test -k "system-images;android-34;google_apis;x86_64" -d pixel
+sdkmanager "system-images;android-34;google_apis;x86_64" "emulator"
+sudo chmod -R 777 /usr/lib/android-sdk
+sdkmanager "system-images;android-34;google_apis;x86_64"
+flutter config --android-sdk /usr/lib/android-sdk
+sudo apt install google-android-cmdline-tools-11.0-installer
+sdkmanager --install "cmdline-tools;latest"
+cd ~/Documents/hrlyxfronted
+flutter pub get
+flutter upgrade
+# 5. Verify it works
+flutter --version
+# 4. Reload your shell
+source ~/.config/fish/config.fish
+# 3. Add Flutter to your PATH (for fish shell)
+echo 'set -x PATH $HOME/flutter/bin $PATH' >> ~/.config/fish/config.fish
+# 2. Extract it
+tar xf flutter_linux_3.24.0-stable.tar.xz
+# 1. Download Flutter SDK
+cd ~
+wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.0-stable.tar.xz
+flutter pub get
+
+# Then run the app
+flutter run
+# Navigate to the project folder
+cd Documents/hrlyxfronted
+
+# Get all dependencies
+flutter pub get
+
+# Then run the app
+flutter run
+sudo nano /usr/share/applications/android-studio.desktop
+sudo apt install openjdk-17-jdk
+# Extract it
+cd ~/Downloads
+tar -xzf android-studio-panda4-patch1-linux.tar.gz
+
+# Move to /opt (standard place)
+sudo mv android-studio /opt/
+
+# Run the setup wizard
+/opt/android-studio/bin/studio.sh
+ssh root@46.62.193.30/32
+https://djphomeimprovements.co.uk/
+python manage.py runserver
+python manage.py migrate
+python manage.py makemigrations
+git clone https://github.com/Rafi1115/djphomeimprovements.git
+echo "# djphomeimprovements" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:Rafi1115/djphomeimprovements.git
+git push -u origin main
+ssh-keygen -f '/home/r4fi/.ssh/known_hosts' -R '46.62.193.30'
+ssh root@46.62.193.32
+mkdir -p ~/.ssh
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC0/popnbrwdXeElUhgeM8W2vY4xZHAuKuPoCu8Vs2Da alenrafi1511@gmail.com" >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat ~/.ssh/id_ed25519.pub
+los
+python manage.py startapp blog
+d
+mkdir djproject
+nohup cloudflared tunnel --url http://localhost:85 > /var/log/cloudflared.log 2>&1 &
+gjit pu
+git ad
+git push rigin main
+git add.
+source /home/r4fi/Documents/arabiancommerce/venv/bin/activate.fish
+cd core
+equences of every architectural decision. That's the environment I want to be in.
+
+The caliber of people mentioned, seniors from Pathao and Brain Station is a real pull for me. I want to be in rooms where I'm learning, not just executing.
+docker compose up
+docker compose up --buil
+docker compose up --build
+docker compose p
+[1;5
+docker compose -f docker-compose-prod.yml down
+docker compose -f docker-compose-prod.yml up -d --build
+docker compose -f docker-compose-prod.yml up --build
+docker exec arabiancommerce_backend python manage.py check --database default
+git push origin mainm
+grep -A 5 "arabian_backend" docker-compose.yml
+docker logs arabian_backend --tail 50
+docker exec arabian_backend python manage.py check --database default
+docker exec bibel_backend python manage.py check --database default
+sjlfjslkfjlksj
+git push origin mai
+git push origin main0
+git stuat
+[1ls
+docker restart mysportsnest_celeryworker mysportsnest_celerybeat
+
+git push upstream main
+
+ssh root@138.197.113.92
+git pull origin main
+
+mkdir carwash
+LS
+git commit -m "thrid world push 2nd gener"]]
+git commit -m "changed price for testing"
+docker exec -it arabian_backend python manage.py makemigrations categories
+c d..
+docker exec -it arabian_backend python manage.py makemigrations
+cd bibel-project/
+cd arabiancommerce
+[1;cd Documents/
+ifconfig
+ipconfig
+docker exec -it arabian_backend python manage.py shell -c "
+from apps.accounts.models import User
+u = User.objects.create_superuser(phone='+975501234567')
+u.email = 'admin@admin.com'
+u.set_password('admin123')
+u.save()
+print('Superuser created!')
+"
+docker exec -it arabian_backend python manage.py shell -c "
+from apps.accounts.models import User
+u = User.objects.create_superuser(phone='+971501234567')
+u.email = 'admin@admin.com'
+u.set_password('admin123')
+u.save()
+print('Superuser created!')
+"
+docker exec -it arabian_backend python manage.py createsuperuser
+docker compose -f docker-compose-dev.yml up --build0]
+git clone git@github.com:Rafi1115/mysportsnest.git
+cd .
+nano /var/www/headshot/backend-django/backend/config/settings.py
+cd backend-django/
+\[
+lsgit s
+giactivemind
+pip3 install -r requirements.txt
+source venv/bin/activate.fish
+
+cod
+git push
+cd cd arabiancommerce/
+ls -la /home/r4fi/Documents/wixbot/
+mkdir -p /home/r4fi/Documents/wixbot/staticfiles/accounts
+sudo chown -R $USER:$USER /home/r4fi/Documents/wixbot/staticfiles
+sudo chown -R $USER:$USER /home/r4fi/Documents/wixbot/staticfiles
+source /home/r4fi/Documents/wixbot/venv/bin/activate.fish
+gti config/
+cd wixbot/
+git clone git@github.com:Rafi1115/wixbot.git
+chmod +x entrypoint.sh
+python3 manage.py startapp analytic
+sudo apt install antigravity
+sudo apt update
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | \
+  sudo gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg
+echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" | \
+  sudo tee /etc/apt/sources.list.d/antigravity.list > /dev/null
+python3 manage.py startapp analytics
+python3 manage.py startapp bots
+python3 manage.py startapp conversations
+python3 manage.py startapp knowledge
+python3 manage.py startapp
+python3 manage.py startapp leads
+leads
+python3 manage.py startapp messaging
+python3 manage.py startapp billing
+python
+python manag
+pip
+jupyter notebook
+source .venv/bin/activate.fish
+jupyter notebook
+
+python3 notebook
+
+python3 notebook
+cd notebook
+cd Documents
+cd Desktop/
+lls
+codde .
+python3 manage.py startapp ruggen
+pip install google-genai
+source .venv/bin/activate.fish
+
+3
+docker exec homesrug_backend python manage.py check --database default
+
+docker exec arabian_backend python manage.py check --database default
+
+qdjango-admin startproject
+django-admin
+pip inst
+source /home/r4fi/Documents/homesrug/venv/bin/activate.fish
+python3 -m venv .venv
+
+mkdir homesrug
+cd Do
+docker exec -it arabian_backend python manage.py migrate
+hisoory
+docker compose -f docker-compose-dev.yml up]
+docker exec -it aiheadshotgenerator-backend-1 python manage.py migrate
+
+docker exec -it aiheadshotgenerator-backend-1 python manage.py makemigrations
+
+docker exec -it arabian_backend python manage.py makemigrations
+docker exec -it arabian_backend python manage.py migrate
+docker compose -f docker-compose-dev.yml u
+docker ps | grep 8009
+sudo lsof -i :8009
+docker ps | grep bibel
+docker compose down
+docker compose up
+git clone git@github.com:Rafi1115/bibel-project.git
+docker exec -it arabian_backend python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+u = User.objects.get(phone='123456789')
+u.email = 'admin@arabiancommerce.com'
+u.set_password('yourStrongPassword123')
+u.save()
+print('Done:', u.email)
+"
+docker exec arabian_backend python manage.py createsuperuser
+sudo apt upgrade
+sudo apt update && upgrade
+docker exec -it aiheadshotgenerator-backend-1 python manage.py migrate
+docker exec -it aiheadshotgenerator-backend-1 python manage.py makemigrations
+docker compose down
+cd frontend
+cd backend
+pip install PyJWT requests
+echo "# arabiancommerce" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:Rafi1115/arabiancommerce.git
+git push -u origin main
+subl
+docker compose -f docker-compose-dev.yml down -v  # wipes volumes
+docker compose -f docker-compose-dev.yml up
+sleep 5 && docker exec -it arabian_db psql -U postgres
+cat .evn
+docker compose -f docker-compose-dev.yml up -d db
+docker exec -it arabian_db psql -U postgres
+docker compose -f docker-compose-dev.yml up --build
+
+python3 manage.py startapp payments
+python3 manage.py startapp orders
+docker logs arabian_backend --tail 100
+docker compose -f docker-compose-dev.yml down
+
+docker-compose -f docker-compose-dev.yml down
+docker-compose -f docker-compose-dev.yml up --build
+docker-compose -f docker-compose-dev.yml up --build
+
+mkdir nginx
+cd templates/
+mkdir templates
+touch Dockerfile
+touch .gitignore
+touch entrypoint.sh
+touch docker-compose-prod.yml
+touch docker-compose-dev.yml
+tou
+pip3 freeze requirements.txt
+rm requrements.txt
+cat requrements.txt
+rm requrements.txty
+touch requrements.txt
+touch requrements.txty
+python3 manage.py startapp oders
+python3 manage.py startapp banners
+python3 manage.py startapp customers
+python3 manage.py startapp categories
+python3 manage.py startapp products
+pip3 install django
+pip3 install djagnoa
+mkdir arabiancommerce
+gemini
+git add . && git commit -m "feat: loosen validation thresholds" && git push origin main
+git commit -m "thrid world push 2nd generation"
+git commit -m "thrid world push"
+cat backend-django/backend/services/validation/face_validate.py
+cat frontend/lib/api/generation.ts
+cat frontend/lib/api/payments.ts
+ls app/success/
+cat app/success/page.tsx
+ls components/form/
+ls components/
+cat components/upload*.tsx 2>/dev/null || cat components/Upload*.tsx 2>/dev/null
+cat app/page.tsx
+# or wherever the upload flow is
+ls app/
+sudo apt install nodejs npm
+rm -f bruno/
+rm bruno
+pip install google-generativeai google-genai Pillow
+python3 -m venv .venv
+source .venv/bin/activate.fish
+pip install notebook
+jupyter notebook
+python3 -m venv .venv
+source .venv/bin/activate
+pip install notebook
+jupyter notebook
+sudo apt update
+sudo apt install python3-pip -y
+pip install notebook
+pip3 install notebook
+pip install notebook
+sudo apt install python3-pip
+
+mkdir notebook
+lkks
+cd ~/Documents/aiheadshotgenerator
+
+# Pull VPS backend changes first
+git pull origin main
+
+# Then add and push frontend changes
+git add .
+git commit -m "frontend image validation + photo guidelines"
+git push origin main
+cd aiheadshotgenerator/
+@Admin@42Enter
+grep "3006\|3009" ~/Documents/aiheadshotgenerator/docker-compose.yml
+sed -i 's/3006:80/3009:80/g' ~/Documents/aiheadshotgenerator/docker-compose.yml
+cd ~/Documents/aiheadshotgenerator
+git add .
+git commit -m "change backend port to 8009"
+git push origin main
+http://localhost:8009
+grep -r "8006" ~/Documents/aiheadshotgenerator/docker-compose.yml
+grep -r "8006" ~/Documents/aiheadshotgenerator/frontend/
+sed -i 's/localhost:8006/localhost:8009/g' ~/Documents/aiheadshotgenerator/docker-compose.yml
+# Update docker-compose.yml
+sed -i 's/8006:8006/8009:8009/g' ~/Documents/aiheadshotgenerator/docker-compose.yml
+sed -i 's/0.0.0.0:8006/0.0.0.0:8009/g' ~/Documents/aiheadshotgenerator/docker-compose.yml
+sed -i 's/runserver 0.0.0.0:8006/runserver 0.0.0.0:8009/g' ~/Documents/aiheadshotgenerator/docker-compose.yml
+
+# Update all frontend API references
+find ~/Documents/aiheadshotgenerator/frontend/ -type f \( -name "*.ts" -o -name "*.tsx" \) -exec sed -i 's/localhost:8006/localhost:8009/g' {} +
+
+# Update frontend .env.local
+echo "NEXT_PUBLIC_API_URL=http://localhost:8009" > ~/Documents/aiheadshotgenerator/frontend/.env.local
+git push -u origin feature/dummy
+git commit -m "hello"]
+git config --global user.email "Rafi1115"
+git stastu
+cat ~/Documents/aiheadshotgenerator/backend-django/backend/.env | grep FRONTEND
+grep FRONTEND_BASE_URL ~/Documents/aiheadshotgenerator/backend-django/backend/.env
+cd frontend/
+sed -i 's|FRONTEND_BASE_URL=http://localhost:3000|FRONTEND_BASE_URL=http://localhost:3006|' ~/Documents/aiheadshotgenerator/backend-django/backend/.env
+nano ~/Documents/aiheadshotgenerator/backend-django/backend/config/settings.py
+# Find the jobs create view
+grep -r "jobs/create\|def create\|JobCreate" ~/Documents/aiheadshotgenerator/backend-django/backend/ --include="*.py" -l
+find ~/Documents/aiheadshotgenerator/frontend/ -type f \( -name "*.ts" -o -name "*.tsx" \) -exec sed -i 's|localhost:8000|localhost:8006|g' {} +find ~/Documents/aiheadshotgenerator/frontend/ -type f \( -name "*.ts" -o -name "*.tsx" \) -exec sed -i 's|localhost:8000|localhost:8006|g' {} +
+grep -r "localhost:8000" ~/Documents/aiheadshotgenerator/frontend/
+find ~/Documents/aiheadshotgenerator/frontend/ -type f \( -name "*.ts" -o -name "*.tsx" \) -exec sed -i 's/localhost:8000/localhost:8006/g' {} +
+head -3 ~/Documents/aiheadshotgenerator/frontend/lib/api/jobs.ts
+sed -i 's|process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"|process.env.NEXT_PUBLIC_API_URL || "http://localhost:8006"|g' ~/Documents/aiheadshotgenerator/frontend/lib/api/jobs.ts
+cat ~/Documents/aiheadshotgenerator/frontend/lib/api/jobs.ts | head -5
+docker compose run --rm frontend printenv | grep NEXT_PUBLIC
+docker compose exec frontend grep -r "localhost:8000\|localhost:8006" /app/.next/ 2>/dev/null | head -5
+cat ~/Documents/aiheadshotgenerator/frontend/Dockerfile
+cat ~/Documents/aiheadshotgenerator/docker-compose.yml
+docker compose up --build frontend
+ls ~/Documents/aiheadshotgenerator/frontend/
+cat ~/Documents/aiheadshotgenerator/frontend/.env.local 2>/dev/null || echo "no .env.local found"
+grep -r "8000" ~/Documents/aiheadshotgenerator/frontend/
+docker compose exec backend python3 -c "import django; import os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings'); django.setup(); from django.conf import settings; print('CORS:', settings.CORS_ALLOWED_ORIGINS)"
+cd ~/Documents/aiheadshotgenerator
+docker compose exec web python3 -c "import django; import os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings'); django.setup(); from django.conf import settings; print('CORS:', settings.CORS_ALLOWED_ORIGINS)"
+cp ~/Documents/aiheadshotgenerator/backend-django/.env ~/Documents/aiheadshotgenerator/.env
+cp ~/Documents/aiheadshotgenerator/backend-django/.env ~/Documents/aiheadshotgenerator/backend-django/backend/.env
+python -c "import django; import os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings'); django.setup(); from django.conf import settings; print(settings.CORS_ALLOWED_ORIGINS)"
+cd backend-django
+python -c "import django; import os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings'); django.setup(); from django.conf import settings; print(settings.CORS_ALLOWED_ORIGINS)"
+apidog
+api-dog
+git remote set-url origin git@github.com:Rafi1115/headshot.git
+git push -u origin main
+echo "# headshot" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:Rafi1115/headshot.git
+git push -u origin main
+git@github.com:Rafi1115/headshot.git
+git remote set-url origin git@github.com:Rafi1115/aiheadshotgenerator.git
+git push -u origin feature/dummy
+git push -u origin main
+.cat ~/.ssh/id_ed25519.pub
+ssh-keygen -t ed25519 -C "alenrafi1511@gmail.com"
+ls ~/.ssh/
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+..
+git config --global user.email "alenrafi1511@gmail.com"
+git config --global user.name "Rafi1115"
+code frontend/next.config.ts
+"use client";
+export const dynamic = 'force-dynamic';
+const nextConfig = {
+  output: 'standalone',  // or remove static export if it exists
+}
+cat frontend/next.config.ts
+echo 'export default function Loading() { return null }' > frontend/app/success/loading.tsx
+cat frontend/app/success/page.tsx
+echo "NEXT_PUBLIC_API_URL=http://localhost:8006" > frontend/.env.local
+cat frontend/.env
+# or
+cat frontend/.env.local
+docker exec -it aiheadshotgenerator-backend-1 python manage.py createsuperuser
+docker exec aiheadshotgenerator-backend-1 python manage.py createsuperuser
+chmod +x ~/Downloads/Apidog.AppImage
+~/Downloads/Apidog.AppImage
+cd ~/Downloads
+unzip Apidog-linux-latest.zip
+chmod +x ~/Downloads/bruno_3.3.0_x86_64_linux.AppImage
+~/Downloads/bruno_3.3.0_x86_64_linux.AppImage
+cloudflared tunnel --url http://localhost:8006
+docker logs aiheadshotgenerator-backend-1 -f
+docker logs aiheadshotgenerator-backend-1 --tail=20
+docker exec aiheadshotgenerator-backend-1 env | grep STRIPE
+docker exec aiheadshotgenerator-backend-1 python -c "
+import django, os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'
+django.setup()
+
+from jobs.models import Job
+from payments.models import Payment
+
+# Simulate what webhook does
+try:
+    job = Job.objects.first()
+    print('job:', job)
+    Payment.objects.get_or_create(
+        provider='stripe',
+        provider_payment_id='test_session_123',
+        defaults={
+            'job': job,
+            'amount': 2999,
+            'status': Payment.Status.SUCCESS,
+        }
+    )
+    print('Payment created OK')
+except Exception as e:
+    print('ERROR:', e)
+    import traceback
+    traceback.print_exc()
+"
+stripe trigger checkout.session.completed
+docker exec aiheadshotgenerator-backend-1 python -c "
+import django, os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'
+django.setup()
+import stripe
+from django.conf import settings
+stripe.api_key = settings.STRIPE_SECRET_KEY
+print('stripe key:', settings.STRIPE_SECRET_KEY[:10])
+print('webhook secret:', settings.STRIPE_WEBHOOK_SECRET[:10])
+"
+docker logs aiheadshotgenerator-backend-1 --tail=100
+docker exec aiheadshotgenerator-backend-1 pip show stripe
+docker logs aiheadshotgenerator-backend-1 --tail=50 2>&1 | grep -A 10 "Error\|500\|exception\|Traceback"
+docker logs aiheadshotgenerator-backend-1 --tail=30
+docker logs aiheadshotgenerator-celery-1 --tail=20
+docker logs aiheadshotgenerator-celery-1 --tail=50
+docker logs aiheadshotgenerator-backend-1 --tail=50
+echo "stripe==15.1.0" >> backend-django/requirements.txt
+apt install python3.12-venv
+
+cd backend/
+kls
+[cd backend-django/
+docker exec aiheadshotgenerator-backend-1 pip install stripe
+stripe listen --forward-to localhost:8006/payments/webhook/
+.stripe listen --forward-to localhost:8006/payments/webhook/
+stripe login
+wget https://github.com/stripe/stripe-cli/releases/download/v1.21.11/stripe_1.21.11_linux_amd64.deb
+sudo dpkg -i stripe_1.21.11_linux_amd64.deb
+wget https://github.com/stripe/stripe-cli/releases/latest/download/stripe_linux_amd64.tar.gz
+tar -xvf stripe_linux_amd64.tar.gz
+sudo mv stripe /usr/local/bin/
+stripe login
+stripe listen --forward-to localhost:8006/payments/webhook/+
+# Install Stripe CLI
+curl -s https://packages.stripe.com/api/stripe-cli-gpg-public-key.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg
+echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.com/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list.d/stripe.list
+sudo apt update && sudo apt install stripe
+cat docker-compose.yml
+cat backend-django/backend/.env
+sudo snap install postman
+wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+sudo dpkg -i cloudflared-linux-amd64.deb
+wget https://dl.pstmn.io/download/latest/linux64 -O postman.tar.gz
+tar -xzf postman.tar.gz
+sudo mv Postman /opt/
+sudo ln -s /opt/Postman/Postman /usr/bin/postman
+curl -L https://github.com/cloudflare/cloudpd/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+sudo dpkg -i cloudflared.deb
+h
+cd ~/Documents/aiheadshotgenerator
+docker compose up --build
+sudo systemctl start docker
+sudo systemctl enable docker
+cp ~/Documents/aiheadshotgenerator/backend-django/.env ~/Documents/aiheadshotgenerator/.env
+cp ~/Documents/aiheadshotgenerator/backend-django/.env ~/Documents/aiheadshotgenerator/backend-django/backend/.env
+sudo usermod -aG docker r4fi
+newgrp docker
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu noble stable" | sudo tee /etc/apt/sources.list.d/docker.list
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+sudo apt remove docker.io -y
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+docker
+# from the aiheadshotgenerator/ root
+docker-compose up --build
+git clone https://github.com/rakeshkarmaker/aiheadshotgenerator.git
+cd Doocuments
+docker status
+chsh
+chsh -s /usr/bin/fish
