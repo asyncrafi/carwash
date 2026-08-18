@@ -57,6 +57,50 @@ class DirtLevelListView(BaseResponseMixin, APIView):
         return self.success_response(data=data)
 
 
+class SeedDataView(BaseResponseMixin, APIView):
+    """
+    API endpoint to seed the database with initial data.
+    
+    GET  /api/services/seed-data/  → Admin only - seeds all data and returns summary
+    POST /api/services/seed-data/  → Admin only - same functionality
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from .seed_data import seed_all_data
+        
+        try:
+            result = seed_all_data()
+            
+            summary = {
+                'status': 'success',
+                'message': 'Database seeded successfully',
+                'created': {
+                    'vehicle_types': result['vehicle_types']['created'],
+                    'engine_types': result['engine_types']['created'],
+                    'dirt_levels': result['dirt_levels']['created'],
+                    'services': result['services']['created'],
+                    'platform_config': result['platform_config']['created'],
+                },
+                'total_created': sum([
+                    result['vehicle_types']['created'],
+                    result['engine_types']['created'],
+                    result['dirt_levels']['created'],
+                    result['services']['created'],
+                    result['platform_config']['created'],
+                ]),
+                'details': result
+            }
+            
+            return self.success_response(data=summary, message="Seed data populated successfully")
+        except Exception as e:
+            return self.error_response(message=f"Error seeding data: {str(e)}", status_code=400)
+
+    def post(self, request):
+        """POST endpoint for triggering seed - same as GET"""
+        return self.get(request)
+
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status

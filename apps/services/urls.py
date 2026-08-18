@@ -14,6 +14,7 @@ urlpatterns = [
     path('vehicle-types/', views.VehicleTypeListView.as_view(), name='vehicle-types'),
     path('engine-types/', views.EngineTypeListView.as_view(), name='engine-types'),
     path('dirt-levels/', views.DirtLevelListView.as_view(), name='dirt-levels'),
+    path('seed-data/', views.SeedDataView.as_view(), name='seed-data'),
 ]
 
 urlpatterns = urlpatterns + [
