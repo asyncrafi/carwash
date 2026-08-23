@@ -194,3 +194,37 @@ class PaidOnlyBookingDispatchTest(TestCase):
         self.assertEqual(booking.payment_status, Booking.PAYMENT_STATUS_PAID)
         self.assertTrue(mock_handle_booking_created.called)
 
+    @patch('apps.bookings.tasks.handle_booking_created.delay')
+    @patch('apps.payments.views.stripe.PaymentIntent.retrieve')
+    def test_confirm_payment_endpoint_verifies_and_dispatches(self, mock_retrieve, mock_handle_booking_created):
+        mock_retrieve.return_value = {'id': 'pi_confirm_123', 'status': 'succeeded'}
+
+        booking = Booking.objects.create(
+            customer=self.customer,
+            service_address='789 Confirm St',
+            total_amount='85.00',
+            distance_km=5.0,
+            status=Booking.STATUS_REQUESTED,
+            payment_status=Booking.PAYMENT_STATUS_PENDING,
+            stripe_payment_intent_id='pi_confirm_123',
+            is_paid=False,
+        )
+
+        with patch('apps.payments.views.settings') as mock_settings:
+            mock_settings.STRIPE_SECRET_KEY = 'sk_test_key'
+            self.client.force_authenticate(user=self.customer_user)
+            response = self.client.post(
+                '/api/payments/confirm-payment/',
+                {'booking_id': booking.id},
+                format='json',
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['data']['payment_status'], 'paid')
+        self.assertTrue(response.data['data']['is_paid'])
+        booking.refresh_from_db()
+        self.assertTrue(booking.is_paid)
+        self.assertEqual(booking.payment_status, Booking.PAYMENT_STATUS_PAID)
+        self.assertTrue(mock_handle_booking_created.called)
+
+

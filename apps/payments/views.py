@@ -141,7 +141,93 @@ class StripeWebhookView(BaseResponseMixin, APIView):
                 )
             return self.success_response(message='Payment failure processed.')
 
-        return self.success_response(message=f'Unhandled Stripe event: {event_type}')
+class ConfirmPaymentView(BaseResponseMixin, APIView):
+    """
+    Called by mobile/frontend app right after Stripe SDK confirms the payment.
+    Verifies the PaymentIntent with Stripe API, immediately updates the booking to 'paid',
+    and dispatches it to online providers via WebSocket.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        booking_id = request.data.get('booking_id')
+        payment_intent_id = request.data.get('payment_intent_id')
+
+        if not booking_id:
+            return self.bad_request_response(message='booking_id is required.')
+
+        booking = get_object_or_404(Booking, pk=booking_id, customer__user=request.user)
+
+        intent_id = payment_intent_id or booking.stripe_payment_intent_id
+        if not intent_id:
+            return self.error_response(message='No payment intent found for this booking.', status_code=400)
+
+        # If already paid, return success immediately
+        if booking.payment_status == Booking.PAYMENT_STATUS_PAID and booking.is_paid:
+            from apps.bookings.serializers import BookingDetailSerializer
+            return self.success_response(
+                data=BookingDetailSerializer(booking, context={'request': request}).data,
+                message='Payment already confirmed.'
+            )
+
+        if not settings.STRIPE_SECRET_KEY:
+            return self.error_response(
+                message='Stripe secret key is not configured.',
+                error_code='STRIPE_NOT_CONFIGURED',
+                status_code=500,
+            )
+
+        try:
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            intent = stripe.PaymentIntent.retrieve(intent_id)
+            status = get_stripe_val(intent, 'status')
+        except stripe.error.StripeError as e:
+            return self.error_response(message=f'Stripe error: {str(e)}', status_code=400)
+
+        if status == 'succeeded':
+            booking.payment_status = Booking.PAYMENT_STATUS_PAID
+            booking.is_paid = True
+            booking.stripe_payment_intent_id = intent_id
+            booking.save(update_fields=['payment_status', 'is_paid', 'stripe_payment_intent_id'])
+
+            Payment.objects.update_or_create(
+                booking=booking,
+                defaults={
+                    'amount': booking.total_amount,
+                    'currency': 'eur',
+                    'status': Payment.STATUS_PAID,
+                    'gateway': 'stripe',
+                    'transaction_id': intent_id,
+                    'paid_at': timezone.now(),
+                },
+            )
+
+            # Broadcast to providers via WebSocket & Push!
+            if booking.status == Booking.STATUS_REQUESTED and not booking.provider:
+                from apps.bookings.tasks import handle_booking_created
+                handle_booking_created.delay(
+                    booking_id=booking.id,
+                    customer_user_id=booking.customer.user.id,
+                    service_name=booking.service.name if booking.service else None,
+                    service_city=booking.service_city,
+                    service_address=booking.service_address,
+                    total_amount=str(booking.total_amount),
+                    distance_km=str(booking.distance_km),
+                    service_latitude=getattr(booking, 'service_latitude', None),
+                    service_longitude=getattr(booking, 'service_longitude', None),
+                )
+
+            from apps.bookings.serializers import BookingDetailSerializer
+            return self.success_response(
+                data=BookingDetailSerializer(booking, context={'request': request}).data,
+                message='Payment confirmed successfully. Searching for nearby providers.'
+            )
+        else:
+            return self.error_response(
+                message=f'Payment has not succeeded yet (current status: {status}).',
+                data={'status': status, 'booking_id': booking.id},
+                status_code=400,
+            )
 
 
 class CreatePaymentIntentView(BaseResponseMixin, APIView):
