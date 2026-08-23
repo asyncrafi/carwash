@@ -22,6 +22,28 @@ from .utils import create_provider_earning
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+def get_stripe_val(obj, key, default=None):
+    if obj is None:
+        return default
+    if hasattr(obj, key):
+        val = getattr(obj, key)
+        if val is not None:
+            return val
+    if isinstance(obj, dict):
+        return obj.get(key, default)
+    if hasattr(obj, 'get'):
+        try:
+            return obj.get(key, default)
+        except (AttributeError, TypeError):
+            pass
+    if hasattr(obj, '__getitem__'):
+        try:
+            return obj[key]
+        except (KeyError, TypeError, IndexError):
+            pass
+    return default
+
+
 class StripeWebhookView(BaseResponseMixin, APIView):
     permission_classes = [AllowAny]
 
@@ -46,21 +68,22 @@ class StripeWebhookView(BaseResponseMixin, APIView):
         except stripe.error.SignatureVerificationError:
             return self.error_response(message='Invalid Stripe signature.', status_code=400)
 
-        event_type = event.get('type')
-        obj = event.get('data', {}).get('object', {})
+        event_type = get_stripe_val(event, 'type')
+        data_obj = get_stripe_val(event, 'data', {})
+        obj = get_stripe_val(data_obj, 'object', {}) if data_obj else {}
 
         if event_type == 'account.updated':
-            account_id = obj.get('id')
+            account_id = get_stripe_val(obj, 'id')
             provider = get_object_or_404(ProviderProfile, stripe_account_id=account_id)
             account = stripe.Account.retrieve(account_id)
-            provider.stripe_onboarding_complete = bool(
-                account.get('details_submitted') and account.get('payouts_enabled')
-            )
+            details_submitted = get_stripe_val(account, 'details_submitted', False)
+            payouts_enabled = get_stripe_val(account, 'payouts_enabled', False)
+            provider.stripe_onboarding_complete = bool(details_submitted and payouts_enabled)
             provider.save(update_fields=['stripe_onboarding_complete'])
             return self.success_response(message='Provider onboarding status updated.')
 
         if event_type == 'payment_intent.succeeded':
-            payment_intent_id = obj.get('id')
+            payment_intent_id = get_stripe_val(obj, 'id')
             booking = Booking.objects.filter(
                 stripe_payment_intent_id=payment_intent_id
             ).select_related('customer__user', 'provider__user').first()
@@ -113,14 +136,17 @@ class CreatePaymentIntentView(BaseResponseMixin, APIView):
             metadata={'booking_id': str(booking.id), 'customer_id': str(request.user.id)},
         )
 
-        booking.stripe_payment_intent_id = intent.id
+        intent_id = get_stripe_val(intent, 'id')
+        client_secret = get_stripe_val(intent, 'client_secret')
+
+        booking.stripe_payment_intent_id = intent_id
         booking.payment_status = Booking.PAYMENT_STATUS_PENDING
         booking.save(update_fields=['stripe_payment_intent_id', 'payment_status'])
 
         return self.success_response(
             data={
-                'client_secret': intent.client_secret,
-                'payment_intent_id': intent.id,
+                'client_secret': client_secret,
+                'payment_intent_id': intent_id,
                 'booking_id': booking.id,
                 'amount': str(booking.total_amount),
                 'currency': 'eur',
@@ -150,7 +176,7 @@ class ConnectOnboardingView(BaseResponseMixin, APIView):
                     email=request.user.email,
                     metadata={'user_id': str(request.user.id)},
                 )
-                account_id = account.get('id')
+                account_id = get_stripe_val(account, 'id')
                 profile.stripe_account_id = account_id
                 profile.save(update_fields=['stripe_account_id'])
 
@@ -162,6 +188,7 @@ class ConnectOnboardingView(BaseResponseMixin, APIView):
                 return_url=return_url,
                 type='account_onboarding',
             )
+            onboarding_url = get_stripe_val(account_link, 'url')
         except stripe.error.StripeError as e:
             error_msg = getattr(e, 'user_message', None)
             if not error_msg and hasattr(e, 'error') and e.error and getattr(e.error, 'message', None):
@@ -177,7 +204,7 @@ class ConnectOnboardingView(BaseResponseMixin, APIView):
         return self.success_response(
             data={
                 'account_id': account_id,
-                'onboarding_url': account_link.get('url'),
+                'onboarding_url': onboarding_url,
                 'onboarding_complete': profile.stripe_onboarding_complete,
             },
             message='Stripe Connect onboarding link created successfully.',
@@ -246,19 +273,21 @@ class ReleasePayoutView(BaseResponseMixin, APIView):
             metadata={'booking_id': str(booking.id), 'provider_id': str(profile.id)},
         )
 
-        earning.stripe_transfer_id = transfer.id
+        transfer_id = get_stripe_val(transfer, 'id')
+
+        earning.stripe_transfer_id = transfer_id
         earning.is_paid_out = True
         earning.paid_out_at = timezone.now()
         earning.save(update_fields=['stripe_transfer_id', 'is_paid_out', 'paid_out_at'])
 
-        booking.stripe_transfer_id = transfer.id
+        booking.stripe_transfer_id = transfer_id
         booking.payment_status = Booking.PAYMENT_STATUS_RELEASED
         booking.save(update_fields=['stripe_transfer_id', 'payment_status'])
 
         return self.success_response(
             data={
                 'booking_id': booking.id,
-                'transfer_id': transfer.id,
+                'transfer_id': transfer_id,
                 'provider_amount': str(earning.net_amount),
                 'payment_status': booking.payment_status,
             },
