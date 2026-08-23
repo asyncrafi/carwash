@@ -21,6 +21,9 @@ from apps.services.models import Service
 from apps.core.utils import haversine_distance_km
 
 
+from apps.payments.views import get_stripe_val
+
+
 def _ensure_provider_onboarding_ready(request, profile, action):
     if not settings.STRIPE_SECRET_KEY:
         return False, {
@@ -30,56 +33,61 @@ def _ensure_provider_onboarding_ready(request, profile, action):
             'account_id': None,
         }
 
-    if not profile.stripe_account_id:
-        account = stripe.Account.create(
-            type='express',
-            email=profile.user.email,
-            metadata={'provider_profile_id': str(profile.id)},
-        )
-        profile.stripe_account_id = account.id
-        profile.save(update_fields=['stripe_account_id'])
-
     try:
-        account = stripe.Account.retrieve(profile.stripe_account_id)
-    except stripe.error.StripeError:
-        account = None
+        if not profile.stripe_account_id:
+            account = stripe.Account.create(
+                type='standard',
+                email=profile.user.email,
+                metadata={'provider_profile_id': str(profile.id)},
+            )
+            profile.stripe_account_id = get_stripe_val(account, 'id')
+            profile.save(update_fields=['stripe_account_id'])
 
-    if account is None:
+        account = stripe.Account.retrieve(profile.stripe_account_id)
+        charges_enabled = get_stripe_val(account, 'charges_enabled', False)
+        payouts_enabled = get_stripe_val(account, 'payouts_enabled', False)
+        details_submitted = get_stripe_val(account, 'details_submitted', False)
+
+        profile.stripe_onboarding_complete = bool(
+            (charges_enabled or details_submitted) and payouts_enabled
+        )
+        profile.save(update_fields=['stripe_onboarding_complete'])
+
+        if profile.stripe_onboarding_complete:
+            return True, {
+                'requires_onboarding': False,
+                'message': 'Stripe onboarding is complete.',
+                'onboarding_url': None,
+                'account_id': profile.stripe_account_id,
+            }
+
+        return_url = request.build_absolute_uri('/api/health/')
+        refresh_url = request.build_absolute_uri('/api/health/')
+        account_link = stripe.AccountLink.create(
+            account=profile.stripe_account_id,
+            refresh_url=refresh_url,
+            return_url=return_url,
+            type='account_onboarding',
+        )
+
         return False, {
             'requires_onboarding': True,
-            'message': 'We could not verify your Stripe account right now. Please try again.',
+            'message': f'Complete your Stripe payout setup before you can {action}.',
+            'onboarding_url': get_stripe_val(account_link, 'url'),
+            'account_id': profile.stripe_account_id,
+        }
+    except stripe.error.StripeError as e:
+        error_msg = getattr(e, 'user_message', None)
+        if not error_msg and hasattr(e, 'error') and e.error and getattr(e.error, 'message', None):
+            error_msg = e.error.message
+        if not error_msg:
+            error_msg = str(e)
+        return False, {
+            'requires_onboarding': True,
+            'message': error_msg,
             'onboarding_url': None,
             'account_id': profile.stripe_account_id,
         }
-
-    profile.stripe_onboarding_complete = bool(
-        account.get('charges_enabled') and account.get('payouts_enabled')
-    )
-    profile.save(update_fields=['stripe_onboarding_complete'])
-
-    if profile.stripe_onboarding_complete:
-        return True, {
-            'requires_onboarding': False,
-            'message': 'Stripe onboarding is complete.',
-            'onboarding_url': None,
-            'account_id': profile.stripe_account_id,
-        }
-
-    return_url = request.build_absolute_uri('/provider/onboarding/complete/')
-    refresh_url = request.build_absolute_uri('/provider/onboarding/refresh/')
-    account_link = stripe.AccountLink.create(
-        account=profile.stripe_account_id,
-        refresh_url=refresh_url,
-        return_url=return_url,
-        type='account_onboarding',
-    )
-
-    return False, {
-        'requires_onboarding': True,
-        'message': f'Complete your Stripe payout setup before you can {action}.',
-        'onboarding_url': account_link.url,
-        'account_id': profile.stripe_account_id,
-    }
 
 
 class ProviderStripeConnectView(BaseResponseMixin, APIView):
@@ -99,17 +107,30 @@ class ProviderStripeConnectView(BaseResponseMixin, APIView):
                 message="Stripe account already exists.",
             )
 
-        account = stripe.Account.create(
-            type='express',
-            email=request.user.email,
-            metadata={'provider_profile_id': str(profile.id)},
-        )
-        profile.stripe_account_id = account.id
-        profile.save(update_fields=['stripe_account_id'])
-        return self.created_response(
-            data={'account_id': account.id},
-            message='Stripe Express account created successfully.'
-        )
+        try:
+            account = stripe.Account.create(
+                type='standard',
+                email=request.user.email,
+                metadata={'provider_profile_id': str(profile.id)},
+            )
+            account_id = get_stripe_val(account, 'id')
+            profile.stripe_account_id = account_id
+            profile.save(update_fields=['stripe_account_id'])
+            return self.created_response(
+                data={'account_id': account_id},
+                message='Stripe account created successfully.'
+            )
+        except stripe.error.StripeError as e:
+            error_msg = getattr(e, 'user_message', None)
+            if not error_msg and hasattr(e, 'error') and e.error and getattr(e.error, 'message', None):
+                error_msg = e.error.message
+            if not error_msg:
+                error_msg = str(e)
+            return self.error_response(
+                message=error_msg,
+                error_code=getattr(e, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR',
+                status_code=400,
+            )
 
 
 class ProviderStripeAccountLinkView(BaseResponseMixin, APIView):
@@ -128,19 +149,32 @@ class ProviderStripeAccountLinkView(BaseResponseMixin, APIView):
                 message="Provider Stripe account has not been created yet."
             )
 
-        return_url = request.data.get('return_url') or request.build_absolute_uri('/provider/onboarding/complete/')
-        refresh_url = request.data.get('refresh_url') or request.build_absolute_uri('/provider/onboarding/refresh/')
+        return_url = request.data.get('return_url') or request.build_absolute_uri('/api/health/')
+        refresh_url = request.data.get('refresh_url') or request.build_absolute_uri('/api/health/')
 
-        account_link = stripe.AccountLink.create(
-            account=profile.stripe_account_id,
-            refresh_url=refresh_url,
-            return_url=return_url,
-            type='account_onboarding',
-        )
-        return self.success_response(
-            data={'url': account_link.url, 'account_id': profile.stripe_account_id},
-            message='Stripe onboarding link generated successfully.'
-        )
+        try:
+            account_link = stripe.AccountLink.create(
+                account=profile.stripe_account_id,
+                refresh_url=refresh_url,
+                return_url=return_url,
+                type='account_onboarding',
+            )
+            url = get_stripe_val(account_link, 'url')
+            return self.success_response(
+                data={'url': url, 'account_id': profile.stripe_account_id},
+                message='Stripe onboarding link generated successfully.'
+            )
+        except stripe.error.StripeError as e:
+            error_msg = getattr(e, 'user_message', None)
+            if not error_msg and hasattr(e, 'error') and e.error and getattr(e.error, 'message', None):
+                error_msg = e.error.message
+            if not error_msg:
+                error_msg = str(e)
+            return self.error_response(
+                message=error_msg,
+                error_code=getattr(e, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR',
+                status_code=400,
+            )
 
 
 class ProviderProfileView(BaseResponseMixin, APIView):
