@@ -34,17 +34,18 @@ def on_booking_status_change(sender, instance, created, **kwargs):
     new_status = instance.status
 
     if created:
-        handle_booking_created.delay(
-            booking_id=instance.id,
-            customer_user_id=instance.customer.user.id,
-            service_name=instance.service.name if instance.service else None,
-            service_city=instance.service_city,
-            service_address=instance.service_address,
-            total_amount=str(instance.total_amount),
-            distance_km=str(instance.distance_km),
-            service_latitude=getattr(instance, 'service_latitude', None),
-            service_longitude=getattr(instance, 'service_longitude', None),
-        )
+        if instance.is_paid or instance.payment_status == Booking.PAYMENT_STATUS_PAID:
+            handle_booking_created.delay(
+                booking_id=instance.id,
+                customer_user_id=instance.customer.user.id,
+                service_name=instance.service.name if instance.service else None,
+                service_city=instance.service_city,
+                service_address=instance.service_address,
+                total_amount=str(instance.total_amount),
+                distance_km=str(instance.distance_km),
+                service_latitude=getattr(instance, 'service_latitude', None),
+                service_longitude=getattr(instance, 'service_longitude', None),
+            )
         
         # Schedule cleanup for "now" bookings - run after 5 minutes to auto-cancel if no provider accepts
         if instance.schedule_type == Booking.SCHEDULE_NOW:

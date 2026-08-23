@@ -149,11 +149,13 @@ class BookingDetailSerializer(serializers.ModelSerializer):
     photos = BookingPhotoSerializer(many=True, read_only=True)
     payment_card = PaymentCardSerializer(read_only=True)
     provider_distance_km = serializers.SerializerMethodField()
+    client_secret = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
         fields = [
-            'id', 'status', 'payment_status', 'stripe_payment_intent_id', 'customer', 'service', 'vehicle', 'dirt_level', 'provider',
+            'id', 'status', 'payment_status', 'stripe_payment_intent_id', 'client_secret',
+            'customer', 'service', 'vehicle', 'dirt_level', 'provider',
             'service_address', 'service_city',
             'service_latitude', 'service_longitude',
             'distance_km', 'provider_distance_km', 'schedule_type', 'scheduled_at',
@@ -163,6 +165,9 @@ class BookingDetailSerializer(serializers.ModelSerializer):
             'created_at', 'accepted_at', 'started_at', 'completed_at',
         ]
         read_only_fields = fields
+
+    def get_client_secret(self, obj):
+        return getattr(obj, '_client_secret', None) or self.context.get('client_secret', None)
 
     def get_provider_distance_km(self, obj):
         provider_lat = None

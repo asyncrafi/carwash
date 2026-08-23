@@ -83,3 +83,114 @@ class StripeConnectFlowTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(ProviderEarning.objects.get(booking=booking).is_paid_out)
         self.assertEqual(mock_transfer.call_count, 1)
+
+
+class PaidOnlyBookingDispatchTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        User = get_user_model()
+        self.provider_user = User.objects.create_user(
+            email='provider2@example.com',
+            password='testpass123',
+            full_name='Provider Two',
+        )
+        self.provider = ProviderProfile.objects.create(
+            user=self.provider_user,
+            status=ProviderProfile.STATUS_APPROVED,
+            stripe_account_id='acct_provider_2',
+            stripe_onboarding_complete=True,
+            service_radius_km=50.0,
+        )
+        self.customer_user = User.objects.create_user(
+            email='customer@example.com',
+            password='testpass123',
+            full_name='Customer Test',
+        )
+        self.customer = CustomerProfile.objects.create(user=self.customer_user)
+
+    def test_unpaid_booking_hidden_from_provider_job_list(self):
+        # Create an unpaid booking
+        unpaid_booking = Booking.objects.create(
+            customer=self.customer,
+            service_address='123 Unpaid St',
+            total_amount='50.00',
+            distance_km=5.0,
+            status=Booking.STATUS_REQUESTED,
+            payment_status=Booking.PAYMENT_STATUS_PENDING,
+            is_paid=False,
+        )
+        # Create a paid booking
+        paid_booking = Booking.objects.create(
+            customer=self.customer,
+            service_address='456 Paid St',
+            total_amount='60.00',
+            distance_km=5.0,
+            status=Booking.STATUS_REQUESTED,
+            payment_status=Booking.PAYMENT_STATUS_PAID,
+            is_paid=True,
+        )
+
+        self.client.force_authenticate(user=self.provider_user)
+        response = self.client.get('/api/bookings/provider/jobs/')
+
+        self.assertEqual(response.status_code, 200)
+        job_ids = [job['id'] for job in response.data['data']]
+        self.assertNotIn(unpaid_booking.id, job_ids)
+        self.assertIn(paid_booking.id, job_ids)
+
+    def test_provider_cannot_accept_unpaid_booking(self):
+        unpaid_booking = Booking.objects.create(
+            customer=self.customer,
+            service_address='123 Unpaid St',
+            total_amount='50.00',
+            distance_km=5.0,
+            status=Booking.STATUS_REQUESTED,
+            payment_status=Booking.PAYMENT_STATUS_PENDING,
+            is_paid=False,
+        )
+
+        self.client.force_authenticate(user=self.provider_user)
+        response = self.client.post(f'/api/bookings/provider/jobs/{unpaid_booking.id}/accept/')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data.get('error_code'), 'PAYMENT_PENDING')
+        unpaid_booking.refresh_from_db()
+        self.assertIsNone(unpaid_booking.provider)
+
+    @patch('apps.bookings.tasks.handle_booking_created.delay')
+    def test_stripe_webhook_succeeded_dispatches_booking(self, mock_handle_booking_created):
+        booking = Booking.objects.create(
+            customer=self.customer,
+            service_address='123 Pending St',
+            total_amount='70.00',
+            distance_km=5.0,
+            status=Booking.STATUS_REQUESTED,
+            payment_status=Booking.PAYMENT_STATUS_PENDING,
+            stripe_payment_intent_id='pi_test_12345',
+            is_paid=False,
+        )
+
+        with patch('apps.payments.views.settings') as mock_settings:
+            mock_settings.STRIPE_WEBHOOK_SECRET = 'whsec_test'
+            with patch('apps.payments.views.stripe.Webhook.construct_event') as mock_construct:
+                mock_construct.return_value = {
+                    'type': 'payment_intent.succeeded',
+                    'data': {
+                        'object': {
+                            'id': 'pi_test_12345',
+                        }
+                    }
+                }
+                response = self.client.post(
+                    '/api/payments/stripe/webhook/',
+                    data='dummy payload',
+                    content_type='application/json',
+                    HTTP_STRIPE_SIGNATURE='t=123,v1=abc',
+                )
+
+        self.assertEqual(response.status_code, 200)
+        booking.refresh_from_db()
+        self.assertTrue(booking.is_paid)
+        self.assertEqual(booking.payment_status, Booking.PAYMENT_STATUS_PAID)
+        self.assertTrue(mock_handle_booking_created.called)
+

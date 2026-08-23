@@ -101,10 +101,32 @@ class BookingCreateView(BaseResponseMixin, APIView):
             total_amount=prices['total_amount'],
         )
 
+        client_secret = None
+        if getattr(settings, 'STRIPE_SECRET_KEY', None):
+            try:
+                stripe.api_key = settings.STRIPE_SECRET_KEY
+                amount_cents = int((Decimal(str(booking.total_amount)) * 100).to_integral_value())
+                intent = stripe.PaymentIntent.create(
+                    amount=amount_cents,
+                    currency='eur',
+                    automatic_payment_methods={'enabled': True},
+                    metadata={'booking_id': str(booking.id), 'customer_id': str(request.user.id)},
+                )
+                from apps.payments.views import get_stripe_val
+                intent_id = get_stripe_val(intent, 'id')
+                client_secret = get_stripe_val(intent, 'client_secret')
+                booking.stripe_payment_intent_id = intent_id or ''
+                booking.payment_status = Booking.PAYMENT_STATUS_PENDING
+                booking.save(update_fields=['stripe_payment_intent_id', 'payment_status'])
+            except Exception:
+                pass
+
+        booking._client_secret = client_secret
+
         NotificationService.send_notification(
             user_id=profile.user.id,
             title='Booking Requested',
-            message='Your booking request has been created successfully.',
+            message='Your booking request has been created. Please complete payment.',
             notification_types=['push'],
             data={'booking_id': booking.id, 'action': 'booking_created'},
         )
@@ -217,10 +239,11 @@ class ProviderJobListView(BaseResponseMixin, APIView):
         
         profile = get_object_or_404(ProviderProfile, user=request.user)
         
-        # Get available jobs (requested status, not yet assigned to any provider)
+        # Get available jobs (requested status, not yet assigned to any provider, and paid)
         jobs = Booking.objects.filter(
             status=Booking.STATUS_REQUESTED,
-            provider__isnull=True
+            provider__isnull=True,
+            payment_status=Booking.PAYMENT_STATUS_PAID,
         ).exclude(
             # Exclude jobs that are "now" type and older than 5 minutes
             schedule_type=Booking.SCHEDULE_NOW,
@@ -263,7 +286,8 @@ class ProviderJobDetailView(BaseResponseMixin, APIView):
                 job = Booking.objects.get(
                     pk=pk, 
                     status=Booking.STATUS_REQUESTED,
-                    provider__isnull=True
+                    provider__isnull=True,
+                    payment_status=Booking.PAYMENT_STATUS_PAID,
                 )
                 # Verify job is within provider's service radius
                 service_radius = Decimal(str(profile.service_radius_km))
@@ -286,6 +310,13 @@ class ProviderJobAcceptView(BaseResponseMixin, APIView):
         booking = get_object_or_404(
             Booking, pk=pk, status=Booking.STATUS_REQUESTED
         )
+
+        if booking.payment_status != Booking.PAYMENT_STATUS_PAID or not booking.is_paid:
+            return self.error_response(
+                message="This booking is not paid yet and cannot be accepted.",
+                error_code="PAYMENT_PENDING",
+                status_code=400,
+            )
         
         # Verify job is within provider's service radius
         from decimal import Decimal

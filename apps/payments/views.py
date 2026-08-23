@@ -86,9 +86,11 @@ class StripeWebhookView(BaseResponseMixin, APIView):
             payment_intent_id = get_stripe_val(obj, 'id')
             booking = Booking.objects.filter(
                 stripe_payment_intent_id=payment_intent_id
-            ).select_related('customer__user', 'provider__user').first()
+            ).select_related('customer__user', 'provider__user', 'service').first()
             if not booking:
                 return self.success_response(message='PaymentIntent succeeded but no booking matched.')
+
+            was_already_paid = (booking.payment_status == Booking.PAYMENT_STATUS_PAID and booking.is_paid)
 
             booking.payment_status = Booking.PAYMENT_STATUS_PAID
             booking.is_paid = True
@@ -105,7 +107,39 @@ class StripeWebhookView(BaseResponseMixin, APIView):
                     'paid_at': timezone.now(),
                 },
             )
-            return self.success_response(message='Booking marked as paid via Stripe.')
+
+            # If booking is in REQUESTED state and wasn't already paid, broadcast to providers now!
+            if not was_already_paid and booking.status == Booking.STATUS_REQUESTED and not booking.provider:
+                from apps.bookings.tasks import handle_booking_created
+                handle_booking_created.delay(
+                    booking_id=booking.id,
+                    customer_user_id=booking.customer.user.id,
+                    service_name=booking.service.name if booking.service else None,
+                    service_city=booking.service_city,
+                    service_address=booking.service_address,
+                    total_amount=str(booking.total_amount),
+                    distance_km=str(booking.distance_km),
+                    service_latitude=getattr(booking, 'service_latitude', None),
+                    service_longitude=getattr(booking, 'service_longitude', None),
+                )
+
+            return self.success_response(message='Booking marked as paid via Stripe and dispatched to providers.')
+
+        if event_type == 'payment_intent.payment_failed':
+            payment_intent_id = get_stripe_val(obj, 'id')
+            booking = Booking.objects.filter(
+                stripe_payment_intent_id=payment_intent_id
+            ).select_related('customer__user').first()
+            if booking:
+                from apps.notifications.tasks import create_notification_task
+                create_notification_task.delay(
+                    user_id=booking.customer.user.id,
+                    notif_type="general",
+                    title="Payment Failed",
+                    body="Your payment could not be processed. Please try another payment method.",
+                    data={"booking_id": booking.id},
+                )
+            return self.success_response(message='Payment failure processed.')
 
         return self.success_response(message=f'Unhandled Stripe event: {event_type}')
 
