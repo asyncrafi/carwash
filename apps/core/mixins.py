@@ -151,18 +151,23 @@ def custom_exception_handler(exc, context):
 
     try:
         import stripe
-        if isinstance(exc, stripe.error.StripeError):
+        if isinstance(exc, getattr(stripe.error, 'StripeError', Exception)) or isinstance(exc, getattr(stripe, 'StripeError', Exception)):
+            msg = getattr(exc, 'user_message', None)
+            if not msg and hasattr(exc, 'error') and exc.error and getattr(exc.error, 'message', None):
+                msg = exc.error.message
+            if not msg:
+                msg = str(exc)
             return Response(
                 {
                     "success": False,
-                    "message": getattr(exc, 'user_message', None) or str(exc),
+                    "message": msg,
                     "error_code": getattr(exc, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR',
                     "timestamp": timezone.now().isoformat(),
                     "status_code": status.HTTP_400_BAD_REQUEST,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-    except ImportError:
+    except Exception:
         pass
 
     logger.error(f"Unhandled exception: {type(exc).__name__}: {str(exc)}")

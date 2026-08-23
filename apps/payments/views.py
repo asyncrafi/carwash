@@ -143,24 +143,36 @@ class ConnectOnboardingView(BaseResponseMixin, APIView):
         profile, _ = ProviderProfile.objects.get_or_create(user=request.user)
 
         account_id = profile.stripe_account_id
-        if not account_id:
-            account = stripe.Account.create(
-                type='standard',
-                email=request.user.email,
-                metadata={'user_id': str(request.user.id)},
-            )
-            account_id = account.get('id')
-            profile.stripe_account_id = account_id
-            profile.save(update_fields=['stripe_account_id'])
+        try:
+            if not account_id:
+                account = stripe.Account.create(
+                    type='standard',
+                    email=request.user.email,
+                    metadata={'user_id': str(request.user.id)},
+                )
+                account_id = account.get('id')
+                profile.stripe_account_id = account_id
+                profile.save(update_fields=['stripe_account_id'])
 
-        return_url = request.build_absolute_uri('/api/health/')
-        refresh_url = request.build_absolute_uri('/api/health/')
-        account_link = stripe.AccountLink.create(
-            account=account_id,
-            refresh_url=refresh_url,
-            return_url=return_url,
-            type='account_onboarding',
-        )
+            return_url = request.build_absolute_uri('/api/health/')
+            refresh_url = request.build_absolute_uri('/api/health/')
+            account_link = stripe.AccountLink.create(
+                account=account_id,
+                refresh_url=refresh_url,
+                return_url=return_url,
+                type='account_onboarding',
+            )
+        except stripe.error.StripeError as e:
+            error_msg = getattr(e, 'user_message', None)
+            if not error_msg and hasattr(e, 'error') and e.error and getattr(e.error, 'message', None):
+                error_msg = e.error.message
+            if not error_msg:
+                error_msg = str(e)
+            return self.error_response(
+                message=error_msg,
+                error_code=getattr(e, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR',
+                status_code=400,
+            )
 
         return self.success_response(
             data={
