@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from unittest.mock import patch
+from rest_framework.test import APIClient
 
 from apps.providers.models import ProviderProfile
 from apps.bookings.models import Booking
@@ -8,6 +9,7 @@ from apps.bookings.models import Booking
 
 class ProviderOnboardingGateTests(TestCase):
     def setUp(self):
+        self.client = APIClient()
         self.user = get_user_model().objects.create_user(
             email='provider@example.com',
             username='provider@example.com',
@@ -31,8 +33,8 @@ class ProviderOnboardingGateTests(TestCase):
         }
         mock_account_link_create.return_value = {'url': 'https://stripe.test/onboard'}
 
-        self.client.force_login(self.user)
-        response = self.client.patch('/api/providers/online-status/', {'is_online': True}, content_type='application/json')
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch('/api/provider/online-status/', {'is_online': True}, format='json')
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json()['error_code'], 'STRIPE_ONBOARDING_REQUIRED')

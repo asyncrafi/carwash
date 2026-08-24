@@ -15,12 +15,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
     """
     WebSocket consumer for real-time chat messaging.
     
-    Connect: ws://localhost:8000/ws/chat/{booking_id}/{user_id}/?token=JWT_TOKEN
+    Connect: ws://localhost:8000/ws/chat/{booking_id}/?token=JWT_TOKEN
+    (Also supports legacy format: ws://localhost:8000/ws/chat/{booking_id}/{user_id}/?token=JWT_TOKEN)
     """
 
     async def connect(self):
         self.booking_id = self.scope['url_route']['kwargs']['booking_id']
-        self.user_id = self.scope['url_route']['kwargs']['user_id']
+        url_user_id = self.scope['url_route']['kwargs'].get('user_id')
         self.room_group_name = f'booking_{self.booking_id}_chat'
         self.user = None
 
@@ -31,12 +32,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             token = query_string.split('token=')[-1].split('&')[0]
         
         # Verify user, booking access, and JWT token
-        user_data = await self.verify_user_and_booking(self.user_id, token, self.booking_id)
+        user_data = await self.verify_user_and_booking(url_user_id, token, self.booking_id)
         if not user_data:
             await self.close()
             return
 
         self.user = user_data
+        self.user_id = user_data['id']
 
         # Join the room group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -116,7 +118,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             validated_token = jwt_auth.get_validated_token(token)
             user = jwt_auth.get_user(validated_token)
             
-            if user.id != int(user_id):
+            if user_id and int(user_id) != user.id:
                 return None
 
             from apps.bookings.models import Booking
@@ -210,14 +212,13 @@ class LocationConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.booking_id = self.scope['url_route']['kwargs']['booking_id']
-        self.user_id = self.scope['url_route']['kwargs']['user_id']
+        url_user_id = self.scope['url_route']['kwargs'].get('user_id')
         self.room_group_name = f'booking_{self.booking_id}_location'
-        # Initialize attributes to prevent errors if connection fails
         self.user_type = None
         self.user_full_name = None
 
         # Extract JWT token from query string
-        # Format: ws://localhost:8000/ws/location/{booking_id}/{user_id}/?token=JWT_TOKEN
+        # Format: ws://localhost:8000/ws/location/{booking_id}/?token=JWT_TOKEN
         query_string = self.scope['query_string'].decode()
         token = None
         
@@ -225,11 +226,12 @@ class LocationConsumer(AsyncWebsocketConsumer):
             token = query_string.split('token=')[-1].split('&')[0]
         
         # Verify user and validate JWT token
-        user_data = await self.verify_user_and_token(self.user_id, token)
+        user_data = await self.verify_user_and_token(url_user_id, token)
         if not user_data:
             await self.close()
             return
 
+        self.user_id = user_data['id']
         self.user_type = user_data['role']  # 'provider' or 'customer'
         self.user_full_name = user_data['full_name']
 

@@ -33,6 +33,7 @@ class StripeConnectFlowTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
+            username='provider@example.com',
             email='provider@example.com',
             password='testpass123',
             full_name='Provider One',
@@ -90,6 +91,7 @@ class PaidOnlyBookingDispatchTest(TestCase):
         self.client = APIClient()
         User = get_user_model()
         self.provider_user = User.objects.create_user(
+            username='provider2@example.com',
             email='provider2@example.com',
             password='testpass123',
             full_name='Provider Two',
@@ -102,6 +104,7 @@ class PaidOnlyBookingDispatchTest(TestCase):
             service_radius_km=50.0,
         )
         self.customer_user = User.objects.create_user(
+            username='customer@example.com',
             email='customer@example.com',
             password='testpass123',
             full_name='Customer Test',
@@ -131,7 +134,7 @@ class PaidOnlyBookingDispatchTest(TestCase):
         )
 
         self.client.force_authenticate(user=self.provider_user)
-        response = self.client.get('/api/bookings/provider/jobs/')
+        response = self.client.get('/api/bookings/jobs/')
 
         self.assertEqual(response.status_code, 200)
         job_ids = [job['id'] for job in response.data['data']]
@@ -150,7 +153,7 @@ class PaidOnlyBookingDispatchTest(TestCase):
         )
 
         self.client.force_authenticate(user=self.provider_user)
-        response = self.client.post(f'/api/bookings/provider/jobs/{unpaid_booking.id}/accept/')
+        response = self.client.post(f'/api/bookings/jobs/{unpaid_booking.id}/accept/')
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data.get('error_code'), 'PAYMENT_PENDING')
