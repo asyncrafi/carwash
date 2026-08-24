@@ -226,7 +226,7 @@ class LocationConsumer(AsyncWebsocketConsumer):
             token = query_string.split('token=')[-1].split('&')[0]
         
         # Verify user and validate JWT token
-        user_data = await self.verify_user_and_token(url_user_id, token)
+        user_data = await self.verify_user_and_token(url_user_id, token, self.booking_id)
         if not user_data:
             await self.close()
             return
@@ -339,8 +339,8 @@ class LocationConsumer(AsyncWebsocketConsumer):
         }))
 
     @database_sync_to_async
-    def verify_user_and_token(self, user_id, token):
-        """Verify user exists and JWT token is valid"""
+    def verify_user_and_token(self, user_id, token, booking_id):
+        """Verify user exists, JWT token is valid, and user belongs to this booking"""
         try:
             if not token:
                 return None
@@ -351,18 +351,31 @@ class LocationConsumer(AsyncWebsocketConsumer):
             validated_token = jwt_auth.get_validated_token(token)
             user = jwt_auth.get_user(validated_token)
             
-            # Verify user_id matches
-            if user.id != int(user_id):
+            # Verify user_id matches if passed in URL
+            if user_id is not None and user.id != int(user_id):
+                return None
+
+            from apps.bookings.models import Booking
+            booking = Booking.objects.select_related('customer__user', 'provider__user').filter(id=booking_id).first()
+            if not booking:
+                return None
+
+            is_customer = bool(booking.customer and booking.customer.user_id == user.id)
+            is_provider = bool(booking.provider and booking.provider.user_id == user.id)
+
+            if not (is_customer or is_provider):
                 return None
             
             return {
                 'id': user.id,
                 'full_name': user.full_name,
-                'role': user.role,
+                'role': 'provider' if is_provider else 'customer',
             }
         except (InvalidToken, AuthenticationFailed, ValidationError, ValueError, TypeError):
             return None
         except User.DoesNotExist:
+            return None
+        except Exception:
             return None
 
     @database_sync_to_async
