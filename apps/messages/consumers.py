@@ -22,18 +22,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.booking_id = self.scope['url_route']['kwargs']['booking_id']
         self.user_id = self.scope['url_route']['kwargs']['user_id']
         self.room_group_name = f'booking_{self.booking_id}_chat'
-        self.user = None  # Initialize user attribute
+        self.user = None
 
-        # Extract JWT token from query string
-        # Format: ws://localhost:8000/ws/chat/{booking_id}/{user_id}/?token=JWT_TOKEN
         query_string = self.scope['query_string'].decode()
         token = None
         
         if 'token=' in query_string:
             token = query_string.split('token=')[-1].split('&')[0]
         
-        # Verify user and validate JWT token
-        user_data = await self.verify_user_and_token(self.user_id, token)
+        # Verify user, booking access, and JWT token
+        user_data = await self.verify_user_and_booking(self.user_id, token, self.booking_id)
         if not user_data:
             await self.close()
             return
@@ -45,18 +43,28 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Only discard if connection was accepted (user authenticated)
         if self.user is not None:
             await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
-        message_text = data.get('message', '')
-        recipient_id = data.get('recipient_id')
+        try:
+            data = json.loads(text_data)
+        except json.JSONDecodeError:
+            await self.send(text_data=json.dumps({'error': 'Invalid JSON format.'}))
+            return
 
-        if not message_text or not recipient_id:
+        message_text = data.get('message', '').strip()
+        recipient_id = data.get('recipient_id') or self.user.get('default_recipient_id')
+
+        if not message_text:
             await self.send(text_data=json.dumps({
-                'error': 'Message and recipient_id required'
+                'error': 'Message text is required.'
+            }))
+            return
+
+        if not recipient_id:
+            await self.send(text_data=json.dumps({
+                'error': 'No assigned recipient found for this booking.'
             }))
             return
 
@@ -69,53 +77,75 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': message_text,
-                'sender_id': self.user_id,
-                'recipient_id': recipient_id,
+                'sender_id': int(self.user_id),
+                'sender_name': self.user.get('full_name', ''),
+                'recipient_id': int(recipient_id),
                 'message_id': message.id,
                 'timestamp': message.created_at.isoformat(),
             }
         )
 
+        # Send push notification to recipient
+        await self.send_chat_push_notification(
+            recipient_id=recipient_id,
+            sender_name=self.user.get('full_name', 'Someone'),
+            message_text=message_text,
+            booking_id=self.booking_id
+        )
+
     async def chat_message(self, event):
         """Receive message from room group"""
         await self.send(text_data=json.dumps({
+            'type': 'chat_message',
             'message': event['message'],
             'sender_id': event['sender_id'],
+            'sender_name': event.get('sender_name', ''),
             'recipient_id': event['recipient_id'],
             'message_id': event['message_id'],
             'timestamp': event['timestamp'],
         }))
 
     @database_sync_to_async
-    def verify_user_and_token(self, user_id, token):
-        """Verify user exists and JWT token is valid"""
+    def verify_user_and_booking(self, user_id, token, booking_id):
+        """Verify user exists, JWT token is valid, and user belongs to this booking"""
         try:
             if not token:
                 return None
             
-            # Validate JWT token
             jwt_auth = JWTAuthentication()
-            from rest_framework.request import Request
-            from rest_framework.test import APIRequestFactory
-            
-            # Create a fake request to validate token
-            factory = APIRequestFactory()
-            request = factory.get('/', HTTP_AUTHORIZATION=f'Bearer {token}')
-            
             validated_token = jwt_auth.get_validated_token(token)
             user = jwt_auth.get_user(validated_token)
             
-            # Verify user_id matches
             if user.id != int(user_id):
                 return None
-            
+
+            from apps.bookings.models import Booking
+            booking = Booking.objects.select_related('customer__user', 'provider__user').filter(id=booking_id).first()
+            if not booking:
+                return None
+
+            is_customer = bool(booking.customer and booking.customer.user_id == user.id)
+            is_provider = bool(booking.provider and booking.provider.user_id == user.id)
+
+            if not (is_customer or is_provider):
+                return None
+
+            default_recipient_id = None
+            if is_customer and booking.provider:
+                default_recipient_id = booking.provider.user_id
+            elif is_provider and booking.customer:
+                default_recipient_id = booking.customer.user_id
+
             return {
                 'id': user.id,
                 'full_name': user.full_name,
+                'is_customer': is_customer,
+                'is_provider': is_provider,
+                'default_recipient_id': default_recipient_id,
             }
         except (InvalidToken, AuthenticationFailed, ValidationError, ValueError, TypeError):
             return None
-        except User.DoesNotExist:
+        except Exception:
             return None
 
     @database_sync_to_async
@@ -133,6 +163,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return message
         except User.DoesNotExist:
             raise Exception("User not found")
+
+    @database_sync_to_async
+    def send_chat_push_notification(self, recipient_id, sender_name, message_text, booking_id):
+        """Send background push notification to recipient"""
+        try:
+            from apps.notifications.tasks import create_notification_task
+            create_notification_task.delay(
+                user_id=recipient_id,
+                notif_type="chat_message",
+                title=f"New message from {sender_name}",
+                body=message_text[:120],
+                data={"booking_id": str(booking_id), "type": "chat_message"},
+            )
+        except Exception:
+            pass
 
 
 class LocationConsumer(AsyncWebsocketConsumer):
