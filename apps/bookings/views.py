@@ -181,6 +181,7 @@ class BookingAddTipView(BaseResponseMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        from decimal import Decimal
         profile = get_object_or_404(CustomerProfile, user=request.user)
         booking = get_object_or_404(
             Booking, pk=pk, customer=profile, status=Booking.STATUS_COMPLETED
@@ -193,8 +194,32 @@ class BookingAddTipView(BaseResponseMixin, APIView):
         })
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        booking.tip_amount = serializer.validated_data['amount']
+        tip_amount = serializer.validated_data['amount']
+        booking.tip_amount = tip_amount
+        booking.total_amount = (Decimal(str(booking.total_amount)) + Decimal(str(tip_amount))).quantize(Decimal('0.01'))
         booking.save()
+
+        # Update provider earning if already created
+        if hasattr(booking, 'earning'):
+            earning = booking.earning
+            earning.gross_amount = (Decimal(str(earning.gross_amount)) + Decimal(str(tip_amount))).quantize(Decimal('0.01'))
+            earning.net_amount = (Decimal(str(earning.net_amount)) + Decimal(str(tip_amount))).quantize(Decimal('0.01'))
+            earning.save()
+
+        # Send push notification to provider
+        if booking.provider and booking.provider.user:
+            try:
+                from apps.notifications.tasks import create_notification_task
+                create_notification_task.delay(
+                    user_id=booking.provider.user.id,
+                    notif_type="tip_received",
+                    title="You received a tip! 💰",
+                    body=f"The customer added a €{tip_amount} tip for Booking #{booking.id}.",
+                    data={"booking_id": str(booking.id), "type": "tip_received"}
+                )
+            except Exception:
+                pass
+
         return self.created_response(
             data=serializer.data, message="Tip added successfully."
         )
@@ -226,6 +251,21 @@ class BookingRateView(BaseResponseMixin, APIView):
         )['stars__avg']
         provider.average_rating = round(avg or 0, 2)
         provider.save()
+
+        # Send push notification to provider
+        if booking.provider and booking.provider.user:
+            try:
+                from apps.notifications.tasks import create_notification_task
+                create_notification_task.delay(
+                    user_id=booking.provider.user.id,
+                    notif_type="review_received",
+                    title="New Review Received ⭐",
+                    body=f"The customer gave you a {rating.stars}-star rating.",
+                    data={"booking_id": str(booking.id), "type": "review_received"}
+                )
+            except Exception:
+                pass
+
         return self.created_response(
             data=RatingSerializer(rating).data, message="Rating submitted."
         )

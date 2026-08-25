@@ -53,9 +53,15 @@ def calculate_provider_earning(booking) -> dict:
     config = PlatformConfig.objects.first()
     commission_pct = Decimal(str(config.commission_percent)) if config else Decimal('15')
 
-    gross_amount = Decimal(str(booking.total_amount))
-    platform_fee = (gross_amount * commission_pct / Decimal('100')).quantize(Decimal('0.01'))
-    net_amount = (gross_amount - platform_fee).quantize(Decimal('0.01'))
+    tip = Decimal(str(booking.tip_amount)) if getattr(booking, 'tip_amount', None) else Decimal('0')
+    total = Decimal(str(booking.total_amount))
+    base_amount = total - tip
+    if base_amount < Decimal('0'):
+        base_amount = total
+
+    platform_fee = (base_amount * commission_pct / Decimal('100')).quantize(Decimal('0.01'))
+    net_amount = (base_amount - platform_fee + tip).quantize(Decimal('0.01'))
+    gross_amount = (base_amount + tip).quantize(Decimal('0.01'))
 
     return {
         'gross_amount': gross_amount,

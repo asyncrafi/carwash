@@ -16,6 +16,7 @@ def seed_all_data():
         'dirt_levels': seed_dirt_levels(),
         'services': seed_services(),
         'platform_config': seed_platform_config(),
+        'app_settings': seed_app_settings(),
     }
     return result
 
@@ -245,3 +246,65 @@ def seed_platform_config():
         'total': 1,
         'message': f'Platform config: {"created" if created else "already exists"}'
     }
+
+
+def seed_app_settings():
+    """Seed default global app settings (Privacy Policy, Terms, About Us, FAQ)."""
+    from apps.services.models import AppSetting
+
+    settings_data = [
+        {
+            'settings_type': 'privacy',
+            'content': """<h2>Privacy Policy</h2>
+<p>At Rince Carwash, we are committed to protecting your privacy. This policy outlines how we collect, use, and safeguard your personal information when using our mobile application and website.</p>
+<h3>1. Information We Collect</h3>
+<p>We collect information such as your name, phone number, email address, vehicle details, location data, and payment information necessary to facilitate bookings.</p>
+<h3>2. How We Use Information</h3>
+<p>Your data is used solely to process car wash requests, dispatch providers, process secure payments, and provide customer support.</p>
+<h3>3. Security</h3>
+<p>We implement industry-standard encryption and security measures to protect your personal information.</p>""",
+        },
+        {
+            'settings_type': 'terms',
+            'content': """<h2>Terms & Conditions</h2>
+<p>Welcome to Rince Carwash. By accessing or using our platform, you agree to be bound by these Terms and Conditions.</p>
+<h3>1. Services</h3>
+<p>Rince provides an on-demand mobile car wash booking platform connecting customers with professional service providers.</p>
+<h3>2. Payments & Cancellations</h3>
+<p>Payments are processed securely via Stripe. Cancellations made prior to provider dispatch are eligible for a full refund according to our cancellation policy.</p>
+<h3>3. User Conduct</h3>
+<p>Users must provide accurate vehicle location and ensure a safe working environment for service providers.</p>""",
+        },
+        {
+            'settings_type': 'about_us',
+            'content': """<h2>About Rince Carwash</h2>
+<p>Rince is your premier on-demand car wash service, bringing professional detailing directly to your doorstep. We combine eco-friendly wash techniques with high-efficiency scheduling to keep your vehicle spotless anywhere, anytime.</p>""",
+        },
+        {
+            'settings_type': 'faq',
+            'content': """<h2>Frequently Asked Questions</h2>
+<h3>How does on-demand car washing work?</h3>
+<p>Simply select your vehicle type, choose a wash package, set your location, and request a wash. An available nearby provider will accept and arrive at your location.</p>
+<h3>Do I need to be present during the wash?</h3>
+<p>For exterior washes, you don't need to be present as long as the vehicle is accessible. For interior detailing, access to the vehicle is required.</p>
+<h3>What payment methods are supported?</h3>
+<p>We support all major credit/debit cards, Apple Pay, and Google Pay through Stripe secure checkout.</p>""",
+        },
+    ]
+
+    created_count = 0
+    for s_data in settings_data:
+        setting, created = AppSetting.objects.get_or_create(
+            user=None,
+            settings_type=s_data['settings_type'],
+            defaults={'content': s_data['content']}
+        )
+        if created:
+            created_count += 1
+
+    return {
+        'created': created_count,
+        'total': len(settings_data),
+        'message': f'App settings: {created_count} created'
+    }
+

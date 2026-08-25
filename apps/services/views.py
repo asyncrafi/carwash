@@ -144,6 +144,10 @@ class PublicAppSettingListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        from .seed_data import seed_app_settings
+        if not AppSetting.objects.filter(user=None).exists():
+            seed_app_settings()
+
         settings_type = request.query_params.get('type')
         qs = AppSetting.objects.filter(user=None)
         if settings_type:
@@ -157,7 +161,31 @@ class PublicAppSettingDetailView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, settings_type):
-        setting = get_object_or_404(AppSetting, user=None, settings_type=settings_type)
+        from .seed_data import seed_app_settings
+        TYPE_MAP = {
+            'privacy': 'privacy',
+            'privacy-policy': 'privacy',
+            'privacy_policy': 'privacy',
+            'terms': 'terms',
+            'terms-and-conditions': 'terms',
+            'terms_and_conditions': 'terms',
+            'terms-of-service': 'terms',
+            'terms_of_service': 'terms',
+            'about': 'about_us',
+            'about-us': 'about_us',
+            'about_us': 'about_us',
+            'faq': 'faq',
+            'faqs': 'faq',
+        }
+        normalized = TYPE_MAP.get(settings_type.lower().strip(), settings_type.lower().strip())
+        setting = AppSetting.objects.filter(user=None, settings_type=normalized).first()
+        if not setting:
+            seed_app_settings()
+            setting = AppSetting.objects.filter(user=None, settings_type=normalized).first()
+
+        if not setting:
+            return Response({'detail': f'App setting "{settings_type}" not found.'}, status=status.HTTP_404_NOT_FOUND)
+
         serializer = AppSettingSerializer(setting)
         return Response(serializer.data)
 
