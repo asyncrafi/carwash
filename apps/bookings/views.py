@@ -193,8 +193,31 @@ class BookingAddTipView(BaseResponseMixin, APIView):
             'amount': request.data.get('amount'),
         })
         serializer.is_valid(raise_exception=True)
-        serializer.save()
         tip_amount = serializer.validated_data['amount']
+
+        # Create Stripe PaymentIntent for the tip if Stripe is configured
+        client_secret = None
+        payment_intent_id = None
+        if settings.STRIPE_SECRET_KEY:
+            try:
+                stripe.api_key = settings.STRIPE_SECRET_KEY
+                amount_cents = int((Decimal(str(tip_amount)) * 100).to_integral_value())
+                intent = stripe.PaymentIntent.create(
+                    amount=amount_cents,
+                    currency='eur',
+                    metadata={
+                        'booking_id': str(booking.id),
+                        'customer_id': str(profile.id),
+                        'type': 'tip',
+                    },
+                    description=f"Tip for Booking #{booking.id}",
+                )
+                client_secret = intent.client_secret
+                payment_intent_id = intent.id
+            except Exception:
+                pass
+
+        serializer.save()
         booking.tip_amount = tip_amount
         booking.total_amount = (Decimal(str(booking.total_amount)) + Decimal(str(tip_amount))).quantize(Decimal('0.01'))
         booking.save()
@@ -205,6 +228,19 @@ class BookingAddTipView(BaseResponseMixin, APIView):
             earning.gross_amount = (Decimal(str(earning.gross_amount)) + Decimal(str(tip_amount))).quantize(Decimal('0.01'))
             earning.net_amount = (Decimal(str(earning.net_amount)) + Decimal(str(tip_amount))).quantize(Decimal('0.01'))
             earning.save()
+
+            # If payout was already released before tip, transfer tip directly to provider's Stripe Connect account
+            if earning.is_paid_out and booking.provider and booking.provider.stripe_account_id and settings.STRIPE_SECRET_KEY:
+                try:
+                    stripe.api_key = settings.STRIPE_SECRET_KEY
+                    stripe.Transfer.create(
+                        amount=int((Decimal(str(tip_amount)) * 100).to_integral_value()),
+                        currency='eur',
+                        destination=booking.provider.stripe_account_id,
+                        metadata={'booking_id': str(booking.id), 'type': 'tip_transfer'},
+                    )
+                except Exception:
+                    pass
 
         # Send push notification to provider
         if booking.provider and booking.provider.user:
@@ -220,8 +256,13 @@ class BookingAddTipView(BaseResponseMixin, APIView):
             except Exception:
                 pass
 
+        response_data = dict(serializer.data)
+        if client_secret:
+            response_data['client_secret'] = client_secret
+            response_data['payment_intent_id'] = payment_intent_id
+
         return self.created_response(
-            data=serializer.data, message="Tip added successfully."
+            data=response_data, message="Tip added successfully."
         )
 
 
