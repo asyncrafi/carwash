@@ -21,7 +21,7 @@ from apps.services.models import Service
 from apps.core.utils import haversine_distance_km
 
 
-from apps.payments.views import get_stripe_val
+from apps.payments.views import get_stripe_val, is_stripe_account_mismatch_error
 
 
 def _ensure_provider_onboarding_ready(request, profile, action):
@@ -32,6 +32,9 @@ def _ensure_provider_onboarding_ready(request, profile, action):
             'onboarding_url': None,
             'account_id': None,
         }
+
+    return_url = request.build_absolute_uri('/api/health/')
+    refresh_url = request.build_absolute_uri('/api/health/')
 
     try:
         if not profile.stripe_account_id:
@@ -61,8 +64,6 @@ def _ensure_provider_onboarding_ready(request, profile, action):
                 'account_id': profile.stripe_account_id,
             }
 
-        return_url = request.build_absolute_uri('/api/health/')
-        refresh_url = request.build_absolute_uri('/api/health/')
         account_link = stripe.AccountLink.create(
             account=profile.stripe_account_id,
             refresh_url=refresh_url,
@@ -82,6 +83,34 @@ def _ensure_provider_onboarding_ready(request, profile, action):
             error_msg = e.error.message
         if not error_msg:
             error_msg = str(e)
+        error_code = getattr(e, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR'
+
+        if is_stripe_account_mismatch_error(error_msg, error_code):
+            try:
+                account = stripe.Account.create(
+                    type='standard',
+                    email=profile.user.email,
+                    metadata={'provider_profile_id': str(profile.id)},
+                )
+                profile.stripe_account_id = get_stripe_val(account, 'id')
+                profile.stripe_onboarding_complete = False
+                profile.save(update_fields=['stripe_account_id', 'stripe_onboarding_complete'])
+
+                account_link = stripe.AccountLink.create(
+                    account=profile.stripe_account_id,
+                    refresh_url=refresh_url,
+                    return_url=return_url,
+                    type='account_onboarding',
+                )
+                return False, {
+                    'requires_onboarding': True,
+                    'message': f'Complete your Stripe payout setup before you can {action}.',
+                    'onboarding_url': get_stripe_val(account_link, 'url'),
+                    'account_id': profile.stripe_account_id,
+                }
+            except stripe.error.StripeError as retry_err:
+                error_msg = getattr(retry_err, 'user_message', None) or str(retry_err)
+
         return False, {
             'requires_onboarding': True,
             'message': error_msg,
@@ -102,10 +131,25 @@ class ProviderStripeConnectView(BaseResponseMixin, APIView):
 
         profile = get_object_or_404(ProviderProfile, user=request.user)
         if profile.stripe_account_id:
-            return self.success_response(
-                data={'account_id': profile.stripe_account_id, 'already_exists': True},
-                message="Stripe account already exists.",
-            )
+            try:
+                stripe.Account.retrieve(profile.stripe_account_id)
+                return self.success_response(
+                    data={'account_id': profile.stripe_account_id, 'already_exists': True},
+                    message="Stripe account already exists.",
+                )
+            except stripe.error.StripeError as check_err:
+                check_msg = getattr(check_err, 'user_message', None) or str(check_err)
+                check_code = getattr(check_err, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR'
+                if not is_stripe_account_mismatch_error(check_msg, check_code):
+                    return self.error_response(
+                        message=check_msg,
+                        error_code=check_code,
+                        status_code=400,
+                    )
+                # Stale or mismatched ID -> reset and re-create below
+                profile.stripe_account_id = ''
+                profile.stripe_onboarding_complete = False
+                profile.save(update_fields=['stripe_account_id', 'stripe_onboarding_complete'])
 
         try:
             account = stripe.Account.create(
@@ -144,13 +188,25 @@ class ProviderStripeAccountLinkView(BaseResponseMixin, APIView):
             )
 
         profile = get_object_or_404(ProviderProfile, user=request.user)
-        if not profile.stripe_account_id:
-            return self.bad_request_response(
-                message="Provider Stripe account has not been created yet."
-            )
-
         return_url = request.data.get('return_url') or request.build_absolute_uri('/api/health/')
         refresh_url = request.data.get('refresh_url') or request.build_absolute_uri('/api/health/')
+
+        if not profile.stripe_account_id:
+            try:
+                account = stripe.Account.create(
+                    type='standard',
+                    email=request.user.email,
+                    metadata={'provider_profile_id': str(profile.id)},
+                )
+                profile.stripe_account_id = get_stripe_val(account, 'id')
+                profile.save(update_fields=['stripe_account_id'])
+            except stripe.error.StripeError as e:
+                error_msg = getattr(e, 'user_message', None) or str(e)
+                return self.error_response(
+                    message=error_msg,
+                    error_code=getattr(e, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR',
+                    status_code=400,
+                )
 
         try:
             account_link = stripe.AccountLink.create(
@@ -170,9 +226,37 @@ class ProviderStripeAccountLinkView(BaseResponseMixin, APIView):
                 error_msg = e.error.message
             if not error_msg:
                 error_msg = str(e)
+            error_code = getattr(e, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR'
+
+            if is_stripe_account_mismatch_error(error_msg, error_code):
+                try:
+                    account = stripe.Account.create(
+                        type='standard',
+                        email=request.user.email,
+                        metadata={'provider_profile_id': str(profile.id)},
+                    )
+                    profile.stripe_account_id = get_stripe_val(account, 'id')
+                    profile.stripe_onboarding_complete = False
+                    profile.save(update_fields=['stripe_account_id', 'stripe_onboarding_complete'])
+
+                    account_link = stripe.AccountLink.create(
+                        account=profile.stripe_account_id,
+                        refresh_url=refresh_url,
+                        return_url=return_url,
+                        type='account_onboarding',
+                    )
+                    url = get_stripe_val(account_link, 'url')
+                    return self.success_response(
+                        data={'url': url, 'account_id': profile.stripe_account_id},
+                        message='Stripe onboarding link generated successfully.'
+                    )
+                except stripe.error.StripeError as retry_err:
+                    error_msg = getattr(retry_err, 'user_message', None) or str(retry_err)
+                    error_code = getattr(retry_err, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR'
+
             return self.error_response(
                 message=error_msg,
-                error_code=getattr(e, 'code', 'STRIPE_ERROR') or 'STRIPE_ERROR',
+                error_code=error_code,
                 status_code=400,
             )
 

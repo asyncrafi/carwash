@@ -39,3 +39,30 @@ class ProviderOnboardingGateTests(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json()['error_code'], 'STRIPE_ONBOARDING_REQUIRED')
         self.assertIn('Complete your Stripe payout setup before you can go online.', response.json()['message'])
+
+    @patch('apps.providers.views.stripe.Account.create')
+    @patch('apps.providers.views.stripe.AccountLink.create')
+    def test_provider_account_link_auto_heals_mismatch(self, mock_account_link, mock_account):
+        import stripe
+        self.profile.stripe_account_id = 'acct_old_test'
+        self.profile.save(update_fields=['stripe_account_id'])
+
+        mismatch_err = stripe.error.InvalidRequestError(
+            message='You tried to create a live mode account link for an account that was created in test mode.',
+            param=None,
+            code=None,
+        )
+        mock_account.return_value = {'id': 'acct_new_live'}
+        mock_account_link.side_effect = [
+            mismatch_err,
+            {'url': 'https://stripe.test/new_link'},
+        ]
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/api/provider/stripe/account-link/', {}, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['data']['account_id'], 'acct_new_live')
+        self.assertEqual(response.json()['data']['url'], 'https://stripe.test/new_link')
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.stripe_account_id, 'acct_new_live')

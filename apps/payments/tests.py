@@ -55,6 +55,33 @@ class StripeConnectFlowTest(TestCase):
         self.provider.refresh_from_db()
         self.assertEqual(self.provider.stripe_account_id, 'acct_123')
 
+    @patch('apps.payments.views.stripe.Account.create')
+    @patch('apps.payments.views.stripe.AccountLink.create')
+    def test_connect_onboarding_auto_heals_when_test_live_mode_mismatch(self, mock_account_link, mock_account):
+        import stripe
+        self.provider.stripe_account_id = 'acct_old_test'
+        self.provider.save(update_fields=['stripe_account_id'])
+
+        mismatch_err = stripe.error.InvalidRequestError(
+            message='You tried to create a live mode account link for an account that was created in test mode.',
+            param=None,
+            code=None,
+        )
+        mock_account.return_value = {'id': 'acct_new_live'}
+        mock_account_link.side_effect = [
+            mismatch_err,
+            {'url': 'https://connect.stripe.test/new_onboard'},
+        ]
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/api/payments/connect/onboard/', {}, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['data']['account_id'], 'acct_new_live')
+        self.assertEqual(response.data['data']['onboarding_url'], 'https://connect.stripe.test/new_onboard')
+        self.provider.refresh_from_db()
+        self.assertEqual(self.provider.stripe_account_id, 'acct_new_live')
+
     @patch('apps.payments.views.stripe.Transfer.create')
     def test_release_payout_creates_transfer_for_completed_booking(self, mock_transfer):
         mock_transfer.return_value = {'id': 'tr_123'}
